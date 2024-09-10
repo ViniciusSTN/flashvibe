@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Footer from '@/components/Footer'
+import RecoilContextProvider from '@/lib/recoilContextProvider'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -18,8 +19,10 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={montserrat.className}>
-        {children}
-        <Footer />
+        <RecoilContextProvider>
+          {children}
+          <Footer />
+        </RecoilContextProvider>
       </body>
     </html>
   )

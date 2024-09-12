@@ -2,6 +2,7 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
+import { auth } from '@/lib/firebase'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
 import { showPasswordAtom } from '@/states'
@@ -10,6 +11,11 @@ import {
   FormRegisterValues,
   InputName,
 } from '@/types/register'
+import {
+  getAdditionalUserInfo,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -87,8 +93,34 @@ export const RegisterFormSection = () => {
         ...validation.error.formErrors.fieldErrors,
       })
     }
+    // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+  }
 
-    // enviar dado de email para o backend enviar um código de confirmação no email
+  const handleGoogleRegister = async () => {
+    try {
+      const googleProvider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, googleProvider)
+      console.log(result)
+
+      if (result) {
+        const additionalUserInfo = getAdditionalUserInfo(result)
+
+        if (additionalUserInfo) {
+          const isNewUser = additionalUserInfo.isNewUser
+          if (isNewUser) {
+            const { displayName, email } = result.user
+            console.log(displayName?.split(' ')[0], email)
+            // enviar dados para o backend criar um novo registro no BD
+            // enviar dados para o backend logar o usuário
+            // redirecionar para a home e mostrar um toast de sucesso
+          } else {
+            // enviar dados para o backend logar o usuário
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login com o Google:', error)
+    }
   }
 
   return (
@@ -155,7 +187,7 @@ export const RegisterFormSection = () => {
         </p>
 
         <div className="flex items-center justify-center gap-8">
-          <button>
+          <button onClick={handleGoogleRegister}>
             <Image
               className="transition-all hover:scale-105"
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/google-icon.svg?alt=media&token=c5a5060a-2bad-473a-b126-f63fe5a937cc"

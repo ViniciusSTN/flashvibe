@@ -11,12 +11,14 @@ export const ButtonDefault: ButtonType = ({
   paddingx = 'px-0',
   paddingy = 'px-0',
   tailwind,
+  submit = false,
 }) => {
   return (
     <>
       {style === 'dark' && type === 'button' && (
         <button
           className={`bg-principal-blue text-base font-medium text-white transition-colors hover:text-light-blue200 active:outline active:outline-2 active:outline-secondary-blue ${shadow && 'shadow-md shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          type={submit ? 'submit' : 'button'}
         >
           {text}
         </button>
@@ -27,6 +29,7 @@ export const ButtonDefault: ButtonType = ({
         <Link
           href={link}
           className={`bg-white text-base font-semibold text-principal-blue transition-colors hover:text-light-blue900 active:outline active:outline-2 active:outline-light-blue900 ${shadow && 'shadow-md shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          type={submit ? 'submit' : 'button'}
         >
           {text}
         </Link>

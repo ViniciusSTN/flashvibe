@@ -38,6 +38,7 @@ export type ButtonProps = {
     | 'py-10'
   shadow?: boolean
   tailwind?: string
+  submit?: boolean
 }
 
 export type ButtonType = (props: ButtonProps) => JSX.Element

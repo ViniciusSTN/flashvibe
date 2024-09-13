@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove spinners in input type number */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Removes the spin buttons in Webkit browsers */
+  margin: 0; /* Removes the default margin */
+}
+
+input[type='number'] {
+  -moz-appearance: textfield; /* Removes the spin buttons in Firefox */
+  appearance: none;
+}
+
 /* Imput - InputDefault */
 .inputDefault {
   width: 100%;

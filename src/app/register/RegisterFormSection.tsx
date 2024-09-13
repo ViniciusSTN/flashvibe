@@ -6,6 +6,7 @@ import { auth } from '@/lib/firebase'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
 import { showPasswordAtom } from '@/states'
+import { userEmailAtom } from '@/states/atoms/userEmail'
 import { CreateNewUserType } from '@/types/createNewUser'
 import {
   FormRegisterErrors,
@@ -22,7 +23,7 @@ import {
 import Image from 'next/image'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 
 const initialValues: FormRegisterValues = {
   name: '',
@@ -47,7 +48,7 @@ export const RegisterFormSection = () => {
     useState<FormRegisterErrors>(initialErrors)
 
   const [showPassword, setShowPassword] = useRecoilState(showPasswordAtom)
-  const showPasswordValue = useRecoilValue(showPasswordAtom)
+  const setUserEmail = useSetRecoilState(userEmailAtom)
 
   function handleShowPasswordClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
@@ -122,6 +123,9 @@ export const RegisterFormSection = () => {
           const isNewUser = additionalUserInfo.isNewUser
           if (isNewUser) {
             const { displayName, email } = result.user
+
+            if (email) setUserEmail(email)
+
             console.log(displayName?.split(' ')[0], email)
             // enviar dados para o backend criar um novo registro no BD
             // enviar dados para o backend logar o usuário
@@ -146,7 +150,7 @@ export const RegisterFormSection = () => {
   return (
     <section className="flex grow items-center justify-center px-6 py-10">
       <div className="flex w-full max-w-96 flex-col gap-3">
-        <h1 className="text-center text-2xl font-bold text-principal-blue">
+        <h1 className="text-center text-3xl font-bold text-principal-blue">
           Criar uma conta
         </h1>
 
@@ -179,7 +183,7 @@ export const RegisterFormSection = () => {
             </span>
             <Image
               src={
-                showPasswordValue
+                showPassword
                   ? `https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/eye.svg?alt=media&token=813e59ce-db08-487c-9291-492980df70d0`
                   : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/hide.svg?alt=media&token=db2bde40-7faa-4529-a569-77795e99fe7f'
               }
@@ -198,6 +202,7 @@ export const RegisterFormSection = () => {
               paddingx="px-10"
               paddingy="py-2"
               shadow
+              submit
             />
           </div>
         </form>

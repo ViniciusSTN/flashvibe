@@ -6,18 +6,22 @@ import { auth } from '@/lib/firebase'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
 import { showPasswordAtom } from '@/states'
+import { CreateNewUserType } from '@/types/createNewUser'
 import {
   FormRegisterErrors,
   FormRegisterValues,
   InputName,
 } from '@/types/register'
 import {
+  AuthError,
+  FacebookAuthProvider,
   getAdditionalUserInfo,
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth'
 import Image from 'next/image'
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 const initialValues: FormRegisterValues = {
@@ -53,6 +57,7 @@ export const RegisterFormSection = () => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
 
+    // limpar erros
     if (formErrors[name as InputName].length > 0)
       setFormErrors((prevErrors) => ({
         ...prevErrors,
@@ -97,10 +102,18 @@ export const RegisterFormSection = () => {
   }
 
   const handleGoogleRegister = async () => {
+    const googleProvider = new GoogleAuthProvider()
+    createNewUser(googleProvider)
+  }
+
+  const handleFacebookLogin = async () => {
+    const facebookProvider = new FacebookAuthProvider()
+    createNewUser(facebookProvider)
+  }
+
+  const createNewUser: CreateNewUserType = async (provider) => {
     try {
-      const googleProvider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, googleProvider)
-      console.log(result)
+      const result = await signInWithPopup(auth, provider)
 
       if (result) {
         const additionalUserInfo = getAdditionalUserInfo(result)
@@ -119,7 +132,14 @@ export const RegisterFormSection = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao fazer login com o Google:', error)
+      if (
+        (error as AuthError).code ===
+        'auth/account-exists-with-different-credential'
+      ) {
+        toast.warning('E-mail já está vinculado a outro método de login')
+      } else {
+        console.error('Erro ao fazer login: ', error)
+      }
     }
   }
 
@@ -197,7 +217,7 @@ export const RegisterFormSection = () => {
             />
           </button>
 
-          <button>
+          <button onClick={handleFacebookLogin}>
             <Image
               className="transition-all hover:scale-105"
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/icons8-facebook.svg?alt=media&token=4f134bb3-a925-4526-9939-68b9265bbaee"

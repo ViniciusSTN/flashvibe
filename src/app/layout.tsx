@@ -3,6 +3,8 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Footer from '@/components/Footer'
 import RecoilContextProvider from '@/lib/recoilContextProvider'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -20,6 +22,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body className={montserrat.className}>
         <RecoilContextProvider>
+          <ToastContainer />
           {children}
           <Footer />
         </RecoilContextProvider>

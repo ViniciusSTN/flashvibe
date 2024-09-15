@@ -11,8 +11,9 @@ export const ConfirmationSection = () => {
 
   if (!email) redirect('/')
 
-  const [inputs, setInputs] = useState(Array(5).fill(''))
+  const [inputs, setInputs] = useState(Array(6).fill(''))
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
+  const [counter, setCounter] = useState<number>(60)
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -53,7 +54,7 @@ export const ConfirmationSection = () => {
   function handleFormSubmit(event: React.FormEvent) {
     event.preventDefault()
     // enviar código para o backend validar se é o mesmo enviado no email
-    // enviar dados para o banckedn criar novo usuário
+    // enviar dados para o backend criar novo usuário
     // registar usuário no firebase
   }
 
@@ -62,6 +63,21 @@ export const ConfirmationSection = () => {
       inputRefs.current[focusedIndex]?.focus()
     }
   }, [focusedIndex])
+
+  useEffect(() => {
+    function callBack() {
+      if (counter > 0) setCounter((prevState) => prevState - 1)
+    }
+
+    const interval = setInterval(callBack, 1000)
+
+    return () => clearInterval(interval)
+  }, [counter])
+
+  function handleResendClick() {
+    setCounter(60)
+    // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+  }
 
   return (
     <section className="flex grow items-center justify-center px-6 py-10">
@@ -97,10 +113,16 @@ export const ConfirmationSection = () => {
           </div>
 
           <div className="mb-12 flex items-center gap-3 font-medium text-principal-blue">
-            <span className="rounded border border-principal-blue p-2 text-xl">
-              60
+            <span className="flex h-11 w-11 items-center justify-center rounded border border-principal-blue text-xl">
+              {counter}
             </span>
-            <button>Reenviar código</button>
+            <button
+              disabled={counter > 0}
+              className="disabled:cursor-not-allowed disabled:text-light-gray250"
+              onClick={handleResendClick}
+            >
+              Reenviar código
+            </button>
           </div>
 
           <ButtonDefault

@@ -1,10 +1,10 @@
 'use client'
 
-import { userEmailAtom } from '@/states/atoms/userEmail'
 import { useRecoilValue } from 'recoil'
 import { redirect } from 'next/navigation'
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { useState, useEffect, useRef } from 'react'
+import { userEmailAtom } from '@/states'
 
 export const ConfirmationSection = () => {
   const email = useRecoilValue(userEmailAtom)
@@ -103,7 +103,7 @@ export const ConfirmationSection = () => {
                 value={value}
                 onChange={(e) => handleInputChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="h-10 w-10 bg-light-gray200 text-center text-xl font-bold"
+                className="h-8 w-8 bg-light-gray200 text-center text-xl font-bold sm:h-10 sm:w-10"
                 ref={(el) => {
                   inputRefs.current[index] = el
                 }}
@@ -131,6 +131,7 @@ export const ConfirmationSection = () => {
             submit
             paddingx="px-6"
             paddingy="py-2"
+            shadow
           />
         </form>
       </div>

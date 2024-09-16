@@ -5,8 +5,7 @@ import { InputDefault } from '@/components/InputDefault'
 import { auth } from '@/lib/firebase'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
-import { showPasswordAtom } from '@/states'
-import { userEmailAtom } from '@/states/atoms/userEmail'
+import { showPasswordAtom, userEmailAtom } from '@/states'
 import { CreateNewUserType } from '@/types/createNewUser'
 import {
   FormRegisterErrors,

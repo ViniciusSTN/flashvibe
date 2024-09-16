@@ -25,9 +25,10 @@ module.exports = {
         'light-gray250': '#A4A6AA',
         'light-gray225': '#C8C9CB',
         'light-gray200': '#ECEBEB',
+        'light-gray50': '#F8F8F8',
       },
       spacing: {
-        'screen-header': 'calc(100vh - 72px)',
+        'screen-header': 'calc(100vh - 62px)',
         '530px': '33.125rem',
         '718px': '44.875rem',
         '1248px': '78rem',
@@ -46,8 +47,10 @@ module.exports = {
       // },
       // gridTemplateColumns: {
       // },
-      // boxShadow: {
-      // },
+      boxShadow: {
+        clean: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;',
+        sla: '1px 2px 6px 2px rgba(100, 100, 111, 0.2);',
+      },
     },
   },
   plugins: [],

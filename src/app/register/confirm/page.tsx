@@ -3,6 +3,7 @@ import { Header } from '@/components/Header'
 import { register } from '@/mocks/metadatas'
 import { ConfirmationSection } from './ConfirmationSection'
 import { WelcomeBackSection } from '../WelcomeBackSection'
+import Footer from '@/components/Footer'
 
 export const metadata: Metadata = { ...register }
 
@@ -11,10 +12,15 @@ export default function Register() {
     <>
       <Header short />
 
-      <main className="relative left-1/2 flex max-w-1248px -translate-x-1/2 flex-row-reverse flex-wrap justify-center vsm:mb-16 vsm:mt-10 vsm:rounded-2xl vsm:shadow-lg">
-        <ConfirmationSection />
-        <WelcomeBackSection />
+      {/* className="relative left-1/2 flex max-w-1248px -translate-x-1/2 flex-row-reverse flex-wrap justify-center vsm:mb-16 vsm:mt-10 vsm:rounded-2xl vsm:shadow-lg" */}
+      <main className="flex min-h-screen-header items-center justify-center">
+        <div className="vsm:clean-box-shadow vsm:shadow-clean vsm:rounded-2xls relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center">
+          <ConfirmationSection />
+          <WelcomeBackSection />
+        </div>
       </main>
+
+      <Footer theme="light" />
     </>
   )
 }

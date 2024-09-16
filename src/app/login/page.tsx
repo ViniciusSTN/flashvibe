@@ -1,33 +1,26 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import { Metadata } from 'next'
+import { Header } from '@/components/Header'
+import { register } from '@/mocks/metadatas'
+import Footer from '@/components/Footer'
+import { LoginFormSection } from './LoginFormSection'
+import { FirstTimeSection } from './FirstTimeSection'
 
-export default function Register() {
+export const metadata: Metadata = { ...register }
+
+export default function Login() {
   return (
-    <div>
-      <div className="bg-light-blue900 p-5">
-        <Image
-          src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/logo-2.svg?alt=media&token=e631c314-ed21-4534-af6c-53ef41630d9b"
-          alt="sla"
-          width={62}
-          height={52}
-        />
+    <>
+      <Header short />
 
-        <h1>Criar uma conta</h1>
+      {/* className="relative left-1/2 flex max-w-1248px -translate-x-1/2 flex-row-reverse flex-wrap justify-center vsm:mb-16 vsm:mt-10 vsm:rounded-2xl vsm:shadow-lg" */}
+      <main className="flex min-h-screen-header items-center justify-center">
+        <div className="vsm:clean-box-shadow relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center vsm:rounded-2xl vsm:shadow-clean">
+          <LoginFormSection />
+          <FirstTimeSection />
+        </div>
+      </main>
 
-        <form action="" className="">
-          <input type="text" placeholder="Nome" />
-          <input type="text" placeholder="Apelido" />
-          <input type="text" placeholder="Email" />
-          <input type="text" placeholder="Senha" />
-          <input type="text" placeholder="Confirmar senha" />
-          <button>Ver senha</button>
-          <button>Cadastrar</button>
-        </form>
-      </div>
-
-      <div className="flex items-center justify-center bg-sky-700 p-36">
-        <Link href="/register">Registrar</Link>
-      </div>
-    </div>
+      <Footer theme="light" />
+    </>
   )
 }

@@ -32,6 +32,9 @@ input[type='number'] {
 .inputDefault:focus, .inputDefault:active {
   border: 2px solid rgb(124, 138, 255);
 }
+.inputDefaultError {
+  border: 2px solid rgb(255, 0, 0);
+}
 
 /* Loader - RotatingClipLoader  */
 .rotatingClipLoader {

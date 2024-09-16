@@ -14,7 +14,7 @@ export default function Register() {
 
       {/* className="relative left-1/2 flex max-w-1248px -translate-x-1/2 flex-row-reverse flex-wrap justify-center vsm:mb-16 vsm:mt-10 vsm:rounded-2xl vsm:shadow-lg" */}
       <main className="flex min-h-screen-header items-center justify-center">
-        <div className="vsm:clean-box-shadow vsm:shadow-clean relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center vsm:rounded-2xl">
+        <div className="vsm:clean-box-shadow relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center vsm:rounded-2xl vsm:shadow-clean">
           <RegisterFormSection />
           <WelcomeBackSection />
         </div>

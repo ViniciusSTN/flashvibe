@@ -22,7 +22,7 @@ export const InputDefault: InputType = ({
   return (
     <div className={`relative ${tailwind}`}>
       <input
-        className="inputDefault"
+        className={`inputDefault ${error?.length > 0 && 'inputDefaultError'}`}
         type={type}
         placeholder={placeholder}
         name={name}
@@ -39,7 +39,7 @@ export const InputDefault: InputType = ({
           />
         )}
       </span>
-      {error.length > 0 && (
+      {error?.length > 0 && (
         <small className="block text-red-600">{error[0]}</small>
       )}
     </div>

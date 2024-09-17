@@ -61,7 +61,8 @@ export const LoginFormSection = () => {
 
   async function loginWithNumber(phone: string, password: string) {
     console.log(phone, password)
-    // terminar código
+    // enviar número de celular para o backend devolver para o front o email associado a aquele celular
+    // logar o usuário usando o email e senha dele
   }
 
   async function loginWithEmail(sentEmail: string, sentPassword: string) {

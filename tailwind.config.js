@@ -29,6 +29,7 @@ module.exports = {
       },
       spacing: {
         'screen-header': 'calc(100vh - 62px)',
+        '464px': '29rem',
         '530px': '33.125rem',
         '718px': '44.875rem',
         '1248px': '78rem',

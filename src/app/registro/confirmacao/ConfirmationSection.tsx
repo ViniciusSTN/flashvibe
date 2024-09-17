@@ -1,19 +1,27 @@
 'use client'
 
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { redirect } from 'next/navigation'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import { useState, useEffect, useRef } from 'react'
-import { userEmailAtom } from '@/states'
+import { useState, useRef, useEffect } from 'react'
+import { resendCounterAtom, userEmailAtom, userNameAtom } from '@/states'
+import { ResendComponent } from '@/components/ResendComponent'
+import {
+  sendConfirmationCodeToEmail,
+  verifyConfirmationCode,
+} from '@/data/sendCodeToEmail'
 
 export const ConfirmationSection = () => {
   const email = useRecoilValue(userEmailAtom)
+  const name = useRecoilValue(userNameAtom)
 
   if (!email) redirect('/')
 
   const [inputs, setInputs] = useState(Array(6).fill(''))
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
-  const [counter, setCounter] = useState<number>(60)
+  const [loader, setLoader] = useState<boolean>(false)
+
+  const setCounter = useSetRecoilState(resendCounterAtom)
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -51,11 +59,27 @@ export const ConfirmationSection = () => {
     }
   }
 
-  function handleFormSubmit(event: React.FormEvent) {
-    event.preventDefault()
+  async function handleConfitmationCode() {
+    setLoader(true)
+    // se um ou mais campo não for preenchido, mostrar erro
+
+    const code = inputs.reduce((acc, value) => acc + value)
+    console.log(code)
+
     // enviar código para o backend validar se é o mesmo enviado no email
+    const response = await verifyConfirmationCode(email, code)
+
+    console.log(response)
+
     // enviar dados para o backend criar novo usuário
     // registar usuário no firebase
+
+    setLoader(false)
+  }
+
+  async function handleFormSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    handleConfitmationCode()
   }
 
   useEffect(() => {
@@ -64,19 +88,9 @@ export const ConfirmationSection = () => {
     }
   }, [focusedIndex])
 
-  useEffect(() => {
-    function callBack() {
-      if (counter > 0) setCounter((prevState) => prevState - 1)
-    }
-
-    const interval = setInterval(callBack, 1000)
-
-    return () => clearInterval(interval)
-  }, [counter])
-
   function handleResendClick() {
     setCounter(60)
-    // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+    sendConfirmationCodeToEmail(email, name) // enviar dado de email para o backend enviar um código de confirmação no email do usuário
   }
 
   return (
@@ -112,26 +126,20 @@ export const ConfirmationSection = () => {
             ))}
           </div>
 
-          <div className="mb-12 flex items-center gap-3 font-medium text-principal-blue">
-            <span className="flex h-11 w-11 items-center justify-center rounded border border-principal-blue text-xl">
-              {counter}
-            </span>
-            <button
-              disabled={counter > 0}
-              className="disabled:cursor-not-allowed disabled:text-light-gray250"
-              onClick={handleResendClick}
-            >
+          <div className="mb-12">
+            <ResendComponent onClick={handleResendClick} border>
               Reenviar código
-            </button>
+            </ResendComponent>
           </div>
 
           <ButtonDefault
-            text="Verificar"
+            text={loader ? 'Verificando...' : 'Verificar'}
             type="button"
             submit
             paddingx="px-6"
             paddingy="py-2"
             shadow
+            disabled={loader}
           />
         </form>
       </div>

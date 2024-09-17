@@ -17,9 +17,9 @@ const localStorageEffect: (key: string) => AtomEffect<string> =
     })
   }
 
-export const userEmailAtom = atom({
-  key: 'email',
-  default: 'email@gmail.com',
+export const userNameAtom = atom({
+  key: 'name',
+  default: 'Jão',
   // default: ''
-  effects: [localStorageEffect('current_user_email')],
+  effects: [localStorageEffect('current_user_name')],
 })

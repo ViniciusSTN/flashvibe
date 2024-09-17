@@ -39,6 +39,7 @@ export type ButtonProps = {
   shadow?: boolean
   tailwind?: string
   submit?: boolean
+  disabled?: boolean
 }
 
 export type ButtonType = (props: ButtonProps) => JSX.Element

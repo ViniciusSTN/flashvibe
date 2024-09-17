@@ -3,17 +3,19 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
 import { SocialMediaSignIn } from '@/components/SocialMediaSignIn'
+import { sendConfirmationCodeToEmail } from '@/data/sendCodeToEmail'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
-import { showPasswordAtom } from '@/states'
+import { showPasswordAtom, userEmailAtom, userNameAtom } from '@/states'
 import {
   FormRegisterErrors,
   FormRegisterValues,
   InputName,
 } from '@/types/register'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 
 const initialValues: FormRegisterValues = {
   name: '',
@@ -36,8 +38,13 @@ export const RegisterFormSection = () => {
     useState<FormRegisterValues>(initialValues)
   const [formErrors, setFormErrors] =
     useState<FormRegisterErrors>(initialErrors)
+  const [loader, setLoader] = useState(false)
+
+  const router = useRouter()
 
   const [showPassword, setShowPassword] = useRecoilState(showPasswordAtom)
+  const setEmail = useSetRecoilState(userEmailAtom)
+  const setName = useSetRecoilState(userNameAtom)
 
   function handleShowPasswordClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
@@ -77,8 +84,10 @@ export const RegisterFormSection = () => {
       }))
   }
 
-  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    setLoader(true)
 
     const validation = registerSchema.safeParse(formValues)
 
@@ -87,8 +96,22 @@ export const RegisterFormSection = () => {
         ...initialErrors,
         ...validation.error.formErrors.fieldErrors,
       })
+    } else {
+      // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+      const sent = await sendConfirmationCodeToEmail(
+        formValues.email,
+        formValues.nickname,
+      )
+      if (sent) {
+        setEmail(formValues.email)
+        setName(formValues.nickname)
+        router.push('/registro/confirmacao')
+      } else {
+        console.log(sent)
+      }
     }
-    // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+
+    setLoader(false)
   }
 
   return (
@@ -139,7 +162,7 @@ export const RegisterFormSection = () => {
 
           <div className="flex justify-center">
             <ButtonDefault
-              text="Cadastrar"
+              text={loader ? 'Enviando...' : 'Cadastrar'}
               type="button"
               style="dark"
               radius="rounded-2xl"
@@ -147,6 +170,7 @@ export const RegisterFormSection = () => {
               paddingy="py-2"
               shadow
               submit
+              disabled={loader}
             />
           </div>
         </form>

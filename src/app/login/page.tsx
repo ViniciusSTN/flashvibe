@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 import { Header } from '@/components/Header'
-import { register } from '@/mocks/metadatas'
+import { login } from '@/mocks/metadatas'
 import Footer from '@/components/Footer'
 import { LoginFormSection } from './LoginFormSection'
 import { FirstTimeSection } from './FirstTimeSection'
 
-export const metadata: Metadata = { ...register }
+export const metadata: Metadata = { ...login }
 
 export default function Login() {
   return (

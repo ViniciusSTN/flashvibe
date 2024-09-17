@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 
 export const metadata: Metadata = { ...register }
 
-export default function Register() {
+export default function Confirmation() {
   return (
     <>
       <Header short />

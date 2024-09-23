@@ -2,7 +2,7 @@ import { ResendComponent } from '@/components/ResendComponent'
 import { resendCounterAtom, userEmailAtom } from '@/states'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
-export const ResetUsingEmailSection = () => {
+export const CodeToResetUsingEmailSection = () => {
   const setResendCounter = useSetRecoilState(resendCounterAtom)
 
   const userEmail = useRecoilValue(userEmailAtom)

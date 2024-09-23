@@ -1,9 +1,10 @@
 'use client'
 
-import { Header } from '@/components/Header'
 import Footer from '@/components/Footer'
+import { Header } from '@/components/Header'
 import { notFound, useParams } from 'next/navigation'
-import { ResetUsingEmailSection } from './ResetUsingEmailSection'
+import { SendToEmailSection } from './SendToEmailSection'
+import { SendToPhoneSection } from './SendToPhoneSection'
 
 export default function ResetPassword() {
   const { method } = useParams()
@@ -17,9 +18,9 @@ export default function ResetPassword() {
       <Header short />
 
       <main className="flex min-h-screen-header items-center justify-center">
-        <div className="vsm:clean-box-shadow relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center vsm:rounded-2xl vsm:shadow-clean">
-          {method === 'sms' && <div>oi</div>}
-          {method === 'email' && <ResetUsingEmailSection />}
+        <div className="relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center py-32 vsm:rounded-2xl vsm:shadow-clean lg:py-44">
+          {method === 'email' && <SendToEmailSection />}
+          {method === 'sms' && <SendToPhoneSection />}
         </div>
       </main>
 

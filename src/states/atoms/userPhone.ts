@@ -3,7 +3,6 @@ import { atom, AtomEffect } from 'recoil'
 const localStorageEffect: (key: string) => AtomEffect<string> =
   (key) =>
   ({ setSelf, onSet }) => {
-    // Verifica se estamos no ambiente do cliente antes de usar o localStorage
     if (typeof window !== 'undefined') {
       const savedValue = localStorage.getItem(key)
       if (savedValue != null) {
@@ -20,9 +19,9 @@ const localStorageEffect: (key: string) => AtomEffect<string> =
     }
   }
 
-export const userEmailAtom = atom({
-  key: 'email',
-  default: 'email@gmail.com',
+export const userPhoneAtom = atom({
+  key: 'phone',
+  default: '+55 (11) 99254-6362',
   // default: ''
-  effects: [localStorageEffect('current_user_email')],
+  effects: [localStorageEffect('current_user_phone')],
 })

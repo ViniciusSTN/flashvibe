@@ -18,8 +18,8 @@ export const SendToEmailSection = () => {
     const validation = emailSchema.safeParse({ email })
 
     if (!validation.success) {
-      const { email } = validation.error.formErrors.fieldErrors
-      if (email) setErrors(email)
+      const errors = validation.error.formErrors.fieldErrors.email
+      if (errors) setErrors(errors)
     } else {
       // enviar email para o backend para que possa ser enviado um link de troca de senha para o email do usuário
       // salvar email no recoil

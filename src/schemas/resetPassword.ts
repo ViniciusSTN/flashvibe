@@ -5,7 +5,7 @@ export const emailSchema = object({
 })
 
 export const phoneSchema = object({
-  phone: string()
-    .length(11, { message: 'Celular inválido' })
+  phoneNumber: string()
+    .length(13, { message: 'Celular inválido' })
     .regex(/^\d+$/, { message: 'Celular inválido' }),
 })

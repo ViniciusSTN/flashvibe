@@ -3,7 +3,8 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import RecoilContextProvider from '@/lib/recoilContextProvider'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import 'react-toastify/ReactToastify.min.css'
+// import 'react-toastify/dist/ReactToastify.css'
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 

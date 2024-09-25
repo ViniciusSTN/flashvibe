@@ -3,13 +3,15 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { redirect } from 'next/navigation'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { resendCounterAtom, userEmailAtom, userNameAtom } from '@/states'
 import { ResendComponent } from '@/components/ResendComponent'
 import {
   sendConfirmationCodeToEmail,
   verifyConfirmationCode,
 } from '@/data/sendCodeToEmail'
+import { ConfirmationCode } from '@/components/ConfirmationCode'
+import { toast } from 'react-toastify'
 
 export const ConfirmationSection = () => {
   const email = useRecoilValue(userEmailAtom)
@@ -17,76 +19,33 @@ export const ConfirmationSection = () => {
 
   if (!email) redirect('/')
 
-  const [inputs, setInputs] = useState(Array(6).fill(''))
-  const [focusedIndex, setFocusedIndex] = useState<number>(0)
+  const [inputs, setInputs] = useState<string[]>(Array(6).fill(''))
   const [loader, setLoader] = useState<boolean>(false)
 
   const setCounter = useSetRecoilState(resendCounterAtom)
 
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-
-  function handleInputChange(
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) {
-    const value = event.target.value.slice(0, 1)
-
-    setInputs((prevInputs) => {
-      const newInputs = [...prevInputs]
-      newInputs[index] = value
-      return newInputs
-    })
-
-    if (value.length > 0 && index < inputs.length - 1) {
-      setFocusedIndex(index + 1)
-    }
-  }
-
-  function handleKeyDown(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) {
-    if (event.key === 'Backspace') {
-      if (inputs[index] === '' && index > 0) {
-        setInputs((prevInputs) => {
-          const newInputs = [...prevInputs]
-          newInputs[index - 1] = ''
-          return newInputs
-        })
-        setFocusedIndex(index - 1)
-        event.preventDefault()
-      }
-    }
-  }
-
-  async function handleConfitmationCode() {
+  async function handleConfirmationCode() {
     setLoader(true)
-    // se um ou mais campo não for preenchido, mostrar erro
 
     const code = inputs.reduce((acc, value) => acc + value)
-    console.log(code)
 
-    // enviar código para o backend validar se é o mesmo enviado no email
-    const response = await verifyConfirmationCode(email, code)
-
-    console.log(response)
-
-    // enviar dados para o backend criar novo usuário
-    // registar usuário no firebase
+    if (code.length < inputs.length) {
+      toast.error('Código incorreto')
+    } else {
+      // enviar código para o backend validar se é o mesmo enviado no email
+      const response = await verifyConfirmationCode(email, code)
+      console.log(response)
+      // enviar dados para o backend criar novo usuário
+      // registar usuário no firebase
+    }
 
     setLoader(false)
   }
 
   async function handleFormSubmit(event: React.FormEvent) {
     event.preventDefault()
-    handleConfitmationCode()
+    handleConfirmationCode()
   }
-
-  useEffect(() => {
-    if (inputRefs.current[focusedIndex]) {
-      inputRefs.current[focusedIndex]?.focus()
-    }
-  }, [focusedIndex])
 
   function handleResendClick() {
     setCounter(60)
@@ -109,21 +68,8 @@ export const ConfirmationSection = () => {
           className="flex flex-col items-center"
           onSubmit={handleFormSubmit}
         >
-          <div className="mb-8 flex gap-3">
-            {inputs.map((value, index) => (
-              <input
-                key={index}
-                type="number"
-                value={value}
-                onChange={(e) => handleInputChange(e, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className="h-8 w-8 bg-light-gray200 text-center text-xl font-bold sm:h-10 sm:w-10"
-                ref={(el) => {
-                  inputRefs.current[index] = el
-                }}
-                onFocus={() => setFocusedIndex(index)}
-              />
-            ))}
+          <div className="mb-8">
+            <ConfirmationCode inputs={inputs} setInputs={setInputs} />
           </div>
 
           <div className="mb-12">

@@ -1,5 +1,6 @@
 import { ResendComponent } from '@/components/ResendComponent'
 import { resendCounterAtom, userEmailAtom } from '@/states'
+import Link from 'next/link'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 export const CodeToResetUsingEmailSection = () => {
@@ -28,10 +29,12 @@ export const CodeToResetUsingEmailSection = () => {
         </ResendComponent>
       </div>
 
-      {/* Substituir por link depois */}
-      <button className="font-medium text-principal-blue">
-        Enviar código para o celular
-      </button>
+      <Link
+        href={'/redefinir-senha/sms'}
+        className="font-medium text-principal-blue"
+      >
+        Redefinir usando celular
+      </Link>
     </section>
   )
 }

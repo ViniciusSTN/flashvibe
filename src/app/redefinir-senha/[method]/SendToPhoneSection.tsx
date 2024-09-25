@@ -2,36 +2,46 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
 import { phoneInput } from '@/mocks/resetPassword'
 import { phoneSchema } from '@/schemas/resetPassword'
+import { usePhoneMask } from '@/hooks/inputMasks'
 import Link from 'next/link'
 import { useState } from 'react'
 
 export const SendToPhoneSection = () => {
   const [loader, setLoader] = useState<boolean>(false)
-  const [phone, setPhone] = useState<string>('')
+  const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<string[]>([])
+
+  const mask = usePhoneMask()
 
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     setLoader(true)
 
-    const validation = phoneSchema.safeParse({ phone })
+    const phoneNumber = phone.replace(/\D/g, '')
+
+    const validation = phoneSchema.safeParse({ phoneNumber })
 
     if (!validation.success) {
-      const { phone } = validation.error.formErrors.fieldErrors
-      if (phone) setErrors(phone)
+      const errors = validation.error.formErrors.fieldErrors.phoneNumber
+      if (errors) setErrors(errors)
     } else {
-      // enviar email para o backend para que possa ser enviado um link de troca de senha para o email do usuário
-      // salvar email no recoil
-      // caso der certo, redirecionar para a página /redefinir-senha/email/codigo
+      // salvar número do celualr no recoil
+      // enviar email para bakcend para validar se o número contem um email no banco de dados
+      // caso existir, redirecionar o usuário para a página /redefinir-senha/sms/codigo
+      // backend envia um código no celular do usuário
+      // caso não existir, mostar um erro para o usuário
+      // usuário digita o código, front envia o dado para o backend validar se o código é valido
+      // caso o código for válido, redirecionar o usuário para /redefinir-senha
     }
 
     setLoader(false)
   }
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
-    setPhone(value.toLowerCase())
+    setPhone(value)
+
     setErrors([])
   }
 
@@ -55,6 +65,7 @@ export const SendToPhoneSection = () => {
           image={phoneInput.image}
           value={phone}
           onChange={handleInputChange}
+          ref={mask}
           error={errors}
           tailwind="grow"
         />
@@ -69,7 +80,7 @@ export const SendToPhoneSection = () => {
         />
       </form>
       <Link href="/redefinir-senha/email" className="text-principal-blue">
-        Informar email
+        Informar e-mail
       </Link>
     </section>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import Footer from '@/components/Footer'
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import { notFound, useParams } from 'next/navigation'
 import { SendToEmailSection } from './SendToEmailSection'
 import { SendToPhoneSection } from './SendToPhoneSection'

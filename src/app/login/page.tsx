@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import { login } from '@/mocks/metadatas'
 import Footer from '@/components/Footer'
 import { LoginFormSection } from './LoginFormSection'

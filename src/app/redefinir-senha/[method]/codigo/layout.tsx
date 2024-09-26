@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
-import { redefinir } from '@/mocks/metadatas'
+import { reset } from '@/mocks/metadatas'
 
-export const metadata: Metadata = { ...redefinir }
+export const metadata: Metadata = { ...reset }
 
 export default function LayoutResetPassword({
   children,

@@ -1,7 +1,7 @@
-export type ResetComponentProps = {
+export type ResendComponentProps = {
   onClick: React.MouseEventHandler<HTMLButtonElement>
   children: React.ReactNode
   border?: boolean
 }
 
-export type ResetComponentType = (props: ResetComponentProps) => JSX.Element
+export type ResendComponentType = (props: ResendComponentProps) => JSX.Element

@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import { register } from '@/mocks/metadatas'
 import { ConfirmationSection } from './ConfirmationSection'
 import { WelcomeBackSection } from '../WelcomeBackSection'

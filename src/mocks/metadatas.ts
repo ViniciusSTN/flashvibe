@@ -12,7 +12,7 @@ export const login: Metadata = {
     'Entre no FlashVibe e transforme seu jeito de aprender inglês com flashcards. Eles são a maneira perfeita de memorizar palavras novas, praticar a pronúncia e expandir seu vocabulário de forma divertida. Descubra como!',
 }
 
-export const redefinir: Metadata = {
+export const reset: Metadata = {
   title: 'Nova Senha - Flashvibe',
   description:
     'Esqueceu sua senha? Não se preocupe, é fácil criar um nova! Enviaremos um email para você contendo o link para atualizar sua senha ou uma mensagem em seu celular contendo um código para confirmarmos se é você mesmo',

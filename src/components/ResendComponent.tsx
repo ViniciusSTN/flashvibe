@@ -1,9 +1,9 @@
 import { resendCounterAtom } from '@/states'
-import { ResetComponentType } from '@/types/resend'
+import { ResendComponentType } from '@/types/resend'
 import { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 
-export const ResendComponent: ResetComponentType = ({
+export const ResendComponent: ResendComponentType = ({
   onClick,
   children,
   border = false,

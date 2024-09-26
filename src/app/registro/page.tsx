@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { RegisterFormSection } from './RegisterFormSection'
 import { WelcomeBackSection } from './WelcomeBackSection'
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import { register } from '@/mocks/metadatas'
 import Footer from '@/components/Footer'
 

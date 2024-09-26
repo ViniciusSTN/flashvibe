@@ -2,7 +2,7 @@ import { HeaderType } from '@/types/header'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export const Header: HeaderType = ({ short }) => {
+const Header: HeaderType = ({ short }) => {
   return (
     <>
       {short && (
@@ -22,3 +22,5 @@ export const Header: HeaderType = ({ short }) => {
     </>
   )
 }
+
+export default Header

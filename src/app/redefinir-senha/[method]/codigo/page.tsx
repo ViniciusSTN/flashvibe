@@ -1,6 +1,6 @@
 'use client'
 
-import { Header } from '@/components/Header'
+import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { notFound, useParams } from 'next/navigation'
 import { CodeToResetUsingEmailSection } from './ResetUsingEmailSection'

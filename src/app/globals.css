@@ -22,15 +22,22 @@ input[type='number'] {
   line-height: 20px;
   min-height: 28px;
   border-radius: 4px;
-  padding: 8px 16px 8px 32px;
+  padding-top: 8px;
+  padding-right: 16px;
+  padding-bottom: 8px;
+  /* padding: 8px 16px 8px 32px; */
   border: 2px solid transparent;
   box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 3px, rgba(0, 0, 0, 0.144) 0px 1px 2px;
   background: rgb(251, 251, 251);
   outline: rgb(124, 138, 255);
   transition: all 0.3s ease 0s;
 }
-.inputDefault:focus, .inputDefault:active {
+.inputDefaultEnabled:focus, .inputDefaultEnabled:active {
   border: 2px solid rgb(124, 138, 255);
+}
+.inputDefaultDisabled {
+  background-color: #ECEBEB;
+  cursor: not-allowed;
 }
 .inputDefaultError {
   border: 2px solid rgb(255, 0, 0);

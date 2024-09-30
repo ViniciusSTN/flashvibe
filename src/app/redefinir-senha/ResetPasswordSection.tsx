@@ -1,7 +1,7 @@
 'use client'
 
 import { InputDefault } from '@/components/InputDefault'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { inputs } from '@/mocks/changePassword'
 import {
   FormChangePasswordErrors,
@@ -9,10 +9,9 @@ import {
   InputName,
 } from '@/types/changePassword'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import Image from 'next/image'
-import { showPasswordAtom } from '@/states'
-import { useRecoilState } from 'recoil'
 import changePasswordSchema from '@/schemas/changePassword'
+import { ShowPassword } from '@/components/ShowPassword'
+import { redirect, useSearchParams } from 'next/navigation'
 
 const initialValues: FormChangePasswordValues = {
   password: '',
@@ -25,6 +24,10 @@ const initialErrors: FormChangePasswordErrors = {
 }
 
 export const ResetPasswordSection = () => {
+  const searchParams = useSearchParams()
+  const uid = searchParams.get('uid')
+  const token = searchParams.get('token')
+
   const [formValues, setFormValues] =
     useState<FormChangePasswordValues>(initialValues)
   const [formErrors, setFormErrors] =
@@ -32,7 +35,11 @@ export const ResetPasswordSection = () => {
 
   const [loader, setLoader] = useState<boolean>(false)
 
-  const [showPassword, setShowPassword] = useRecoilState(showPasswordAtom)
+  useEffect(() => {
+    if (!uid || !token) {
+      redirect('/')
+    }
+  }, [uid, token])
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target
@@ -48,11 +55,6 @@ export const ResetPasswordSection = () => {
         ...(formErrors[name as InputName] = []),
       }))
     }
-  }
-
-  function handleShowPasswordClick(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault()
-    setShowPassword(!showPassword)
   }
 
   function handleFormSubmit(event: React.FormEvent) {
@@ -90,7 +92,7 @@ export const ResetPasswordSection = () => {
             key={index}
             name={input.name}
             type={input.type}
-            placeholder={input.placeholder}
+            placeholder={input.placeholder ?? ''}
             value={formValues[input.name as InputName]}
             error={formErrors[input.name as InputName]}
             image={input.image}
@@ -99,25 +101,7 @@ export const ResetPasswordSection = () => {
           />
         ))}
 
-        <button
-          className="mb-10 flex items-center gap-1 self-end"
-          type="button"
-          onClick={handleShowPasswordClick}
-        >
-          <span className="text-sm">
-            {showPassword ? 'Esconder senha' : 'Ver senha'}
-          </span>
-          <Image
-            src={
-              showPassword
-                ? `https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/eye.svg?alt=media&token=813e59ce-db08-487c-9291-492980df70d0`
-                : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/hide.svg?alt=media&token=db2bde40-7faa-4529-a569-77795e99fe7f'
-            }
-            alt="mostrar senha"
-            height={16}
-            width={16}
-          />
-        </button>
+        <ShowPassword />
 
         <div className="flex justify-center">
           <ButtonDefault

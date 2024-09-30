@@ -10,13 +10,15 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       type,
-      placeholder,
+      placeholder = '',
       image = '',
       tailwind = 'mb-0',
       name,
       onChange,
       value,
-      error,
+      error = [],
+      label = '',
+      disable = false,
     },
     ref,
   ) => {
@@ -26,17 +28,22 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className={`relative ${tailwind}`}>
+        <div className="mb-1 font-medium">
+          {label.length > 0 && <label htmlFor={name}>{label}</label>}
+        </div>
         <input
-          className={`inputDefault ${error?.length > 0 && 'inputDefaultError'}`}
+          className={`inputDefault ${error?.length > 0 && 'inputDefaultError'} ${image.length > 0 ? 'pl-8' : 'pl-4'} ${disable ? 'inputDefaultDisabled' : 'inputDefaultEnabled'}`}
           type={type}
           placeholder={placeholder}
           name={name}
+          id={name}
           onChange={onChange}
           value={value}
           ref={ref}
+          disabled={disable}
         />
         <span className="absolute left-2 top-3">
-          {image && (
+          {image.length > 0 && (
             <Image
               src={image}
               alt={placeholder + ' ícone'}

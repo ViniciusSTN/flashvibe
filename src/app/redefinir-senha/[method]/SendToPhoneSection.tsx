@@ -60,7 +60,7 @@ export const SendToPhoneSection = () => {
       >
         <InputDefault
           name={phoneInput.name}
-          placeholder={phoneInput.placeholder}
+          placeholder={phoneInput.placeholder ?? ''}
           type={phoneInput.type}
           image={phoneInput.image}
           value={phone}

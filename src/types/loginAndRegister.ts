@@ -9,3 +9,7 @@ export type verifyConfirmationCodeType = (
   email: string,
   code: string,
 ) => Promise<ErrorResponse | SuccessResponse>
+
+export type sendEmailToResetPasswordType = (
+  email: string,
+) => Promise<ErrorResponse | SuccessResponse>

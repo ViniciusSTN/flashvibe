@@ -12,7 +12,7 @@ const Footer: FooterType = ({ theme }) => {
     >
       <div className="container mx-auto flex flex-col items-center">
         <div className="mb-16 flex flex-col gap-8 2xl:flex-row">
-          <Link href="/" className="self-start">
+          <Link href="/" className="self-start hover:scale-105">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/logo-2.svg?alt=media&token=e631c314-ed21-4534-af6c-53ef41630d9b"
               alt="flashvibe logo"
@@ -32,6 +32,7 @@ const Footer: FooterType = ({ theme }) => {
               key={index}
               target="_blank"
               rel="noopener noreferrer"
+              className="hover:scale-105"
             >
               <Image
                 src={theme === 'dark' ? item.wthiteImage : item.blackImage}
@@ -47,7 +48,11 @@ const Footer: FooterType = ({ theme }) => {
           className={`${theme === 'dark' ? 'border-white' : 'border-light-gray250'} flex w-full flex-col flex-wrap items-center justify-center gap-5 border-t pb-8 pt-8 sm:flex-row`}
         >
           {otherLinks.map((item, index) => (
-            <Link href={item.link} key={index}>
+            <Link
+              href={item.link}
+              key={index}
+              className="transition-colors hover:text-light-blue200"
+            >
               {item.name}
             </Link>
           ))}

@@ -1,5 +1,6 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
+import { sendEmailToResetPassword } from '@/data/resetPassword'
 import { emailInput } from '@/mocks/resetPassword'
 import { emailSchema } from '@/schemas/resetPassword'
 import Link from 'next/link'
@@ -9,8 +10,9 @@ export const SendToEmailSection = () => {
   const [loader, setLoader] = useState<boolean>(false)
   const [email, setEmail] = useState<string>('')
   const [errors, setErrors] = useState<string[]>([])
+  const [success, setSuccess] = useState<boolean>(false)
 
-  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     setLoader(true)
@@ -21,6 +23,13 @@ export const SendToEmailSection = () => {
       const errors = validation.error.formErrors.fieldErrors.email
       if (errors) setErrors(errors)
     } else {
+      const response = await sendEmailToResetPassword(email)
+      console.log(response)
+
+      if (response) {
+        console.log('deu certo saporra')
+        setSuccess(true)
+      }
       // enviar email para o backend para que possa ser enviado um link de troca de senha para o email do usuário
       // salvar email no recoil
       // caso der certo, redirecionar para a página /redefinir-senha/email/codigo
@@ -50,7 +59,7 @@ export const SendToEmailSection = () => {
       >
         <InputDefault
           name={emailInput.name}
-          placeholder={emailInput.placeholder}
+          placeholder={emailInput.placeholder ?? ''}
           type={emailInput.type}
           image={emailInput.image}
           value={email}
@@ -64,7 +73,7 @@ export const SendToEmailSection = () => {
           paddingx="px-4"
           radius="rounded-md"
           submit
-          disabled={loader}
+          disabled={loader || success}
           tailwind="h-10"
         />
       </form>

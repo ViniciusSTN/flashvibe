@@ -67,4 +67,13 @@ export const items: NavItemProps[] = [
       },
     ],
   },
+  {
+    title: 'Meu perfil',
+    links: [
+      {
+        name: 'Alterar meus dados',
+        link: '/meu-perfil',
+      },
+    ],
+  },
 ]

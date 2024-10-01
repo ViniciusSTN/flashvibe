@@ -6,16 +6,16 @@ import { SocialMediaSignIn } from '@/components/SocialMediaSignIn'
 import { sendConfirmationCodeToEmail } from '@/data/sendCodeToEmail'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
-import { showPasswordAtom, userEmailAtom, userNameAtom } from '@/states'
+import { userEmailAtom, userNameAtom, userNicknameAtom } from '@/states'
 import {
   FormRegisterErrors,
   FormRegisterValues,
   InputName,
 } from '@/types/register'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
+import { toast } from 'react-toastify'
+import { useSetRecoilState } from 'recoil'
 
 const initialValues: FormRegisterValues = {
   name: '',
@@ -42,14 +42,9 @@ export const RegisterFormSection = () => {
 
   const router = useRouter()
 
-  const [showPassword, setShowPassword] = useRecoilState(showPasswordAtom)
   const setEmail = useSetRecoilState(userEmailAtom)
   const setName = useSetRecoilState(userNameAtom)
-
-  function handleShowPasswordClick(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault()
-    setShowPassword(!showPassword)
-  }
+  const setNickname = useSetRecoilState(userNicknameAtom)
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -98,16 +93,18 @@ export const RegisterFormSection = () => {
       })
     } else {
       // enviar dado de email para o backend enviar um código de confirmação no email do usuário
-      const sent = await sendConfirmationCodeToEmail(
+      const response = await sendConfirmationCodeToEmail(
         formValues.email,
         formValues.nickname,
       )
-      if (sent) {
+
+      if (response.success) {
         setEmail(formValues.email)
-        setName(formValues.nickname)
+        setNickname(formValues.nickname)
+        setName(formValues.name)
         router.push('/registro/confirmacao')
       } else {
-        console.log(sent)
+        toast.error(response.error[0])
       }
     }
 
@@ -126,10 +123,10 @@ export const RegisterFormSection = () => {
           className="flex w-full flex-col self-center"
           onSubmit={handleFormSubmit}
         >
-          {inputs.map((data) => (
+          {inputs.map((data, index) => (
             <InputDefault
-              key={data.placeholder}
-              placeholder={data.placeholder}
+              key={index}
+              placeholder={data.placeholder ?? ''}
               image={data.image}
               name={data.name}
               onChange={handleInputChange}
@@ -140,27 +137,7 @@ export const RegisterFormSection = () => {
             />
           ))}
 
-          <button
-            className="mb-6 flex items-center gap-1 self-end"
-            onClick={handleShowPasswordClick}
-            type="button"
-          >
-            <span className="text-sm">
-              {showPassword ? 'Esconder senha' : 'Ver senha'}
-            </span>
-            <Image
-              src={
-                showPassword
-                  ? `https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/eye.svg?alt=media&token=813e59ce-db08-487c-9291-492980df70d0`
-                  : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/hide.svg?alt=media&token=db2bde40-7faa-4529-a569-77795e99fe7f'
-              }
-              alt="mostrar senha"
-              height={16}
-              width={16}
-            />
-          </button>
-
-          <div className="flex justify-center">
+          <div className="mt-8 flex justify-center">
             <ButtonDefault
               text={loader ? 'Enviando...' : 'Cadastrar'}
               type="button"

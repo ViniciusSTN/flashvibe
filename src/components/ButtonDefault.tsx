@@ -16,9 +16,9 @@ export const ButtonDefault: ButtonType = ({
 }) => {
   return (
     <>
-      {style === 'dark' && type === 'button' && (
+      {type === 'button' && (
         <button
-          className={`bg-principal-blue text-base font-medium text-white transition-colors hover:text-light-blue200 active:outline active:outline-2 active:outline-secondary-blue ${shadow && 'shadow-sla shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          className={`${style === 'dark' && 'bg-principal-blue font-medium text-white hover:text-light-blue200'} ${style === 'outDark' && 'border border-principal-blue font-bold text-principal-blue hover:text-secondary-blue'} text-base transition-colors active:outline active:outline-2 active:outline-secondary-blue ${shadow && 'shadow-sla shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
           type={submit ? 'submit' : 'button'}
           disabled={disabled}
         >

@@ -1,13 +1,12 @@
 import {
   sendConfirmationCodeToEmailType,
   verifyConfirmationCodeType,
-} from '@/types/sendCodeToEmail'
+} from '@/types/loginAndRegister'
 import axios from 'axios'
 
 export const sendConfirmationCodeToEmail: sendConfirmationCodeToEmailType =
   async (email, name) => {
-    const url =
-      process.env.NEXT_PUBLIC_API_SEND_CONFIRMATION_CODE + '/send-email/'
+    const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/send-email/'
 
     try {
       const response = await axios.post(url, {
@@ -38,7 +37,7 @@ export const verifyConfirmationCode: verifyConfirmationCodeType = async (
   code,
 ) => {
   const url =
-    process.env.NEXT_PUBLIC_API_SEND_CONFIRMATION_CODE +
+    process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER +
     '/verify-confirmation-code/'
 
   try {

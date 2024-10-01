@@ -1,6 +1,6 @@
 import { object, string } from 'zod'
 
-const changePasswordSchema = object({
+const passwordSchema = object({
   password: string()
     .min(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
     .regex(/[a-z]/, {
@@ -26,4 +26,4 @@ const changePasswordSchema = object({
   }
 })
 
-export default changePasswordSchema
+export default passwordSchema

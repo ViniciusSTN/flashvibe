@@ -5,5 +5,5 @@ export type SuccessResponse = {
 
 export type ErrorResponse = {
   success: false
-  error: string
+  error: string[]
 }

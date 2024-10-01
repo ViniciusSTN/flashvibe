@@ -14,13 +14,15 @@ export type HtmlInputType =
 
 export type InputProps = {
   type: HtmlInputType
-  placeholder: string
-  value: string
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   name: string
   image?: string
   tailwind?: string
-  error: string[]
+  error?: string[]
+  label?: string
+  disable?: boolean
 }
 
 export type InputType = (props: InputProps) => JSX.Element

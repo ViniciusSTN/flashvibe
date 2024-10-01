@@ -2,16 +2,16 @@
 
 import { InputDefault } from '@/components/InputDefault'
 import { useEffect, useState } from 'react'
-import { inputs } from '@/mocks/changePassword'
 import {
   FormChangePasswordErrors,
   FormChangePasswordValues,
   InputName,
 } from '@/types/changePassword'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import changePasswordSchema from '@/schemas/changePassword'
 import { ShowPassword } from '@/components/ShowPassword'
 import { redirect, useSearchParams } from 'next/navigation'
+import passwordSchema from '@/schemas/password'
+import { newPasswordInputs } from '@/mocks/password'
 
 const initialValues: FormChangePasswordValues = {
   password: '',
@@ -62,7 +62,7 @@ export const ResetPasswordSection = () => {
 
     setLoader(true)
 
-    const validation = changePasswordSchema.safeParse(formValues)
+    const validation = passwordSchema.safeParse(formValues)
 
     if (!validation.success) {
       setFormErrors({
@@ -87,7 +87,7 @@ export const ResetPasswordSection = () => {
         onSubmit={handleFormSubmit}
         className="flex w-full flex-col self-center"
       >
-        {inputs.map((input, index) => (
+        {newPasswordInputs.map((input, index) => (
           <InputDefault
             key={index}
             name={input.name}

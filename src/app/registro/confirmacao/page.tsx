@@ -12,7 +12,6 @@ export default function Confirmation() {
     <>
       <Header short />
 
-      {/* className="relative left-1/2 flex max-w-1248px -translate-x-1/2 flex-row-reverse flex-wrap justify-center vsm:mb-16 vsm:mt-10 vsm:rounded-2xl vsm:shadow-lg" */}
       <main className="flex min-h-screen-header items-center justify-center">
         <div className="vsm:rounded-2xls relative flex max-w-1248px flex-grow flex-row-reverse flex-wrap justify-center vsm:shadow-clean">
           <ConfirmationSection />

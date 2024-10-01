@@ -2,12 +2,11 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import { ShowPassword } from '@/components/ShowPassword'
 import { SocialMediaSignIn } from '@/components/SocialMediaSignIn'
 import { sendConfirmationCodeToEmail } from '@/data/sendCodeToEmail'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
-import { userEmailAtom, userNameAtom } from '@/states'
+import { userEmailAtom, userNameAtom, userNicknameAtom } from '@/states'
 import {
   FormRegisterErrors,
   FormRegisterValues,
@@ -15,6 +14,7 @@ import {
 } from '@/types/register'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
 
 const initialValues: FormRegisterValues = {
@@ -44,6 +44,7 @@ export const RegisterFormSection = () => {
 
   const setEmail = useSetRecoilState(userEmailAtom)
   const setName = useSetRecoilState(userNameAtom)
+  const setNickname = useSetRecoilState(userNicknameAtom)
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -83,8 +84,6 @@ export const RegisterFormSection = () => {
 
     setLoader(true)
 
-    console.log('enviado')
-
     const validation = registerSchema.safeParse(formValues)
 
     if (!validation.success) {
@@ -94,19 +93,18 @@ export const RegisterFormSection = () => {
       })
     } else {
       // enviar dado de email para o backend enviar um código de confirmação no email do usuário
-      const sent = await sendConfirmationCodeToEmail(
+      const response = await sendConfirmationCodeToEmail(
         formValues.email,
         formValues.nickname,
       )
 
-      console.log('Resposta' + sent)
-
-      if (sent.success) {
+      if (response.success) {
         setEmail(formValues.email)
-        setName(formValues.nickname)
+        setNickname(formValues.nickname)
+        setName(formValues.name)
         router.push('/registro/confirmacao')
       } else {
-        console.log(sent)
+        toast.error(response.error[0])
       }
     }
 
@@ -139,9 +137,7 @@ export const RegisterFormSection = () => {
             />
           ))}
 
-          <ShowPassword />
-
-          <div className="flex justify-center">
+          <div className="mt-8 flex justify-center">
             <ButtonDefault
               text={loader ? 'Enviando...' : 'Cadastrar'}
               type="button"

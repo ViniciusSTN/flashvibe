@@ -1,10 +1,15 @@
 'use client'
 
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { redirect } from 'next/navigation'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { redirect, useRouter } from 'next/navigation'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import { useState } from 'react'
-import { resendCounterAtom, userEmailAtom, userNameAtom } from '@/states'
+import { useEffect, useState } from 'react'
+import {
+  resendCounterAtom,
+  userEmailAtom,
+  userNameAtom,
+  userNicknameAtom,
+} from '@/states'
 import { ResendComponent } from '@/components/ResendComponent'
 import {
   sendConfirmationCodeToEmail,
@@ -14,15 +19,34 @@ import { ConfirmationCode } from '@/components/ConfirmationCode'
 import { toast } from 'react-toastify'
 
 export const ConfirmationSection = () => {
-  const email = useRecoilValue(userEmailAtom)
-  const name = useRecoilValue(userNameAtom)
-
-  if (!email) redirect('/')
+  const [email, setEmail] = useRecoilState(userEmailAtom)
+  const [name, setName] = useRecoilState(userNameAtom)
+  const setNickname = useSetRecoilState(userNicknameAtom)
 
   const [inputs, setInputs] = useState<string[]>(Array(6).fill(''))
   const [loader, setLoader] = useState<boolean>(false)
+  const [loadingEmail, setLoadingEmail] = useState<boolean>(true)
 
   const setCounter = useSetRecoilState(resendCounterAtom)
+
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!email) {
+      redirect('/')
+    } else {
+      setLoadingEmail(false)
+    }
+  }, [email])
+
+  // useEffect(() => {
+  //   // Função para resetar o estado ao mudar de rota
+  //   const handleRouteChange = () => {
+  //     setEmail('') // Resetar o estado de email
+  //     setName('') // Resetar o estado de name
+  //     setNickname('') // Resetar o estado de nickname
+  //   }
+  // }, [])
 
   async function handleConfirmationCode() {
     setLoader(true)
@@ -32,11 +56,13 @@ export const ConfirmationSection = () => {
     if (code.length < inputs.length) {
       toast.error('Código incorreto')
     } else {
-      // enviar código para o backend validar se é o mesmo enviado no email
       const response = await verifyConfirmationCode(email, code)
-      console.log(response)
-      // enviar dados para o backend criar novo usuário
-      // registar usuário no firebase
+
+      if (response.success) {
+        router.push('/registro/senha')
+      } else {
+        toast.error('Código inválido, informe novamente')
+      }
     }
 
     setLoader(false)
@@ -60,7 +86,7 @@ export const ConfirmationSection = () => {
         </h1>
         <p className="mb-8 text-center font-medium">
           Nós enviamos um código para
-          <span className="italic"> {email}</span>
+          {!loadingEmail && <span className="italic"> {email}</span>}
         </p>
 
         <form

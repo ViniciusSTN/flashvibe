@@ -13,3 +13,9 @@ export type verifyConfirmationCodeType = (
 export type sendEmailToResetPasswordType = (
   email: string,
 ) => Promise<ErrorResponse | SuccessResponse>
+
+export type CreateNewUserType = (
+  email: string,
+  userName: string,
+  nickname: string,
+) => Promise<ErrorResponse | SuccessResponse>

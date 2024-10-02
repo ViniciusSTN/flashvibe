@@ -24,6 +24,8 @@ export type ButtonProps = {
     | 'px-8'
     | 'px-9'
     | 'px-10'
+    | 'px-16'
+    | 'px-20'
   paddingy?:
     | 'py-1'
     | 'py-2'

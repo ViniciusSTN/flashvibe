@@ -35,11 +35,14 @@ module.exports = {
         '530px': '33.125rem',
         '718px': '44.875rem',
         '842px': '52.625rem',
+        '920px': '57.5rem',
         '1248px': '78rem',
+        '1440px': '90rem',
         '1664px': '104rem',
       },
       screens: {
         vsm: '610px',
+        '1.5xl': '1440px',
       },
       // fontSize: {
       // },

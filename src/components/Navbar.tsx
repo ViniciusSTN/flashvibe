@@ -83,7 +83,7 @@ export const Navbar: NavbarType = ({ items, mobile }) => {
 
           <div
             className={`absolute inset-0 z-40 bg-black transition-opacity duration-300 ${
-              menuOpened ? 'opacity-85' : 'pointer-events-none opacity-0'
+              menuOpened ? 'opacity-95' : 'pointer-events-none opacity-0'
             }`}
           ></div>
 

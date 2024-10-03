@@ -1,9 +1,9 @@
 // const url = process.env.NEXT_PUBLIC_API_SEND_CONFIRMATION_CODE + '/user/confirm-reset-password/' //
 
-import { sendEmailToResetPasswordType } from '@/types/loginAndRegister'
+import { SendEmailToResetPasswordType } from '@/types/loginAndRegister'
 import axios from 'axios'
 
-export const sendEmailToResetPassword: sendEmailToResetPasswordType = async (
+export const sendEmailToResetPassword: SendEmailToResetPasswordType = async (
   email,
 ) => {
   const url =

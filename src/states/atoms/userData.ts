@@ -36,17 +36,17 @@ export const userEmailAtom = atom({
   effects: [localStorageEffect('current_user_email')],
 })
 
-export const userNameAtom = atom({
-  key: 'name',
-  default: '',
-  effects: [localStorageEffect('current_user_name')],
-})
+// export const userNameAtom = atom({
+//   key: 'name',
+//   default: '',
+//   effects: [localStorageEffect('current_user_name')],
+// })
 
-export const userNicknameAtom = atom({
-  key: 'nickname',
-  default: '',
-  effects: [localStorageEffect('current_user_nickname')],
-})
+// export const userNicknameAtom = atom({
+//   key: 'nickname',
+//   default: '',
+//   effects: [localStorageEffect('current_user_nickname')],
+// })
 
 export const userPhoneAtom = atom({
   key: 'phone',

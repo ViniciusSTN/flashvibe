@@ -3,19 +3,18 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
 import { ShowPassword } from '@/components/ShowPassword'
-import { createNewUser } from '@/data/userData'
+import { validateJwtToken } from '@/data/sendCodeToEmail'
+import { createNewUserWithPassword } from '@/data/userData'
 import { passwordInputs } from '@/mocks/password'
 import passwordSchema from '@/schemas/password'
-import { userEmailAtom, userNameAtom, userNicknameAtom } from '@/states'
 import {
   FormCreatePasswordErrors,
   FormCreatePasswordValues,
   InputName,
 } from '@/types/createPassword'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import { redirect, useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { useRecoilState } from 'recoil'
 
 const initialValues: FormCreatePasswordValues = {
   password: '',
@@ -28,6 +27,9 @@ const initialErrors: FormCreatePasswordErrors = {
 }
 
 export const CreatePasswordSection = () => {
+  const searchParams = useSearchParams()
+  const param = searchParams.get('code')
+
   const [formValues, setFormValues] =
     useState<FormCreatePasswordValues>(initialValues)
   const [formErrors, setFormErrors] =
@@ -36,9 +38,25 @@ export const CreatePasswordSection = () => {
 
   const router = useRouter()
 
-  const [email, setEmail] = useRecoilState(userEmailAtom)
-  const [name, setName] = useRecoilState(userNameAtom)
-  const [nickname, setNickname] = useRecoilState(userNicknameAtom)
+  useEffect(() => {
+    if (!param) {
+      redirect('/')
+    }
+  }, [param])
+
+  useEffect(() => {
+    const validation = async () => {
+      if (param) {
+        const response = await validateJwtToken(param)
+
+        console.log(response)
+
+        if (!response.success) router.push('/registro')
+      }
+    }
+
+    validation()
+  }, [param, router])
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -68,17 +86,20 @@ export const CreatePasswordSection = () => {
         ...initialErrors,
         ...validation.error.formErrors.fieldErrors,
       })
-    } else {
-      const response = await createNewUser(email, name, nickname) // backend criar novo usuário
-
-      // registar usuário no firebase aqui
+    } else if (param) {
+      const response = await createNewUserWithPassword(
+        formValues.password,
+        param,
+      )
 
       if (response.success) {
-        toast.success('Cadastro realizado com sucesso!')
-        router.push('/login')
-        setName('')
-        setNickname('')
-        setEmail('')
+        if (response.user) {
+          toast.success('Cadastro realizado com sucesso!')
+
+          console.log(response.user)
+
+          router.push('/login')
+        }
       } else {
         toast.error(response.error[0])
         response.error.forEach((err) => {

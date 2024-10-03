@@ -6,7 +6,7 @@ import { SocialMediaSignIn } from '@/components/SocialMediaSignIn'
 import { sendConfirmationCodeToEmail } from '@/data/sendCodeToEmail'
 import { inputs } from '@/mocks/registerForm'
 import registerSchema from '@/schemas/register'
-import { userEmailAtom, userNameAtom, userNicknameAtom } from '@/states'
+import { userEmailAtom } from '@/states'
 import {
   FormRegisterErrors,
   FormRegisterValues,
@@ -21,16 +21,12 @@ const initialValues: FormRegisterValues = {
   name: '',
   nickname: '',
   email: '',
-  password: '',
-  passwordConfirmation: '',
 }
 
 const initialErrors: FormRegisterErrors = {
   name: [],
   nickname: [],
   email: [],
-  password: [],
-  passwordConfirmation: [],
 }
 
 export const RegisterFormSection = () => {
@@ -43,8 +39,6 @@ export const RegisterFormSection = () => {
   const router = useRouter()
 
   const setEmail = useSetRecoilState(userEmailAtom)
-  const setName = useSetRecoilState(userNameAtom)
-  const setNickname = useSetRecoilState(userNicknameAtom)
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -72,11 +66,6 @@ export const RegisterFormSection = () => {
         ...prevValues,
         email: value.toLowerCase(),
       }))
-    else if (name === 'password' || name === 'passwordConfirmation')
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        [name]: value,
-      }))
   }
 
   async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -92,17 +81,16 @@ export const RegisterFormSection = () => {
         ...validation.error.formErrors.fieldErrors,
       })
     } else {
-      // enviar dado de email para o backend enviar um código de confirmação no email do usuário
       const response = await sendConfirmationCodeToEmail(
         formValues.email,
         formValues.nickname,
       )
 
+      console.log(response)
+
       if (response.success) {
         setEmail(formValues.email)
-        setNickname(formValues.nickname)
-        setName(formValues.name)
-        router.push('/registro/confirmacao')
+        router.push(`/registro/confirmacao?code=${response.jwt_token}`)
       } else {
         toast.error(response.error[0])
       }

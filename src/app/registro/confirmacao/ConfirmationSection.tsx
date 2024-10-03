@@ -1,27 +1,24 @@
 'use client'
 
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { redirect, useRouter } from 'next/navigation'
+import { redirect, useRouter, useSearchParams } from 'next/navigation'
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { useEffect, useState } from 'react'
-import {
-  resendCounterAtom,
-  userEmailAtom,
-  userNameAtom,
-  userNicknameAtom,
-} from '@/states'
+import { resendCounterAtom, userEmailAtom } from '@/states'
 import { ResendComponent } from '@/components/ResendComponent'
 import {
-  sendConfirmationCodeToEmail,
+  resendConfirmationCodeToEmail,
+  validateJwtToken,
   verifyConfirmationCode,
 } from '@/data/sendCodeToEmail'
 import { ConfirmationCode } from '@/components/ConfirmationCode'
 import { toast } from 'react-toastify'
 
 export const ConfirmationSection = () => {
+  const searchParams = useSearchParams()
+  const param = searchParams.get('code')
+
   const [email, setEmail] = useRecoilState(userEmailAtom)
-  const [name, setName] = useRecoilState(userNameAtom)
-  const setNickname = useSetRecoilState(userNicknameAtom)
 
   const [inputs, setInputs] = useState<string[]>(Array(6).fill(''))
   const [loader, setLoader] = useState<boolean>(false)
@@ -32,21 +29,26 @@ export const ConfirmationSection = () => {
   const router = useRouter()
 
   useEffect(() => {
-    if (!email) {
+    if (!param) {
       redirect('/')
-    } else {
+    } else if (email) {
       setLoadingEmail(false)
     }
-  }, [email])
+  }, [param, email])
 
-  // useEffect(() => {
-  //   // Função para resetar o estado ao mudar de rota
-  //   const handleRouteChange = () => {
-  //     setEmail('') // Resetar o estado de email
-  //     setName('') // Resetar o estado de name
-  //     setNickname('') // Resetar o estado de nickname
-  //   }
-  // }, [])
+  useEffect(() => {
+    const validation = async () => {
+      if (param) {
+        const response = await validateJwtToken(param)
+
+        console.log(response)
+
+        if (!response.success) router.push('/registro')
+      }
+    }
+
+    validation()
+  }, [param, router])
 
   async function handleConfirmationCode() {
     setLoader(true)
@@ -55,11 +57,12 @@ export const ConfirmationSection = () => {
 
     if (code.length < inputs.length) {
       toast.error('Código incorreto')
-    } else {
-      const response = await verifyConfirmationCode(email, code)
+    } else if (param) {
+      const response = await verifyConfirmationCode(email, code, param)
 
       if (response.success) {
-        router.push('/registro/senha')
+        setEmail('')
+        router.push(`/registro/senha?code=${response.jwt_token}`)
       } else {
         toast.error('Código inválido, informe novamente')
       }
@@ -75,7 +78,7 @@ export const ConfirmationSection = () => {
 
   function handleResendClick() {
     setCounter(60)
-    sendConfirmationCodeToEmail(email, name) // enviar dado de email para o backend enviar um código de confirmação no email do usuário
+    resendConfirmationCodeToEmail(email)
   }
 
   return (

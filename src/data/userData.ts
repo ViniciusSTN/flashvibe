@@ -1,21 +1,41 @@
-import { CreateNewUserType } from '@/types/loginAndRegister'
+import { auth } from '@/lib/firebase'
+import {
+  CreateNewUserWithPasswordType,
+  CreateNewUserIntoDatabaseType,
+} from '@/types/loginAndRegister'
 import axios from 'axios'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 
-export const createNewUser: CreateNewUserType = async (
-  email,
-  username,
-  nickname,
+export const createNewUserWithPassword: CreateNewUserWithPasswordType = async (
+  password,
+  jwtToken,
 ) => {
-  const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/create/'
-
   try {
-    const response = await axios.post(url, {
-      email,
-      username,
-      nickname,
-    })
-    return response.data
-  } catch (error: unknown) {
+    const response = await createNewUserIntoDatabase(jwtToken)
+
+    if (response.success) {
+      const { email } = response.data
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+
+      const firebaseUser = userCredential.user
+
+      return {
+        success: true,
+        message: 'Cadastro realizado com sucesso',
+        user: firebaseUser,
+      }
+    } else {
+      return {
+        success: false,
+        error: ['Não foi possível concluir o cadastro'],
+      }
+    }
+  } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Axios error to create new user:', error.response?.data)
       return {
@@ -24,6 +44,39 @@ export const createNewUser: CreateNewUserType = async (
       }
     } else {
       console.error('Error to create new user:', error)
+      return { success: false, error: 'An unexpected error occurred' }
+    }
+  }
+}
+
+export const createNewUserIntoDatabase: CreateNewUserIntoDatabaseType = async (
+  jwtToken,
+) => {
+  const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/create/'
+
+  try {
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      },
+    )
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios error to create new user into database:',
+        error.response?.data,
+      )
+      return {
+        success: false,
+        error: error.response?.data?.message || 'An unexpected error occurred',
+      }
+    } else {
+      console.error('Error to create new user into database:', error)
       return { success: false, error: 'An unexpected error occurred' }
     }
   }

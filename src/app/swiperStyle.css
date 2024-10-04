@@ -1,0 +1,9 @@
+/* Slider */
+.swiper {
+  width: 100%;
+}
+
+.swiper-slide {
+  width: 272px;
+  height: 520px;
+}

@@ -1,66 +1,48 @@
-'use client' // Adicione isso se o seu componente for renderizado no cliente
+'use client'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
+
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/pagination'
-import 'swiper/css/navigation'
-import { EffectCoverflow, Navigation, Pagination } from 'swiper/modules'
+
+import './swiperStyle.css'
+
+import { EffectCoverflow, Pagination } from 'swiper/modules'
+import { sliders } from '@/mocks/slider'
 
 export const SliderSection = () => {
   return (
-    <section className="mx-auto mt-16 max-w-1440px">
-      <div className="container">
-        <Swiper
-          effect={'coverflow'}
-          grabCursor={true}
-          centeredSlides={true}
-          loop={true}
-          slidesPerView={'auto'}
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 100,
-            modifier: 2.5,
-          }}
-          pagination={{ el: '.swiper-pagination', clickable: true }}
-          // navigation={true}
-          navigation={{
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          }}
-          modules={[EffectCoverflow, Pagination, Navigation]}
-          className="swiper_container"
-        >
-          <SwiperSlide>
-            <div className="flex h-60 w-60 items-center justify-center bg-red-500 text-white">
-              Slide 1
+    <section className="relative mx-auto mt-16 max-w-1440px px-6">
+      <Swiper
+        effect={'coverflow'}
+        grabCursor={true}
+        centeredSlides={true}
+        slidesPerView={4}
+        spaceBetween={24}
+        loop={true}
+        coverflowEffect={{
+          rotate: 30,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: true,
+        }}
+        pagination={true}
+        modules={[EffectCoverflow, Pagination]}
+        className="swiper"
+      >
+        {sliders.map((slide, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className={`h-full w-full rounded-lg border-8 border-[${slide.color}]`}
+            >
+              <p>{slide.text}</p>
+              <img src={slide.image} alt={slide.alt} />
             </div>
           </SwiperSlide>
-          <SwiperSlide>
-            <div className="flex h-60 w-60 items-center justify-center bg-blue-500 text-white">
-              Slide 2
-            </div>
-          </SwiperSlide>
-          <SwiperSlide>
-            <div className="flex h-60 w-60 items-center justify-center bg-green-500 text-white">
-              Slide 3
-            </div>
-          </SwiperSlide>
-          <SwiperSlide>
-            <div className="flex h-60 w-60 items-center justify-center bg-yellow-500 text-white">
-              Slide 4
-            </div>
-          </SwiperSlide>
-          <SwiperSlide>
-            <div className="flex h-60 w-60 items-center justify-center bg-purple-500 text-white">
-              Slide 5
-            </div>
-          </SwiperSlide>
-        </Swiper>
-
-        <div className="swiper-pagination"></div>
-      </div>
+        ))}
+      </Swiper>
     </section>
   )
 }

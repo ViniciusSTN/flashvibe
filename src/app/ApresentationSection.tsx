@@ -2,8 +2,8 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 
 export const ApresentationSection = () => {
   return (
-    <section className="mx-auto mt-16 max-w-1440px">
-      <div className="mx-6 flex flex-col items-center gap-6 xl:flex-row xl:justify-between 1.5xl:gap-24">
+    <section className="mx-auto mt-16 max-w-1440px px-6 md:px-10">
+      <div className="mb-16 flex flex-col items-center gap-6 xl:flex-row xl:justify-between 1.5xl:gap-24">
         <div className="max-w-920px xl:max-w-420px">
           <div className="mb-12 flex flex-col gap-2">
             <p className="font-semibold uppercase text-light-gray500">
@@ -37,6 +37,7 @@ export const ApresentationSection = () => {
             src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/Stock_Photography_person_studying_using_flash_cards_1.jpg?alt=media&token=0c55cd62-0f5b-48c2-85bd-40a81640729e"
             alt="pessoas estudando"
             className="rounded-2xl"
+            fetchPriority="high"
           />
         </div>
       </div>

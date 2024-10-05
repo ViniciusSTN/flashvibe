@@ -53,7 +53,7 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
           )}
         </span>
         {error?.length > 0 && (
-          <small className="block text-red-600">{error[0]}</small>
+          <small className="text-red-600 block">{error[0]}</small>
         )}
       </div>
     )

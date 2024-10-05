@@ -30,7 +30,7 @@ export const ButtonDefault: ButtonType = ({
       {type === 'link' && (
         <button
           disabled={disabled}
-          className={`${style === 'dark' && 'bg-principal-blue text-white hover:text-light-blue900'} ${style === 'light' && 'bg-white text-principal-blue hover:text-light-blue900'} text-base font-semibold transition-colors active:outline active:outline-2 active:outline-light-blue900 ${shadow && 'shadow-clean shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          className={`${style === 'dark' && 'bg-principal-blue text-white hover:text-light-blue900'} ${style === 'light' && 'bg-white text-principal-blue hover:text-light-blue900'} text-base font-bold transition-colors active:outline active:outline-2 active:outline-light-blue900 ${shadow && 'shadow-clean shadow-light-gray250'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
         >
           <Link href={link}>{text}</Link>
         </button>

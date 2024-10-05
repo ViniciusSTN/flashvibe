@@ -86,3 +86,11 @@ input[type='number'] {
   animation: l3 1s infinite linear;
 }
 @keyframes l3 {to{transform: rotate(1turn)}}
+
+/* home paralax */
+.book-shelf-paralax {
+  background-image: url('https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/pexels-rafael-cosquiere-1059286-2041540.jpg?alt=media&token=e7b25ffd-e8eb-4d8b-b176-b0c88ef07ed5');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+}

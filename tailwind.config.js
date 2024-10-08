@@ -36,6 +36,7 @@ module.exports = {
       spacing: {
         'screen-header': 'calc(100vh - 62px)',
         '272px': '17rem',
+        '310px': '19.375rem',
         '420px': '26.25rem',
         '464px': '29rem',
         '520px': '32.5rem',
@@ -59,7 +60,7 @@ module.exports = {
       // gridTemplateColumns: {},
       boxShadow: {
         clean: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;',
-        sla: '1px 2px 6px 2px rgba(100, 100, 111, 0.2);',
+        'very-clean': '1px 2px 6px 2px rgba(100, 100, 111, 0.2);',
       },
       rotate: {
         270: '270deg',

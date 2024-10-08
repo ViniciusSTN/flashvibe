@@ -5,12 +5,12 @@
 /* Remove spinners in input type number */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none; /* Removes the spin buttons in Webkit browsers */
-  margin: 0; /* Removes the default margin */
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 input[type='number'] {
-  -moz-appearance: textfield; /* Removes the spin buttons in Firefox */
+  -moz-appearance: textfield;
   appearance: none;
 }
 

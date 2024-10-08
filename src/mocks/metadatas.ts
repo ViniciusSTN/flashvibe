@@ -23,3 +23,9 @@ export const myProfile: Metadata = {
   description:
     'Atualize suas informações pessoais, como nome, apelido, celular, foto, e-mail e senha, e mantenha seu perfil sempre em dia para aproveitar ao máximo sua jornada no FlashVibe.',
 }
+
+export const myDecks: Metadata = {
+  title: 'Meus Decks Flashvibe',
+  description:
+    'Explore todos os seus decks de estudo, tanto os padrões quanto os personalizados. Escolha quais decks deseja estudar e organize seu aprendizado de forma eficaz e personalizada.',
+}

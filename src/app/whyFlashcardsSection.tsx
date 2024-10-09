@@ -61,7 +61,6 @@ export const WhyFlashcardsSection = () => {
           <div className="shrink-0 lg:w-1/2">
             <img
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/30576696_7720439.svg?alt=media&token=7cf67a19-8ef0-4f7d-97f1-f13397fab09f"
-              // src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/flashcards%201.png?alt=media&token=89bac055-aeae-437b-b31e-afa4db593b9c"
               alt="pessoas pensando"
               className="w-full object-contain lg:max-h-520px"
               loading="lazy"

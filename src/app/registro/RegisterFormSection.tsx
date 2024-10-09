@@ -86,8 +86,6 @@ export const RegisterFormSection = () => {
         formValues.nickname,
       )
 
-      console.log(response)
-
       if (response.success) {
         setEmail(formValues.email)
         router.push(`/registro/confirmacao?code=${response.jwt_token}`)

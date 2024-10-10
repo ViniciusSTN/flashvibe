@@ -2,6 +2,7 @@ import {
   ErrorResponse,
   SuccessResponse,
   SuccessResponseWithJwtToken,
+  SuccessWithSessionTokenResponse,
   SuccessWithUserCredentials,
   SuccessWithUserData,
 } from './apiResponse'
@@ -9,6 +10,7 @@ import {
 export type SendConfirmationCodeToEmailType = (
   email: string,
   name: string,
+  nickname: string,
 ) => Promise<ErrorResponse | SuccessResponseWithJwtToken>
 
 export type ResendConfirmationCodeToEmailType = (
@@ -43,3 +45,7 @@ export type CreateNewUserWithPasswordType = (
 export type CreateNewUserIntoDatabaseType = (
   jwtToken: string,
 ) => Promise<ErrorResponse | SuccessWithUserData>
+
+export type CreateUserSessionType = (
+  token: string,
+) => Promise<ErrorResponse | SuccessWithSessionTokenResponse>

@@ -49,8 +49,6 @@ export const CreatePasswordSection = () => {
       if (param) {
         const response = await validateJwtToken(param)
 
-        console.log(response)
-
         if (!response.success) router.push('/registro')
       }
     }
@@ -96,8 +94,6 @@ export const CreatePasswordSection = () => {
         if (response.user) {
           toast.success('Cadastro realizado com sucesso!')
 
-          console.log(response.user)
-
           router.push('/login')
         }
       } else {
@@ -137,7 +133,9 @@ export const CreatePasswordSection = () => {
             />
           ))}
 
-          <ShowPassword />
+          <div className="mb-10 flex justify-end">
+            <ShowPassword />
+          </div>
 
           <div className="flex justify-center">
             <ButtonDefault

@@ -4,13 +4,15 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
 import { ShowPassword } from '@/components/ShowPassword'
 import { SocialMediaSignIn } from '@/components/SocialMediaSignIn'
+import { createUserSession } from '@/data/userData'
 import { auth } from '@/lib/firebase'
 import { inputs } from '@/mocks/loginForm'
 import { loginWithEmailSchema, loginWithPhoneNumber } from '@/schemas/login'
-import { userCredentials } from '@/types/firebaseUser'
+import { UserCredentials } from '@/types/firebaseUser'
 import { FormLoginErrors, FormLoginValues, InputName } from '@/types/login'
 import { AuthError, signInWithEmailAndPassword } from 'firebase/auth'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -27,6 +29,8 @@ const initialErrors: FormLoginErrors = {
 export const LoginFormSection = () => {
   const [formValues, setFormValues] = useState<FormLoginValues>(initialValues)
   const [formErrors, setFormErrors] = useState<FormLoginErrors>(initialErrors)
+
+  const router = useRouter()
 
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -69,15 +73,20 @@ export const LoginFormSection = () => {
         sentEmail,
         sentPassword,
       )
-      const { accessToken } = credential.user as userCredentials
-      console.log(accessToken)
-      // enviar token para o backend criar uma nova sessão para o usuário
-      // redirecionar o usuário para a home
-      // mostar toast de sucesso
+      const { accessToken } = credential.user as UserCredentials
+
+      const response = await createUserSession(accessToken)
+
+      if (response.success) {
+        toast.success('Bem vindo de volta!')
+        router.push('/')
+      } else {
+        toast.error('Não foi possível realizar o login')
+      }
     } catch (error) {
       console.log('Erro ao logar usuário', error)
       if ((error as AuthError).code === 'auth/invalid-credential') {
-        toast.error('Usuário não existe no sistema')
+        toast.error('Credenciais inválidas')
       } else if ((error as AuthError).code === 'auth/too-many-requests') {
         toast.warning('Muitas tentativas. Aguarde e tente novamente')
       } else {
@@ -134,7 +143,7 @@ export const LoginFormSection = () => {
             />
           ))}
 
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-10 flex items-center justify-between">
             <Link
               href={'/redefinir-senha/email'}
               className="text-sm text-principal-blue"

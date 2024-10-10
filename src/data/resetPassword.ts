@@ -22,11 +22,13 @@ export const sendEmailToResetPassword: SendEmailToResetPasswordType = async (
       )
       return {
         success: false,
-        error: error.response?.data?.message || 'An unexpected error occurred',
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
       }
     } else {
       console.error('Error sending email to user to reset password:', error)
-      return { success: false, error: 'An unexpected error occurred' }
+      return { success: false, error: ['An unexpected error occurred'] }
     }
   }
 }

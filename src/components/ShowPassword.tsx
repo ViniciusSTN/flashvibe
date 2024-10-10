@@ -12,7 +12,7 @@ export const ShowPassword = () => {
 
   return (
     <button
-      className="mb-10 flex items-center gap-1 self-end"
+      className="flex items-center gap-1 self-end"
       type="button"
       onClick={handleShowPasswordClick}
     >

@@ -83,6 +83,7 @@ export const RegisterFormSection = () => {
     } else {
       const response = await sendConfirmationCodeToEmail(
         formValues.email,
+        formValues.name,
         formValues.nickname,
       )
 

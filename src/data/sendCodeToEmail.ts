@@ -7,7 +7,7 @@ import {
 import axios from 'axios'
 
 export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
-  async (email, name) => {
+  async (email, name, nickname) => {
     const url =
       process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/send-user-data/'
 
@@ -15,6 +15,7 @@ export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
       const response = await axios.post(url, {
         email,
         name,
+        nickname,
       })
       return response.data
     } catch (error: unknown) {
@@ -25,12 +26,13 @@ export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
         )
         return {
           success: false,
-          error:
-            error.response?.data?.message || 'An unexpected error occurred',
+          error: error.response?.data?.message || [
+            'An unexpected error occurred',
+          ],
         }
       } else {
         console.error('Error sending code to email:', error)
-        return { success: false, error: 'An unexpected error occurred' }
+        return { success: false, error: ['An unexpected error occurred'] }
       }
     }
   }
@@ -53,12 +55,13 @@ export const resendConfirmationCodeToEmail: ResendConfirmationCodeToEmailType =
         )
         return {
           success: false,
-          error:
-            error.response?.data?.message || 'An unexpected error occurred',
+          error: error.response?.data?.message || [
+            'An unexpected error occurred',
+          ],
         }
       } else {
         console.error('Error sending code to email:', error)
-        return { success: false, error: 'An unexpected error occurred' }
+        return { success: false, error: ['An unexpected error occurred'] }
       }
     }
   }
@@ -83,11 +86,13 @@ export const validateJwtToken: ValidateJwtTokenType = async (jwtToken) => {
       console.error('Axios error to validate jwt token:', error.response?.data)
       return {
         success: false,
-        error: error.response?.data?.message || 'An unexpected error occurred',
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
       }
     } else {
       console.error('Error validating jws token', error)
-      return { success: false, error: 'An unexpected error occurred' }
+      return { success: false, error: ['An unexpected error occurred'] }
     }
   }
 }
@@ -117,11 +122,13 @@ export const verifyConfirmationCode: VerifyConfirmationCodeType = async (
       console.error('Axios error sending code to email:', error.response?.data)
       return {
         success: false,
-        error: error.response?.data?.message || 'An unexpected error occurred',
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
       }
     } else {
       console.error('Error sending code to email:', error)
-      return { success: false, error: 'An unexpected error occurred' }
+      return { success: false, error: ['An unexpected error occurred'] }
     }
   }
 }

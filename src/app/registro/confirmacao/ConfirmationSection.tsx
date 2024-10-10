@@ -41,8 +41,6 @@ export const ConfirmationSection = () => {
       if (param) {
         const response = await validateJwtToken(param)
 
-        console.log(response)
-
         if (!response.success) router.push('/registro')
       }
     }

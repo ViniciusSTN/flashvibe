@@ -15,12 +15,14 @@ export type SuccessResponseWithJwtToken = SuccessResponse & {
 }
 
 export type SuccessWithUserData = SuccessResponse & {
-  data: {
-    email: string
-  }
+  email: string
 }
 
 export type SuccessWithUserCredentials = {
   success: true
   user: User
+}
+
+export type SuccessWithSessionTokenResponse = SuccessResponse & {
+  session_id: string
 }

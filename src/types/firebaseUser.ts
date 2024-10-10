@@ -1,5 +1,5 @@
 import { User } from 'firebase/auth'
 
-export type userCredentials = User & {
+export type UserCredentials = User & {
   accessToken: string
 }

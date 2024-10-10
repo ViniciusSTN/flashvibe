@@ -6,7 +6,6 @@ export async function getAllUserDecks() {
   // simulando uma requisição
   await new Promise<void>((resolve) => {
     setTimeout(() => {
-      console.log('retornou')
       resolve()
     }, 1000)
   })

@@ -23,5 +23,5 @@ export type ColorClasseType = {
   [key: number]: {
     dark: string
     light: string
-  } 
+  }
 }

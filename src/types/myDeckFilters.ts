@@ -1,5 +1,4 @@
-export type MyDeckFiltersType = {
-  isActive: boolean
+export type MyDeckFiltersDataType = {
   type: 'all' | 'standard' | 'custom'
   searchBy:
     | 'newer'
@@ -16,4 +15,8 @@ export type MyDeckFiltersType = {
     learning: boolean
     finished: boolean
   }
+}
+
+export type MyDeckFiltersType = MyDeckFiltersDataType & {
+  isActive: boolean
 }

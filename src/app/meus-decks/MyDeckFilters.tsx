@@ -1,117 +1,354 @@
 import Slider from 'rc-slider'
-import { useEffect, useState } from 'react'
-import 'rc-slider/assets/index.css'
+import React, { useEffect, useState } from 'react'
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { MyDeckFiltersDataType } from '@/types/myDeckFilters'
+import Image from 'next/image'
+import 'rc-slider/assets/index.css'
+import { useRecoilState } from 'recoil'
+import { myDeckFiltersAtom } from '@/states/atoms/myDeckFilters'
+
+const defaultData: MyDeckFiltersDataType = {
+  type: 'all',
+  flashcards: {
+    min: 0,
+    max: 0,
+  },
+  searchBy: 'lastModifications',
+  situation: {
+    favorites: true,
+    finished: true,
+    learning: true,
+  },
+}
 
 export const MyDeckFilters = () => {
-  const [defaultRange, setDefaultRange] = useState({ min: 0, max: 0 })
-  const [minRange, setMinRange] = useState<number>(0)
-  const [maxRange, setMaxRange] = useState<number>(0)
+  const [initialRange, setInitialRange] = useState({ min: 0, max: 0 })
+  const [filterData, setFilterData] =
+    useState<MyDeckFiltersDataType>(defaultData)
+
+  const [hidden, setHidden] = useState({
+    searchBy: false,
+    flashcards: false,
+    situation: false,
+  })
+
+  const [deckFilters, setDeckFilters] = useRecoilState(myDeckFiltersAtom)
 
   useEffect(() => {
     // const result = getMinAndMaxFlashcardsAmount()
     const result = { min: 100, max: 1000 } // simulando o retorno da API
 
-    setDefaultRange({ ...result })
-    setMinRange(result.min)
-    setMaxRange(result.max)
-  }, [])
+    setInitialRange({ ...result })
 
-  useEffect(() => {
-    console.log(minRange, maxRange)
-  }, [minRange, maxRange])
+    setFilterData((prevState) => ({
+      ...prevState,
+      flashcards: { min: result.min, max: result.max },
+    }))
+  }, [])
 
   const handleSliderChange = (newValues: number | number[]) => {
     if (Array.isArray(newValues)) {
-      setMinRange(newValues[0])
-      setMaxRange(newValues[1])
+      setFilterData((prevState) => ({
+        ...prevState,
+        flashcards: {
+          min: newValues[0],
+          max: newValues[1],
+        },
+      }))
     }
   }
 
+  const handleTypeButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault()
+    const name = (event.target as HTMLButtonElement).name
+
+    if (name === 'all' || name === 'standard' || name === 'custom') {
+      setFilterData((prevState) => ({
+        ...prevState,
+        type: name,
+      }))
+    }
+  }
+
+  const handleHiddenClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    const name = (event.target as HTMLButtonElement).name
+
+    if (name === 'searchBy' || name === 'flashcards' || name === 'situation') {
+      setHidden((prevState) => ({
+        ...prevState,
+        [name]: !prevState[name],
+      }))
+    }
+  }
+
+  const handleSearchByChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target
+
+    if (
+      value === 'newer' ||
+      value === 'older' ||
+      value === 'lastModifications' ||
+      value === 'lastStudied' ||
+      value === 'flashcards'
+    ) {
+      setFilterData((prevState) => ({
+        ...prevState,
+        searchBy: value,
+      }))
+    }
+  }
+
+  const handleSituationChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { value } = event.target
+
+    if (value === 'favorites' || value === 'learning' || value === 'finished') {
+      setFilterData((prevState) => ({
+        ...prevState,
+        situation: {
+          ...prevState.situation,
+          [value]: !prevState.situation[value],
+        },
+      }))
+    }
+  }
+
+  const handleResetClick = () => {
+    setFilterData({
+      ...defaultData,
+      flashcards: {
+        min: initialRange.min,
+        max: initialRange.max,
+      },
+    })
+  }
+
+  const handleFilterSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+
+    setDeckFilters((prevState) => ({
+      ...prevState,
+      ...filterData,
+    }))
+  }
+
   return (
-    <form className="" action="">
-      <h3>Filtros</h3>
+    <form
+      className={`mt-5 max-h-0 w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${
+        deckFilters.isActive
+          ? 'max-h-screen-header shadow-very-clean'
+          : 'absolute z-10'
+      }`}
+      onSubmit={handleFilterSubmit}
+      action=""
+    >
+      <h3 className="border-b border-light-gray225 py-4 text-center font-medium">
+        Filtros
+      </h3>
 
-      <fieldset className="flex">
-        <button>Padrões</button>
-        <button>Personalizados</button>
-        <button>Todos</button>
+      <fieldset className="flex justify-center border-b border-light-gray225 py-5 text-sm font-semibold text-secondary-blue">
+        <button
+          className={`h-7 w-[75px] rounded-s-md transition-colors ${filterData.type === 'standard' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
+          name="standard"
+          onClick={handleTypeButtonClick}
+        >
+          Padrões
+        </button>
+
+        <button
+          className={`h-7 px-3 transition-colors ${filterData.type === 'custom' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border-y border-secondary-blue hover:text-light-blue900'}`}
+          name="custom"
+          onClick={handleTypeButtonClick}
+        >
+          Personalizados
+        </button>
+
+        <button
+          className={`h-7 w-[75px] rounded-e-md transition-colors ${filterData.type === 'all' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
+          name="all"
+          onClick={handleTypeButtonClick}
+        >
+          Todos
+        </button>
       </fieldset>
 
-      <fieldset>
-        <legend>Ordenar por</legend>
+      <fieldset className="border-b border-light-gray225">
+        <legend className="w-full">
+          <button
+            name="searchBy"
+            className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
+            onClick={handleHiddenClick}
+          >
+            <span className="pointer-events-none">Ordenar</span>
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
+              alt="mostrar filtros"
+              width={15}
+              height={15}
+              className={`${!hidden.searchBy && 'rotate-90'} pointer-events-none transition-all duration-300`}
+            />
+          </button>
+        </legend>
 
-        <label>
-          <input type="radio" name="sort" value="newer" />
-          Mais novos
-        </label>
+        <div
+          className={`${hidden.searchBy ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden pl-5 font-medium text-light-gray500 transition-all duration-300 ease-in-out`}
+        >
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="sort"
+              value="newer"
+              onChange={handleSearchByChange}
+              checked={filterData.searchBy === 'newer'}
+            />
+            <span>Mais novos</span>
+          </label>
 
-        <label>
-          <input type="radio" name="sort" value="older" />
-          Mais antigos
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="sort"
+              value="older"
+              onChange={handleSearchByChange}
+              checked={filterData.searchBy === 'older'}
+            />
+            <span>Mais antigos</span>
+          </label>
 
-        <label>
-          <input
-            type="radio"
-            name="sort"
-            value="lastModifications"
-            defaultChecked
-          />
-          Modificações recentes
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="sort"
+              value="lastModifications"
+              onChange={handleSearchByChange}
+              checked={filterData.searchBy === 'lastModifications'}
+            />
+            <span>Modificações recentes</span>
+          </label>
 
-        <label>
-          <input type="radio" name="sort" value="lastStudied" />
-          Últimos estudados
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="sort"
+              value="lastStudied"
+              onChange={handleSearchByChange}
+              checked={filterData.searchBy === 'lastStudied'}
+            />
+            <span>Últimos estudados</span>
+          </label>
 
-        <label>
-          <input type="radio" name="sort" value="flashcards" />
-          Quantidade de flashcards
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="sort"
+              value="flashcards"
+              onChange={handleSearchByChange}
+              checked={filterData.searchBy === 'flashcards'}
+            />
+            <span>Quantidade de flashcards</span>
+          </label>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Quantidade de flashcards</legend>
+      <fieldset className="border-b border-light-gray225">
+        <legend className="w-full">
+          <button
+            name="flashcards"
+            className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
+            onClick={handleHiddenClick}
+          >
+            <span className="pointer-events-none">
+              Quantidade de flashcards
+            </span>
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
+              alt="mostrar filtros"
+              width={15}
+              height={15}
+              className={`${!hidden.flashcards && 'rotate-90'} pointer-events-none transition-all duration-300`}
+            />
+          </button>
+        </legend>
 
-        <div>
-          <h3>Quantidade de flashcards</h3>
+        <div
+          className={`${hidden.flashcards ? 'max-h-0 opacity-0' : 'max-h-96 py-5 opacity-100'} overflow-hidden px-5 transition-all duration-300 ease-in-out`}
+        >
           <Slider
             range
-            min={defaultRange.min}
-            max={defaultRange.max}
+            min={initialRange.min}
+            max={initialRange.max}
             step={10}
-            value={[minRange, maxRange]}
+            value={[filterData.flashcards.min, filterData.flashcards.max]}
             onChange={handleSliderChange}
           />
           <div className="flex justify-between">
-            <span>{minRange}</span>
-            <span>{maxRange}</span>
+            <span>{filterData.flashcards.min}</span>
+            <span>{filterData.flashcards.max}</span>
           </div>
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Situação</legend>
+      <fieldset className="border-b border-light-gray225">
+        <legend className="w-full">
+          <button
+            name="situation"
+            className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
+            onClick={handleHiddenClick}
+          >
+            <span className="pointer-events-none">Situação</span>
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
+              alt="mostrar filtros"
+              width={15}
+              height={15}
+              className={`${!hidden.situation && 'rotate-90'} pointer-events-none transition-all duration-300`}
+            />
+          </button>
+        </legend>
 
-        <label>
-          <input type="checkbox" name="situation" value="favorites" />
-          Favoritos
-        </label>
+        <div
+          className={`${hidden.situation ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden px-5 font-medium transition-all duration-300 ease-in-out`}
+        >
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="situation"
+              value="favorites"
+              onChange={handleSituationChange}
+              checked={filterData.situation.favorites}
+            />
+            <span>Favoritos</span>
+          </label>
 
-        <label>
-          <input type="checkbox" name="situation" value="learning" />
-          Aprendendo
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="situation"
+              value="learning"
+              onChange={handleSituationChange}
+              checked={filterData.situation.learning}
+            />
+            <span>Aprendendo</span>
+          </label>
 
-        <label>
-          <input type="checkbox" name="situation" value="finished" />
-          Finalizado
-        </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="situation"
+              value="finished"
+              onChange={handleSituationChange}
+              checked={filterData.situation.finished}
+            />
+            <span>Finalizado</span>
+          </label>
+        </div>
       </fieldset>
 
-      <div>
+      <div className="flex justify-center gap-5 py-5">
         <ButtonDefault
           text="Redefinir"
           type="button"
@@ -119,6 +356,7 @@ export const MyDeckFilters = () => {
           paddingy="py-2"
           radius="rounded-lg"
           tailwind="w-32"
+          onClick={handleResetClick}
         />
 
         <ButtonDefault

@@ -6,9 +6,14 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { MyDeckFilters } from './MyDeckFilters'
+import { DeckCard } from '@/components/DeckCard'
+import { getAllUserDecks } from '@/data/decks'
+import { DeckCardProps } from '@/types/deck'
 
 export const MyDecksSection = () => {
   const [mobile, setMobile] = useState<boolean | null>(null)
+  const [decks, setDecks] = useState<DeckCardProps[]>()
+  const [deckLoading, setDeckLoading] = useState<boolean>(true)
 
   const [filters, setFilters] = useRecoilState(myDeckFiltersAtom)
 
@@ -34,6 +39,23 @@ export const MyDecksSection = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    const fetchDecks = async () => {
+      const response = await getAllUserDecks()
+
+      if (response.success) {
+        setDecks(response.decks)
+      } else {
+        console.error(response.message)
+      }
+
+      setDeckLoading(false)
+    }
+
+    setDeckLoading(true)
+    fetchDecks()
+  }, [])
+
   if (mobile === null) {
     return (
       <section className="flex min-h-screen-header items-center justify-center">
@@ -43,7 +65,7 @@ export const MyDecksSection = () => {
   }
 
   return (
-    <section className="mx-auto my-24 max-w-1440px px-6 md:px-10">
+    <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
       <h1 className="mb-10 text-center text-3xl font-semibold">Meus decks</h1>
       <div
         className={`flex flex-wrap gap-5 sm:justify-between ${mobile && 'flex-row-reverse sm:flex-nowrap'}`}
@@ -107,7 +129,42 @@ export const MyDecksSection = () => {
         />
       </div>
 
-      <MyDeckFilters />
+      <div className="flex items-start gap-8">
+        <MyDeckFilters />
+
+        <div className="relative min-h-52 grow">
+          {deckLoading && (
+            // fazer skeleton depois
+            <div className="rotatingClipLoader absolute left-1/2 top-52 -translate-x-1/2"></div>
+          )}
+
+          {decks && (
+            <ul className="mt-16">
+              {decks.map((deck, index) => (
+                <DeckCard
+                  key={index}
+                  colorPredefinition={deck.colorPredefinition}
+                  description={deck.description}
+                  favorite={deck.favorite}
+                  flashcards={deck.flashcards}
+                  image={deck.image}
+                  lastModification={deck.lastModification}
+                  learning={deck.learning}
+                  new={deck.new}
+                  reviewing={deck.reviewing}
+                  situation={deck.situation}
+                  title={deck.title}
+                  type={deck.type}
+                  difficult={deck.difficult}
+                  public={deck.public}
+                  reviews={deck.reviews}
+                  stars={deck.stars}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </section>
   )
 }

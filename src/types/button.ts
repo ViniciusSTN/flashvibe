@@ -42,6 +42,7 @@ export type ButtonProps = {
   tailwind?: string
   submit?: boolean
   disabled?: boolean
+  onClick?: () => void
 }
 
 export type ButtonType = (props: ButtonProps) => JSX.Element

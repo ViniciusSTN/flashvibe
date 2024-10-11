@@ -9,13 +9,22 @@ import { MyDeckFilters } from './MyDeckFilters'
 import { DeckCard } from '@/components/DeckCard'
 import { getAllUserDecks } from '@/data/decks'
 import { DeckCardProps } from '@/types/deck'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { MyDeckModal } from './MyDeckModal'
 
 export const MyDecksSection = () => {
   const [mobile, setMobile] = useState<boolean | null>(null)
-  const [decks, setDecks] = useState<DeckCardProps[]>()
+  const [decks, setDecks] = useState<DeckCardProps[]>([])
   const [deckLoading, setDeckLoading] = useState<boolean>(true)
+  const [amountPages, setAmountPages] = useState<number>(0)
+  const [pageActive, setPageActive] = useState<number>(0)
+  const [buttons, setButtons] = useState<(number | string)[]>([])
 
   const [filters, setFilters] = useRecoilState(myDeckFiltersAtom)
+
+  const searchParams = useSearchParams()
+
+  const router = useRouter()
 
   function handleShowFiltersClick() {
     setFilters((prevState) => ({
@@ -23,6 +32,39 @@ export const MyDecksSection = () => {
       isActive: !prevState.isActive,
     }))
   }
+
+  function handlePageButtonClick(page: number) {
+    setPageActive(page)
+    router.push(`/meus-decks?pag=${page}`)
+  }
+
+  useEffect(() => {
+    const generatePagination = () => {
+      const pages = []
+      if (amountPages <= 5) {
+        for (let i = 1; i <= amountPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        pages.push(1)
+        if (pageActive > 3) pages.push('...')
+        if (pageActive > 2) pages.push(pageActive - 1)
+        if (pageActive !== 1 && pageActive !== amountPages)
+          pages.push(pageActive)
+        if (pageActive < amountPages - 1) pages.push(pageActive + 1)
+        if (pageActive < amountPages - 2) pages.push('...')
+        pages.push(amountPages)
+      }
+      return pages
+    }
+
+    setButtons(generatePagination())
+  }, [amountPages, pageActive])
+
+  useEffect(() => {
+    const page = searchParams.get('pag')
+    if (Number(page)) setPageActive(Number(page))
+  }, [searchParams])
 
   useEffect(() => {
     function handleResize() {
@@ -41,20 +83,22 @@ export const MyDecksSection = () => {
 
   useEffect(() => {
     const fetchDecks = async () => {
-      const response = await getAllUserDecks()
+      if (pageActive) {
+        const response = await getAllUserDecks(pageActive)
 
-      if (response.success) {
-        setDecks(response.decks)
-      } else {
-        console.error(response.message)
+        if (response.success && response.decks) {
+          setDecks(response.decks)
+          setAmountPages(response.lastPage)
+        } else {
+          console.error(response.message)
+        }
       }
 
       setDeckLoading(false)
     }
 
-    setDeckLoading(true)
     fetchDecks()
-  }, [])
+  }, [pageActive])
 
   if (mobile === null) {
     return (
@@ -66,9 +110,11 @@ export const MyDecksSection = () => {
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
+      <MyDeckModal />
+
       <h1 className="mb-10 text-center text-3xl font-semibold">Meus decks</h1>
       <div
-        className={`flex flex-wrap gap-5 sm:justify-between ${mobile && 'flex-row-reverse sm:flex-nowrap'}`}
+        className={`flex flex-wrap gap-5 sm:justify-between ${mobile ? 'flex-row-reverse sm:flex-nowrap' : ''}`}
       >
         {!mobile && (
           <button
@@ -134,34 +180,51 @@ export const MyDecksSection = () => {
 
         <div className="relative min-h-52 grow">
           {deckLoading && (
-            // fazer skeleton depois
             <div className="rotatingClipLoader absolute left-1/2 top-52 -translate-x-1/2"></div>
           )}
 
-          {decks && (
-            <ul className="mt-16">
-              {decks.map((deck, index) => (
-                <DeckCard
-                  key={index}
-                  colorPredefinition={deck.colorPredefinition}
-                  description={deck.description}
-                  favorite={deck.favorite}
-                  flashcards={deck.flashcards}
-                  image={deck.image}
-                  lastModification={deck.lastModification}
-                  learning={deck.learning}
-                  new={deck.new}
-                  reviewing={deck.reviewing}
-                  situation={deck.situation}
-                  title={deck.title}
-                  type={deck.type}
-                  difficult={deck.difficult}
-                  public={deck.public}
-                  reviews={deck.reviews}
-                  stars={deck.stars}
-                />
-              ))}
-            </ul>
+          {decks.length > 0 && (
+            <>
+              <ul className="mt-16 grid auto-rows-[1fr] grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-3 gap-y-8">
+                {decks.map((deck, index) => (
+                  <li key={index} className="flex justify-center">
+                    <DeckCard
+                      colorPredefinition={deck.colorPredefinition}
+                      description={deck.description}
+                      favorite={deck.favorite}
+                      flashcards={deck.flashcards}
+                      image={deck.image}
+                      lastModification={deck.lastModification}
+                      learning={deck.learning}
+                      new={deck.new}
+                      reviewing={deck.reviewing}
+                      situation={deck.situation}
+                      title={deck.title}
+                      type={deck.type}
+                      difficult={deck.difficult}
+                      public={deck.public}
+                      reviews={deck.reviews}
+                      stars={deck.stars}
+                    />
+                  </li>
+                ))}
+              </ul>
+
+              {buttons.length > 1 && (
+                <div className="mt-10 flex justify-center gap-1 sm:gap-2">
+                  {buttons.map((text, index) => (
+                    <button
+                      className={`h-10 w-10 rounded-lg bg-secondary-blue text-xl font-medium text-white hover:scale-[1.02] ${pageActive === index + 1 && 'bg-light-blue900'}`}
+                      key={index}
+                      onClick={() => handlePageButtonClick(index + 1)}
+                      disabled={text === '...'}
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

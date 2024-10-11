@@ -1,104 +1,134 @@
 import { colorClasses } from '@/mocks/deckColors'
+import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { DeckCardType } from '@/types/deck'
 import Image from 'next/image'
+import { useSetRecoilState } from 'recoil'
 
-export const DeckCard: DeckCardType = ({
-  type,
-  favorite,
-  colorPredefinition: color,
-  title,
-  difficult,
-  image,
-  situation,
-  public: isPublic,
-  stars,
-  reviews,
-}) => {
+export const DeckCard: DeckCardType = ({ ...props }) => {
+  const setDeckActive = useSetRecoilState(deckActiveAtom)
+
   return (
-    <li>
-      <div className={`relative ${colorClasses[color]?.dark}`}>
-        <p>{type}</p>
-        <span></span>
+    <button
+      className="w-[260px] shadow-clean transition hover:scale-[1.02]"
+      onClick={() => setDeckActive({ ...props })}
+    >
+      <div
+        className={`relative ${colorClasses[props.colorPredefinition]?.dark} flex items-center justify-between px-3 pb-3 pt-2`}
+      >
+        <p className="max-w-[69px] text-start text-sm font-semibold italic text-white">
+          {props.type}
+        </p>
+        <span className="absolute bottom-3 left-1/2 h-3 w-[88px] -translate-x-1/2 rounded-full bg-white before:absolute before:bottom-3 before:left-1/2 before:-translate-x-1/2 before:border-b-[20px] before:border-l-[40px] before:border-r-[40px] before:border-b-white before:border-l-transparent before:border-r-transparent"></span>
         <Image
           src={
-            favorite
+            props.favorite
               ? 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/favorited.svg?alt=media&token=63b0a27a-0e5f-40d2-930e-368000967448'
               : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/notfavorited.svg?alt=media&token=bbc1575e-f77d-4def-adce-725d5e889a86'
           }
           alt="favoritado"
-          width={40}
-          height={40}
+          width={24}
+          height={24}
+          className="h-6 w-6"
         />
       </div>
 
-      <div className={`${colorClasses[color]?.light} p-3`}>
-        <div className="rounded-2xl bg-white">
-          {stars && (
-            <div className="flex">
-              <p>{stars}</p>
+      <div className={`${colorClasses[props.colorPredefinition]?.light} p-3`}>
+        <div className="relative h-[341px] rounded-2xl bg-white py-2">
+          {props.stars && props.reviews && (
+            <div className="absolute flex w-full items-center justify-between px-2">
+              <div className="flex gap-2">
+                <p className="font-medium">{props.stars.toFixed(1)}</p>
+                <div className="mt-[2px] flex gap-1">
+                  {Array.from({ length: Math.floor(props.stars) }).map(
+                    (_, index) => (
+                      <Image
+                        key={index}
+                        src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/star.svg?alt=media&token=2a7b7e53-ad74-4bd1-bd3a-428c034e6469"
+                        alt="estrela"
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                      />
+                    ),
+                  )}
 
-              <div className="flex gap-1">
-                {Array.from({ length: Math.floor(stars) }).map((_, index) => (
-                  <Image
-                    key={index}
-                    src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/star.svg?alt=media&token=2a7b7e53-ad74-4bd1-bd3a-428c034e6469"
-                    alt="estrela"
-                    width={16}
-                    height={16}
-                  />
-                ))}
-
-                {!Number.isInteger(stars) && (
-                  <Image
-                    src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/half-star.svg?alt=media&token=ea1435a9-5bd2-41d9-a2aa-6d63f673fc25"
-                    alt="meia estrela"
-                    width={16}
-                    height={16}
-                  />
-                )}
-
-                {5 - Math.ceil(stars) > 0 &&
-                  Array.from({
-                    length: 5 - Math.ceil(stars),
-                  }).map((_, index) => (
+                  {!Number.isInteger(props.stars) && (
                     <Image
-                      key={`empty-${index}`}
-                      src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/empty-star.svg?alt=media&token=8087f02a-bb31-4514-a518-c7ec5d4855cb"
-                      alt="estrela vazia"
+                      src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/half-star.svg?alt=media&token=ea1435a9-5bd2-41d9-a2aa-6d63f673fc25"
+                      alt="meia estrela"
                       width={16}
                       height={16}
+                      className="h-4 w-4"
                     />
-                  ))}
+                  )}
+
+                  {5 - Math.ceil(props.stars) > 0 &&
+                    Array.from({
+                      length: 5 - Math.ceil(props.stars),
+                    }).map((_, index) => (
+                      <Image
+                        key={`empty-${index}`}
+                        src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/empty-star.svg?alt=media&token=8087f02a-bb31-4514-a518-c7ec5d4855cb"
+                        alt="estrela vazia"
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                      />
+                    ))}
+                </div>
               </div>
 
-              <p>{reviews} reviews</p>
+              <p className="mb-[2px] flex gap-1 text-sm">
+                <span>
+                  {props.reviews && props.reviews >= 1000
+                    ? `${(props.reviews / 1000).toFixed(1)}k`
+                    : props.reviews}
+                </span>
+                <span>reviews</span>
+              </p>
             </div>
           )}
 
-          <div>
-            <h2>{title}</h2>
-            {difficult && <p>{difficult}</p>}
+          <div className="mt-9 text-center">
+            <h2 className="max-h-14 overflow-hidden px-4 text-xl font-bold">
+              {props.title}
+            </h2>
+            {props.difficult && (
+              <p className="absolute left-1/2 -translate-x-1/2 font-semibold italic text-secondary-blue">
+                {props.difficult}
+              </p>
+            )}
           </div>
 
           <div>
-            <Image src={image} alt="Capa do deck" height={192} width={192} />
+            <Image
+              src={props.image}
+              alt="Capa do deck"
+              height={192}
+              width={192}
+              className="absolute bottom-10 left-1/2 h-40 w-40 -translate-x-1/2"
+              priority
+            />
           </div>
 
           <div>
-            <p>{situation}</p>
+            <p className="absolute bottom-2 left-2 text-sm font-medium text-light-gray500">
+              {props.situation}
+            </p>
             <Image
               src={
-                isPublic
+                props.public
                   ? 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/public.svg?alt=media&token=177b2d1a-ff07-4274-83cb-3e90e517fb6b'
                   : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/private.svg?alt=media&token=8d72a3bc-b00e-4835-a954-32a2b084f2aa'
               }
-              alt={isPublic ? 'público' : 'privado'}
+              alt={props.public ? 'público' : 'privado'}
               width={20}
               height={20}
+              className="absolute bottom-2 right-2 h-5 w-5"
             />
           </div>
         </div>
       </div>
-    </li>
+    </button>
   )
 }

@@ -138,10 +138,8 @@ export const MyDeckFilters = () => {
 
   return (
     <form
-      className={`mt-5 max-h-0 w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${
-        deckFilters.isActive
-          ? 'max-h-screen-header shadow-very-clean'
-          : 'absolute z-10'
+      className={`absolute z-10 mt-5 max-h-0 w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${
+        deckFilters.isActive && 'max-h-842px shadow-very-clean lg:static'
       }`}
       onSubmit={handleFilterSubmit}
       action=""

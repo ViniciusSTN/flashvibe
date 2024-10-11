@@ -13,7 +13,7 @@ import {
   InputName,
 } from '@/types/createPassword'
 import { redirect, useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 const initialValues: FormCreatePasswordValues = {

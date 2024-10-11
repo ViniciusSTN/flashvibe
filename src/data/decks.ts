@@ -1,6 +1,6 @@
 import { decks } from '@/mocks/TemporaryDecks'
 
-export async function getAllUserDecks() {
+export async function getAllUserDecks(page: number) {
   // fazer requisição para o backend
 
   // simulando uma requisição
@@ -14,6 +14,7 @@ export async function getAllUserDecks() {
     return {
       success: true,
       decks,
+      lastPage: 6,
     }
   } else {
     return {

@@ -36,7 +36,7 @@ const localStorageEffect: AtomEffect<MyDeckFiltersType> = ({
 export const myDeckFiltersAtom = atom<MyDeckFiltersType>({
   key: 'MyDeckFilters',
   default: {
-    isActive: true,
+    isActive: false,
     type: 'all',
     searchBy: 'lastModifications',
     flashcards: {

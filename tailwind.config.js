@@ -1,4 +1,6 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * @type {import('tailwindcss').Config}
+ */
 module.exports = {
   content: [
     // './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -69,8 +71,8 @@ module.exports = {
       // lineHeight: {},
       // gridTemplateColumns: {},
       boxShadow: {
-        clean: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;',
-        'very-clean': '1px 2px 6px 2px rgba(100, 100, 111, 0.2);',
+        clean: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+        'very-clean': '1px 2px 6px 2px rgba(100, 100, 111, 0.2)',
       },
       rotate: {
         270: '270deg',

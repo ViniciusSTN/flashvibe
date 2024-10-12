@@ -3,6 +3,8 @@ import { decks } from '@/mocks/TemporaryDecks'
 export async function getAllUserDecks(page: number) {
   // fazer requisição para o backend
 
+  console.log(page)
+
   // simulando uma requisição
   await new Promise<void>((resolve) => {
     setTimeout(() => {

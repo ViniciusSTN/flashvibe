@@ -3,7 +3,7 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { myDeckFiltersAtom } from '@/states/atoms/myDeckFilters'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { MyDeckFilters } from './MyDeckFilters'
 import { DeckCard } from '@/components/DeckCard'
@@ -11,20 +11,27 @@ import { getAllUserDecks } from '@/data/decks'
 import { DeckCardProps } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MyDeckModal } from './MyDeckModal'
+import Link from 'next/link'
 
 export const MyDecksSection = () => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const getPage = useCallback(() => {
+    return searchParams.get('pag')
+  }, [searchParams])
+
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
   const [deckLoading, setDeckLoading] = useState<boolean>(true)
   const [amountPages, setAmountPages] = useState<number>(0)
-  const [pageActive, setPageActive] = useState<number>(0)
-  const [buttons, setButtons] = useState<(number | string)[]>([])
+  const [pageActive, setPageActive] = useState<number>(Number(getPage()))
+  const [newDeckActive, setNewDeckActive] = useState<boolean>(false)
+  const [paginationButtons, setPaginationButtons] = useState<
+    (number | string)[]
+  >([])
 
   const [filters, setFilters] = useRecoilState(myDeckFiltersAtom)
-
-  const searchParams = useSearchParams()
-
-  const router = useRouter()
 
   function handleShowFiltersClick() {
     setFilters((prevState) => ({
@@ -58,13 +65,8 @@ export const MyDecksSection = () => {
       return pages
     }
 
-    setButtons(generatePagination())
+    setPaginationButtons(generatePagination())
   }, [amountPages, pageActive])
-
-  useEffect(() => {
-    const page = searchParams.get('pag')
-    if (Number(page)) setPageActive(Number(page))
-  }, [searchParams])
 
   useEffect(() => {
     function handleResize() {
@@ -83,22 +85,34 @@ export const MyDecksSection = () => {
 
   useEffect(() => {
     const fetchDecks = async () => {
-      if (pageActive) {
-        const response = await getAllUserDecks(pageActive)
+      const page = searchParams.get('pag') || '1'
 
-        if (response.success && response.decks) {
-          setDecks(response.decks)
-          setAmountPages(response.lastPage)
-        } else {
-          console.error(response.message)
-        }
+      const response = await getAllUserDecks(Number(page))
+
+      if (response.success && response.decks) {
+        setDecks(response.decks)
+        setAmountPages(response.lastPage)
+      } else {
+        console.error(response.message)
       }
 
       setDeckLoading(false)
     }
 
     fetchDecks()
-  }, [pageActive])
+  }, [searchParams])
+
+  useEffect(() => {
+    const page = getPage()
+
+    if (amountPages > 0) {
+      if (page && Number(page) > 0 && Number(page) <= amountPages) {
+        setPageActive(Number(page))
+      } else {
+        router.replace('/meus-decks?pag=1')
+      }
+    }
+  }, [searchParams, amountPages, router, getPage])
 
   if (mobile === null) {
     return (
@@ -128,7 +142,7 @@ export const MyDecksSection = () => {
         <div className="flex w-full gap-5 sm:w-auto">
           <form
             action=""
-            className="relative flex h-10 w-full shadow-very-clean"
+            className="relative flex h-10 w-full rounded-md shadow-very-clean"
           >
             <input
               type="text"
@@ -167,23 +181,41 @@ export const MyDecksSection = () => {
           )}
         </div>
 
-        <ButtonDefault
-          text="Adicionar novo deck"
-          type="button"
-          radius="rounded-md"
-          tailwind={`h-10 ${mobile ? 'px-4 text-nowrap' : 'w-310px'}`}
-        />
+        <div className="relative">
+          <ButtonDefault
+            text="Adicionar deck"
+            type="button"
+            radius="rounded-md"
+            tailwind={`h-10 ${mobile ? 'px-4 text-nowrap' : 'w-310px'}`}
+            onClick={() => setNewDeckActive(!newDeckActive)}
+          />
+
+          {newDeckActive && (
+            <div className="absolute right-0 top-14 z-20 flex flex-col text-nowrap bg-white font-medium shadow-hight">
+              <Link
+                href="/novo-deck/predefinido"
+                className="border-b border-light-gray225 px-8 py-5"
+              >
+                Deck pré-definido
+              </Link>
+
+              <Link href="/novo-deck/personalizado" className="px-8 py-5">
+                Deck personalizado
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex items-start gap-8">
         <MyDeckFilters />
 
-        <div className="relative min-h-52 grow">
-          {deckLoading && (
-            <div className="rotatingClipLoader absolute left-1/2 top-52 -translate-x-1/2"></div>
-          )}
-
-          {decks.length > 0 && (
+        <div className="relative min-h-[800px] grow">
+          {deckLoading ? (
+            <div className="absolute left-0 top-52 w-full">
+              <div className="rotatingClipLoader mx-auto"></div>
+            </div>
+          ) : decks.length > 0 ? (
             <>
               <ul className="mt-16 grid auto-rows-[1fr] grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-3 gap-y-8">
                 {decks.map((deck, index) => (
@@ -210,14 +242,18 @@ export const MyDecksSection = () => {
                 ))}
               </ul>
 
-              {buttons.length > 1 && (
+              {paginationButtons.length > 1 && (
                 <div className="mt-10 flex justify-center gap-1 sm:gap-2">
-                  {buttons.map((text, index) => (
+                  {paginationButtons.map((text, index) => (
                     <button
-                      className={`h-10 w-10 rounded-lg bg-secondary-blue text-xl font-medium text-white hover:scale-[1.02] ${pageActive === index + 1 && 'bg-light-blue900'}`}
+                      className={`h-10 w-10 rounded-lg text-xl font-medium text-white hover:scale-[1.02] ${
+                        pageActive === text
+                          ? 'bg-light-blue900'
+                          : 'bg-secondary-blue'
+                      }`}
                       key={index}
-                      onClick={() => handlePageButtonClick(index + 1)}
                       disabled={text === '...'}
+                      onClick={() => handlePageButtonClick(Number(text))}
                     >
                       {text}
                     </button>
@@ -225,6 +261,12 @@ export const MyDecksSection = () => {
                 </div>
               )}
             </>
+          ) : (
+            <div className="h-[800px]">
+              <h4 className="mt-32 text-center text-xl sm:mt-40 lg:mt-60">
+                Você ainda não possui decks
+              </h4>
+            </div>
           )}
         </div>
       </div>

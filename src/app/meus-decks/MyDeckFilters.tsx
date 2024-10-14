@@ -138,7 +138,7 @@ export const MyDeckFilters = () => {
 
   return (
     <form
-      className={`absolute z-10 mt-5 max-h-0 w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${
+      className={`absolute z-10 mt-5 max-h-0 max-w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${
         deckFilters.isActive && 'max-h-842px shadow-very-clean lg:static'
       }`}
       onSubmit={handleFilterSubmit}
@@ -148,9 +148,9 @@ export const MyDeckFilters = () => {
         Filtros
       </h3>
 
-      <fieldset className="flex justify-center border-b border-light-gray225 py-5 text-sm font-semibold text-secondary-blue">
+      <fieldset className="flex flex-wrap justify-center border-b border-light-gray225 py-5 text-xs font-semibold text-secondary-blue sm:px-3 sm:text-sm">
         <button
-          className={`h-7 w-[75px] rounded-s-md transition-colors ${filterData.type === 'standard' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
+          className={`h-7 w-[65px] rounded-s-md transition-colors sm:w-[75px] ${filterData.type === 'standard' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
           name="standard"
           onClick={handleTypeButtonClick}
         >
@@ -158,7 +158,7 @@ export const MyDeckFilters = () => {
         </button>
 
         <button
-          className={`h-7 px-3 transition-colors ${filterData.type === 'custom' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border-y border-secondary-blue hover:text-light-blue900'}`}
+          className={`h-7 px-2 transition-colors sm:px-3 ${filterData.type === 'custom' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border-y border-secondary-blue hover:text-light-blue900'}`}
           name="custom"
           onClick={handleTypeButtonClick}
         >
@@ -166,7 +166,7 @@ export const MyDeckFilters = () => {
         </button>
 
         <button
-          className={`h-7 w-[75px] rounded-e-md transition-colors ${filterData.type === 'all' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
+          className={`h-7 w-[65px] rounded-e-md transition-colors sm:w-[75px] ${filterData.type === 'all' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
           name="all"
           onClick={handleTypeButtonClick}
         >
@@ -181,7 +181,9 @@ export const MyDeckFilters = () => {
             className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
             onClick={handleHiddenClick}
           >
-            <span className="pointer-events-none">Ordenar</span>
+            <span className="pointer-events-none text-base sm:text-lg">
+              Ordenar
+            </span>
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
               alt="mostrar filtros"
@@ -259,7 +261,7 @@ export const MyDeckFilters = () => {
             className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
             onClick={handleHiddenClick}
           >
-            <span className="pointer-events-none">
+            <span className="pointer-events-none text-base sm:text-lg">
               Quantidade de flashcards
             </span>
             <Image
@@ -297,7 +299,9 @@ export const MyDeckFilters = () => {
             className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
             onClick={handleHiddenClick}
           >
-            <span className="pointer-events-none">Situação</span>
+            <span className="pointer-events-none text-base sm:text-lg">
+              Situação
+            </span>
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
               alt="mostrar filtros"
@@ -346,14 +350,14 @@ export const MyDeckFilters = () => {
         </div>
       </fieldset>
 
-      <div className="flex justify-center gap-5 py-5">
+      <div className="flex justify-center gap-3 py-5 sm:gap-5">
         <ButtonDefault
           text="Redefinir"
           type="button"
           style="outDark"
           paddingy="py-2"
           radius="rounded-lg"
-          tailwind="w-32"
+          tailwind="w-28"
           onClick={handleResetClick}
         />
 
@@ -363,7 +367,7 @@ export const MyDeckFilters = () => {
           style="dark"
           paddingy="py-2"
           radius="rounded-lg"
-          tailwind="w-32"
+          tailwind="w-28"
           submit
         />
       </div>

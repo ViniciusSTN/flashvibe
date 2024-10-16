@@ -4,7 +4,7 @@ import { showPasswordAtom } from '@/states'
 import { InputProps } from '@/types/input'
 import Image from 'next/image'
 import { useRecoilValue } from 'recoil'
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 
 export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
   (

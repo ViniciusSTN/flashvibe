@@ -15,6 +15,7 @@ input[type='number'] {
 }
 
 /* Imput - InputDefault */
+.textareaDefault,
 .inputDefault {
   width: 100%;
   color: rgb(36, 35, 42);
@@ -28,11 +29,13 @@ input[type='number'] {
   /* padding: 8px 16px 8px 32px; */
   border: 2px solid transparent;
   box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 3px, rgba(0, 0, 0, 0.144) 0px 1px 2px;
-  background: rgb(251, 251, 251);
+  background: #fbfbfb;
   outline: rgb(124, 138, 255);
+}
+.inputDefault {
   transition: all 0.3s ease 0s;
 }
-.inputDefaultEnabled:focus, .inputDefaultEnabled:active {
+.inputDefaultEnabled:focus, .inputDefaultEnabled:active, .textareaDefault:focus, .textareaDefault:active {
   border: 2px solid rgb(124, 138, 255);
 }
 .inputDefaultDisabled {

@@ -20,3 +20,20 @@ export type MyDeckFiltersDataType = {
 export type MyDeckFiltersType = MyDeckFiltersDataType & {
   isActive: boolean
 }
+
+export type StandardDeckFiltersDataType = {
+  searchBy: 'newer' | 'older' | 'lastModifications' | 'feedback' | 'flashcards'
+  feedback: {
+    min: number
+    max: number
+  }
+  difficulty: {
+    beginner: boolean
+    intermediate: boolean
+    advanced: boolean
+  }
+}
+
+export type StandardDeckFiltersType = StandardDeckFiltersDataType & {
+  isActive: boolean
+}

@@ -6,11 +6,9 @@ export type HtmlInputType =
   | 'date'
   | 'time'
   | 'datetime-local'
-  | 'file'
   | 'checkbox'
   | 'radio'
   | 'range'
-  | 'color'
 
 export type InputProps = {
   type: HtmlInputType
@@ -26,3 +24,16 @@ export type InputProps = {
 }
 
 export type InputType = (props: InputProps) => JSX.Element
+
+export type TextAreaProps = {
+  placeholder?: string
+  value?: string
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
+  name: string
+  tailwind?: string
+  error?: string[]
+  label?: string
+  disable?: boolean
+}
+
+export type TextAreaType = (props: TextAreaProps) => JSX.Element

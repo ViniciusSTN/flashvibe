@@ -4,13 +4,19 @@ import { DeckCardType } from '@/types/deck'
 import Image from 'next/image'
 import { useSetRecoilState } from 'recoil'
 
-export const DeckCard: DeckCardType = ({ ...props }) => {
+export const DeckCard: DeckCardType = ({ disabled, ...props }) => {
   const setDeckActive = useSetRecoilState(deckActiveAtom)
+
+  const restProps = { ...props }
 
   return (
     <button
-      className="w-[260px] shadow-clean transition hover:scale-[1.02]"
-      onClick={() => setDeckActive({ ...props })}
+      className="w-[260px] shadow-clean transition hover:scale-[1.02] hover:cursor-pointer"
+      disabled={disabled}
+      onClick={(event) => {
+        event.preventDefault()
+        if (!disabled) setDeckActive({ ...restProps })
+      }}
     >
       <div
         className={`relative ${colorClasses[props.colorPredefinition]?.dark} flex items-center justify-between px-3 pb-3 pt-2`}

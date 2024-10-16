@@ -1,5 +1,6 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
+import useTimeAgo from '@/hooks/timeAgo'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -9,26 +10,7 @@ export const MyDeckModal = () => {
   const [deckActive, setDeckActive] = useRecoilState(deckActiveAtom)
   const [flashcardsClicked, setFlashcardsClicked] = useState<boolean>(false)
 
-  const timeAgo = (timestamp: number) => {
-    const now = Date.now()
-    const elapsed = now - timestamp
-
-    const seconds = Math.floor(elapsed / 1000)
-    const minutes = Math.floor(seconds / 60)
-    const hours = Math.floor(minutes / 60)
-    const days = Math.floor(hours / 24)
-    const weeks = Math.floor(days / 7)
-    const months = Math.floor(days / 30)
-    const years = Math.floor(days / 365)
-
-    if (years > 0) return `${years} ano(s)`
-    if (months > 0) return `${months} mês(es)`
-    if (weeks > 0) return `${weeks} semana(s)`
-    if (days > 0) return `${days} dia(s)`
-    if (hours > 0) return `${hours} hora(s)`
-    if (minutes > 0) return `${minutes} minuto(s)`
-    return `${seconds} segundo(s)`
-  }
+  const timeAgo = useTimeAgo(deckActive?.lastModification || 0)
 
   return (
     <>
@@ -69,7 +51,7 @@ export const MyDeckModal = () => {
                 <div className="flex flex-col gap-3 font-medium">
                   <div className="flex gap-5">
                     <p>Modificação:</p>
-                    <p>{timeAgo(deckActive.lastModification)}</p>
+                    <p>{timeAgo}</p>
                   </div>
 
                   <div>

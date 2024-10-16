@@ -1,38 +1,37 @@
 import Slider from 'rc-slider'
 import React, { useEffect, useState } from 'react'
 import { ButtonDefault } from '@/components/ButtonDefault'
-import { MyDeckFiltersDataType } from '@/types/filters'
+import { StandardDeckFiltersDataType } from '@/types/filters'
 import Image from 'next/image'
 import 'rc-slider/assets/index.css'
 import { useRecoilState } from 'recoil'
-import { myDeckFiltersAtom } from '@/states/atoms/filters'
+import { standardDeckFiltersAtom } from '@/states/atoms/filters'
 
-const defaultData: MyDeckFiltersDataType = {
-  type: 'all',
-  flashcards: {
+const defaultData: StandardDeckFiltersDataType = {
+  feedback: {
     min: 0,
     max: 0,
   },
-  searchBy: 'lastModifications',
-  situation: {
-    favorites: true,
-    finished: true,
-    learning: true,
+  searchBy: 'newer',
+  difficulty: {
+    beginner: true,
+    intermediate: true,
+    advanced: true,
   },
 }
 
-export const MyDeckFilters = () => {
+export const StandardDeckFilters = () => {
   const [initialRange, setInitialRange] = useState({ min: 0, max: 0 })
   const [filterData, setFilterData] =
-    useState<MyDeckFiltersDataType>(defaultData)
+    useState<StandardDeckFiltersDataType>(defaultData)
 
   const [hidden, setHidden] = useState({
     searchBy: false,
-    flashcards: false,
-    situation: false,
+    feedback: false,
+    difficulty: false,
   })
 
-  const [deckFilters, setDeckFilters] = useRecoilState(myDeckFiltersAtom)
+  const [deckFilters, setDeckFilters] = useRecoilState(standardDeckFiltersAtom)
 
   useEffect(() => {
     // const result = getMinAndMaxFlashcardsAmount()
@@ -42,7 +41,7 @@ export const MyDeckFilters = () => {
 
     setFilterData((prevState) => ({
       ...prevState,
-      flashcards: { min: result.min, max: result.max },
+      feedback: { min: result.min, max: result.max },
     }))
   }, [])
 
@@ -50,24 +49,10 @@ export const MyDeckFilters = () => {
     if (Array.isArray(newValues)) {
       setFilterData((prevState) => ({
         ...prevState,
-        flashcards: {
+        feedback: {
           min: newValues[0],
           max: newValues[1],
         },
-      }))
-    }
-  }
-
-  const handleTypeButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault()
-    const name = (event.target as HTMLButtonElement).name
-
-    if (name === 'all' || name === 'standard' || name === 'custom') {
-      setFilterData((prevState) => ({
-        ...prevState,
-        type: name,
       }))
     }
   }
@@ -76,7 +61,7 @@ export const MyDeckFilters = () => {
     event.preventDefault()
     const name = (event.target as HTMLButtonElement).name
 
-    if (name === 'searchBy' || name === 'flashcards' || name === 'situation') {
+    if (name === 'searchBy' || name === 'feedback' || name === 'difficulty') {
       setHidden((prevState) => ({
         ...prevState,
         [name]: !prevState[name],
@@ -91,7 +76,7 @@ export const MyDeckFilters = () => {
       value === 'newer' ||
       value === 'older' ||
       value === 'lastModifications' ||
-      value === 'lastStudied' ||
+      value === 'feedback' ||
       value === 'flashcards'
     ) {
       setFilterData((prevState) => ({
@@ -101,17 +86,21 @@ export const MyDeckFilters = () => {
     }
   }
 
-  const handleSituationChange = (
+  const handleDifficultyChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { value } = event.target
 
-    if (value === 'favorites' || value === 'learning' || value === 'finished') {
+    if (
+      value === 'beginner' ||
+      value === 'intermediate' ||
+      value === 'advanced'
+    ) {
       setFilterData((prevState) => ({
         ...prevState,
-        situation: {
-          ...prevState.situation,
-          [value]: !prevState.situation[value],
+        difficulty: {
+          ...prevState.difficulty,
+          [value]: !prevState.difficulty[value],
         },
       }))
     }
@@ -120,7 +109,7 @@ export const MyDeckFilters = () => {
   const handleResetClick = () => {
     setFilterData({
       ...defaultData,
-      flashcards: {
+      feedback: {
         min: initialRange.min,
         max: initialRange.max,
       },
@@ -130,8 +119,10 @@ export const MyDeckFilters = () => {
   const handleFilterSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
+    console.log('Dados', filterData)
+
     setDeckFilters((prevState) => ({
-      ...prevState,
+      isActive: prevState.isActive,
       ...filterData,
     }))
   }
@@ -147,32 +138,6 @@ export const MyDeckFilters = () => {
       <h3 className="border-b border-light-gray225 py-4 text-center font-medium">
         Filtros
       </h3>
-
-      <fieldset className="flex flex-wrap justify-center border-b border-light-gray225 py-5 text-xs font-semibold text-secondary-blue sm:px-3 sm:text-sm">
-        <button
-          className={`h-7 w-[65px] rounded-s-md transition-colors sm:w-[75px] ${filterData.type === 'standard' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
-          name="standard"
-          onClick={handleTypeButtonClick}
-        >
-          Padrões
-        </button>
-
-        <button
-          className={`h-7 px-2 transition-colors sm:px-3 ${filterData.type === 'custom' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border-y border-secondary-blue hover:text-light-blue900'}`}
-          name="custom"
-          onClick={handleTypeButtonClick}
-        >
-          Personalizados
-        </button>
-
-        <button
-          className={`h-7 w-[65px] rounded-e-md transition-colors sm:w-[75px] ${filterData.type === 'all' ? 'bg-secondary-blue text-white hover:text-light-blue200' : 'border border-secondary-blue hover:text-light-blue900'}`}
-          name="all"
-          onClick={handleTypeButtonClick}
-        >
-          Todos
-        </button>
-      </fieldset>
 
       <fieldset className="border-b border-light-gray225">
         <legend className="w-full">
@@ -195,7 +160,7 @@ export const MyDeckFilters = () => {
         </legend>
 
         <div
-          className={`${hidden.searchBy ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden pl-5 font-medium text-light-gray500 transition-all duration-300 ease-in-out`}
+          className={`${hidden.searchBy ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden px-5 font-medium text-light-gray500 transition-all duration-300 ease-in-out`}
         >
           <label className="flex items-center gap-2">
             <input
@@ -234,11 +199,11 @@ export const MyDeckFilters = () => {
             <input
               type="radio"
               name="sort"
-              value="lastStudied"
+              value="feedback"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'lastStudied'}
+              checked={filterData.searchBy === 'feedback'}
             />
-            <span>Últimos estudados</span>
+            <span>Melhores Avaliações</span>
           </label>
 
           <label className="flex items-center gap-2">
@@ -257,100 +222,100 @@ export const MyDeckFilters = () => {
       <fieldset className="border-b border-light-gray225">
         <legend className="w-full">
           <button
-            name="flashcards"
+            name="difficulty"
             className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
             onClick={handleHiddenClick}
           >
             <span className="pointer-events-none text-base sm:text-lg">
-              Quantidade de flashcards
+              Dificuldade
             </span>
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
               alt="mostrar filtros"
               width={15}
               height={15}
-              className={`${!hidden.flashcards && 'rotate-90'} pointer-events-none transition-all duration-300`}
+              className={`${!hidden.difficulty && 'rotate-90'} pointer-events-none transition-all duration-300`}
             />
           </button>
         </legend>
 
         <div
-          className={`${hidden.flashcards ? 'max-h-0 opacity-0' : 'max-h-96 py-5 opacity-100'} overflow-hidden px-5 transition-all duration-300 ease-in-out`}
+          className={`${hidden.difficulty ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden px-5 font-medium transition-all duration-300 ease-in-out`}
         >
-          <Slider
-            range
-            min={initialRange.min}
-            max={initialRange.max}
-            step={10}
-            value={[filterData.flashcards.min, filterData.flashcards.max]}
-            onChange={handleSliderChange}
-          />
-          <div className="flex justify-between">
-            <span>{filterData.flashcards.min}</span>
-            <span>{filterData.flashcards.max}</span>
-          </div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="difficulty"
+              value="beginner"
+              onChange={handleDifficultyChange}
+              checked={filterData.difficulty.beginner}
+            />
+            <span>Iniciante</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="difficulty"
+              value="intermediate"
+              onChange={handleDifficultyChange}
+              checked={filterData.difficulty.intermediate}
+            />
+            <span>Intermediário</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="difficulty"
+              value="advanced"
+              onChange={handleDifficultyChange}
+              checked={filterData.difficulty.advanced}
+            />
+            <span>Avançado</span>
+          </label>
         </div>
       </fieldset>
 
       <fieldset className="border-b border-light-gray225">
         <legend className="w-full">
           <button
-            name="situation"
+            name="feedback"
             className="flex h-full w-full items-center justify-between px-5 py-3 text-start text-lg font-medium"
             onClick={handleHiddenClick}
           >
             <span className="pointer-events-none text-base sm:text-lg">
-              Situação
+              Avaliações
             </span>
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/arrow2.svg?alt=media&token=7edc6c5d-bc40-4ced-b0c9-2f054379a9d9"
               alt="mostrar filtros"
               width={15}
               height={15}
-              className={`${!hidden.situation && 'rotate-90'} pointer-events-none transition-all duration-300`}
+              className={`${!hidden.feedback && 'rotate-90'} pointer-events-none transition-all duration-300`}
             />
           </button>
         </legend>
 
         <div
-          className={`${hidden.situation ? 'max-h-0 opacity-0' : 'max-h-96 pb-5 opacity-100'} flex flex-col gap-3 overflow-hidden px-5 font-medium transition-all duration-300 ease-in-out`}
+          className={`${hidden.feedback ? 'max-h-0 opacity-0' : 'max-h-96 py-5 opacity-100'} overflow-hidden px-5 transition-all duration-300 ease-in-out`}
         >
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="situation"
-              value="favorites"
-              onChange={handleSituationChange}
-              checked={filterData.situation.favorites}
-            />
-            <span>Favoritos</span>
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="situation"
-              value="learning"
-              onChange={handleSituationChange}
-              checked={filterData.situation.learning}
-            />
-            <span>Aprendendo</span>
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="situation"
-              value="finished"
-              onChange={handleSituationChange}
-              checked={filterData.situation.finished}
-            />
-            <span>Finalizado</span>
-          </label>
+          <Slider
+            range
+            min={initialRange.min}
+            max={initialRange.max}
+            step={10}
+            value={[filterData.feedback.min, filterData.feedback.max]}
+            onChange={handleSliderChange}
+          />
+          <div className="flex justify-between">
+            <span>{filterData.feedback.min}</span>
+            <span>{filterData.feedback.max}</span>
+          </div>
         </div>
       </fieldset>
 
-      <div className="flex justify-center gap-3 py-5 sm:gap-5">
+      <div className="mx-4 flex justify-center gap-3 py-5 sm:mx-10 sm:gap-5">
         <ButtonDefault
           text="Redefinir"
           type="button"

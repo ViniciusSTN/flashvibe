@@ -1,4 +1,4 @@
-import { decks } from '@/mocks/TemporaryDecks'
+import { decks, standardDecks } from '@/mocks/TemporaryDecks'
 
 export async function getAllUserDecks(page: number) {
   // fazer requisição para o backend
@@ -14,6 +14,30 @@ export async function getAllUserDecks(page: number) {
     return {
       success: true,
       decks,
+      lastPage: 6,
+    }
+  } else {
+    return {
+      success: false,
+      message: 'Falha',
+    }
+  }
+}
+
+export async function getAllStandardDecks(page: number) {
+  // fazer requisição para o backend
+
+  // simulando uma requisição
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  })
+
+  if (standardDecks) {
+    return {
+      success: true,
+      decks: standardDecks,
       lastPage: 6,
     }
   } else {

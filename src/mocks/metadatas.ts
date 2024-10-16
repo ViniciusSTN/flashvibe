@@ -29,3 +29,15 @@ export const myDecks: Metadata = {
   description:
     'Explore todos os seus decks de estudo, tanto os padrões quanto os personalizados. Escolha quais decks deseja estudar e organize seu aprendizado de forma eficaz e personalizada.',
 }
+
+export const newStandardDeck: Metadata = {
+  title: 'Novo Deck Predefinido Flashvibe',
+  description:
+    'Adicione decks predefinidos criados especialmente para facilitar o seu aprendizado. Escolha entre uma variedade de temas e níveis de dificuldade, e otimize sua jornada de estudos com conteúdos incríveis',
+}
+
+export const newCustomDeck: Metadata = {
+  title: 'Novo Deck Personalizado Flashvibe',
+  description:
+    'Adicione decks personalizados da forma que preferir. Crie seus próprios flashcards e pratique inglês de forma prática e efetiva. Você poderá utilizar diversas ferramentas para adicionar áudios de pronúncia, traduções, frases de exemplo, imagens, e muito mais.',
+}

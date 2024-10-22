@@ -55,8 +55,7 @@ export const MyDecksSection = () => {
     function handleResize() {
       const width = window.innerWidth
 
-      if (width < 1100) setMobile(true)
-      else setMobile(false)
+      setMobile(width < 1100)
     }
 
     handleResize()

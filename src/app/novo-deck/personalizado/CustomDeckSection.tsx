@@ -5,26 +5,30 @@ import { DeckCard } from '@/components/DeckCard'
 import { InputDefault } from '@/components/InputDefault'
 import { TextAreaDefault } from '@/components/TextAreaDefault'
 import { colorClasses } from '@/mocks/deckColors'
-import { CustomDeckData, CustomDeckDataErrors } from '@/types/deck'
+import customDeckSchema from '@/schemas/customDeck'
+import { CustomDeckData, CustomDeckDataErrors, InputName } from '@/types/deck'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
 
 const initialData: CustomDeckData = {
   name: '',
   description: '',
   photo: null,
   colorPredefinition: 4,
-  preferences: {
-    new: 3,
-    learning: 15,
-    reviewing: 2,
-  },
+  new: 3,
+  learning: 15,
+  reviewing: 2,
 }
 
 const initialErrors: CustomDeckDataErrors = {
   name: [],
   description: [],
   photo: [],
+  colorPredefinition: [],
+  new: [],
+  learning: [],
+  reviewing: [],
 }
 
 export const CustomDeckSection = () => {
@@ -42,6 +46,12 @@ export const CustomDeckSection = () => {
   ) {
     const { name, value } = event.target
 
+    if (formErrors[name as InputName].length > 0)
+      setFormErrors((prevErrors) => ({
+        ...prevErrors,
+        ...(formErrors[name as InputName] = []),
+      }))
+
     switch (name) {
       case 'name':
       case 'description':
@@ -50,18 +60,12 @@ export const CustomDeckSection = () => {
           [name]: value.charAt(0).toUpperCase() + value.slice(1),
         }))
         break
-      case 'color':
-        console.log(value)
-        break
       case 'new':
       case 'learning':
       case 'reviewing':
         setFormData((prevState) => ({
           ...prevState,
-          preferences: {
-            ...prevState.preferences,
-            [name]: value,
-          },
+          [name]: Math.floor(Number(value)),
         }))
         break
       default:
@@ -72,9 +76,34 @@ export const CustomDeckSection = () => {
     }
   }
 
-  useEffect(() => {
-    console.log(formData)
-  }, [formData])
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (file) {
+      setFileName(file.name)
+      setFormData((prevState) => ({
+        ...prevState,
+        photo: file,
+      }))
+    }
+  }
+
+  function handleFormSubmit(event: React.FormEvent) {
+    event.preventDefault()
+
+    const validation = customDeckSchema.safeParse(formData)
+
+    if (!validation.success) {
+      toast.warning('Não foi possível adicionar o deck, verifique os campos')
+
+      setFormErrors(() => ({
+        ...initialErrors,
+        ...validation.error.formErrors.fieldErrors,
+      }))
+    } else {
+      // enviar para backend
+      toast.success('Deck criado com sucesso')
+    }
+  }
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
@@ -82,7 +111,11 @@ export const CustomDeckSection = () => {
         Adicionar deck personalizado
       </h1>
 
-      <form className="flex w-full flex-wrap justify-center gap-32">
+      <form
+        className="flex w-full flex-wrap justify-center gap-32"
+        action=""
+        onSubmit={handleFormSubmit}
+      >
         <fieldset className="flex max-w-420px flex-col gap-6">
           <legend className="mb-6 text-xl font-semibold">
             Informações do deck
@@ -109,28 +142,35 @@ export const CustomDeckSection = () => {
 
           <div>
             <p className="font-medium">Imagem de capa</p>
-            <div className="flex items-center justify-between gap-6">
+            <div className="flex justify-between gap-6">
               <div className="grow">
                 <InputDefault
-                  name="image"
+                  name="photo"
                   type="text"
                   disable
                   placeholder="Nenhuma imagem selecionada"
                   value={fileName}
+                  error={formErrors.photo}
                 />
               </div>
 
-              <button
-                type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-light-gray200 bg-[#fbfbfb] shadow-input"
-              >
-                <Image
-                  src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/upload-svgrepo-com.svg?alt=media&token=4de64682-3122-4673-a05b-ee6f45bae71c"
-                  alt="enviar imagem"
-                  height={30}
-                  width={30}
+              <div className="relative mt-[4px] hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-light-gray200 bg-[#fbfbfb] shadow-input">
+                  <Image
+                    src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/upload-svgrepo-com.svg?alt=media&token=4de64682-3122-4673-a05b-ee6f45bae71c"
+                    alt="enviar imagem"
+                    height={30}
+                    width={30}
+                  />
+                </div>
+
+                <input
+                  type="file"
+                  className="absolute left-0 top-0 h-[40px] w-[40px] opacity-0"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  onChange={handleFileChange}
                 />
-              </button>
+              </div>
             </div>
           </div>
 
@@ -180,13 +220,15 @@ export const CustomDeckSection = () => {
               </p>
             </div>
 
-            <div className="mb-5 flex gap-8">
+            <div className="mb-5 flex gap-6">
               <InputDefault
                 name="new"
                 type="number"
                 label="Novos"
                 onChange={handleInputChange}
-                value={formData.preferences.new.toString()}
+                value={formData.new.toString()}
+                error={formErrors.new}
+                tailwind="max-w-[124px]"
               />
 
               <InputDefault
@@ -194,7 +236,9 @@ export const CustomDeckSection = () => {
                 type="number"
                 label="Aprendendo"
                 onChange={handleInputChange}
-                value={formData.preferences.learning.toString()}
+                value={formData.learning.toString()}
+                error={formErrors.learning}
+                tailwind="max-w-[124px]"
               />
 
               <InputDefault
@@ -202,7 +246,9 @@ export const CustomDeckSection = () => {
                 type="number"
                 label="Revisando"
                 onChange={handleInputChange}
-                value={formData.preferences.reviewing.toString()}
+                value={formData.reviewing.toString()}
+                error={formErrors.reviewing}
+                tailwind="max-w-[124px]"
               />
             </div>
 
@@ -216,11 +262,9 @@ export const CustomDeckSection = () => {
               onClick={() =>
                 setFormData((prevState) => ({
                   ...prevState,
-                  preferences: {
-                    new: 3,
-                    learning: 15,
-                    reviewing: 2,
-                  },
+                  new: 3,
+                  learning: 15,
+                  reviewing: 2,
                 }))
               }
             />

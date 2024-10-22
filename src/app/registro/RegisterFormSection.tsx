@@ -34,7 +34,7 @@ export const RegisterFormSection = () => {
     useState<FormRegisterValues>(initialValues)
   const [formErrors, setFormErrors] =
     useState<FormRegisterErrors>(initialErrors)
-  const [loader, setLoader] = useState(false)
+  const [loader, setLoader] = useState<boolean>(false)
 
   const router = useRouter()
 

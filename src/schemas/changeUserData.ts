@@ -10,19 +10,13 @@ const ACCEPTED_IMAGE_TYPES = [
 
 const fileSchema = z
   .any()
-  .nullable() // Permite que o campo seja nulo
-  .refine(
-    (file) => !file || file.size <= MAX_FILE_SIZE, // Permite null ou valida o tamanho do arquivo
-    {
-      message: `A imagem deve ser menor que 5MB`,
-    },
-  )
-  .refine(
-    (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), // Permite null ou valida o tipo do arquivo
-    {
-      message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
-    },
-  )
+  .nullable()
+  .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
+    message: `A imagem deve ser menor que 5MB`,
+  })
+  .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), {
+    message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
+  })
 
 const userDataSchema = z.object({
   name: z
@@ -35,14 +29,14 @@ const userDataSchema = z.object({
     .max(50, { message: 'Apelido deve ter no máximo 50 caracteres' }),
   phone: z
     .string()
-    .optional() // Torna o telefone opcional
+    .optional()
     .refine((value) => !value || value.length === 13, {
       message: 'Celular inválido',
     })
     .refine((value) => !value || /^\d+$/.test(value), {
       message: 'Celular inválido',
     }),
-  photo: fileSchema.optional(), // Campo de foto também é opcional
+  photo: fileSchema.optional(),
 })
 
 export default userDataSchema

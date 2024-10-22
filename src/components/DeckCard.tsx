@@ -4,7 +4,7 @@ import { DeckCardType } from '@/types/deck'
 import Image from 'next/image'
 import { useSetRecoilState } from 'recoil'
 
-export const DeckCard: DeckCardType = ({ disabled, ...props }) => {
+export const DeckCard: DeckCardType = ({ disabled = false, ...props }) => {
   const setDeckActive = useSetRecoilState(deckActiveAtom)
 
   const restProps = { ...props }
@@ -106,14 +106,13 @@ export const DeckCard: DeckCardType = ({ disabled, ...props }) => {
             )}
           </div>
 
-          <div>
+          <div className="absolute bottom-10 left-1/2 h-40 w-40 -translate-x-1/2">
             <Image
               src={props.image}
               alt="Capa do deck"
               height={192}
               width={192}
-              className="absolute bottom-10 left-1/2 h-40 w-40 -translate-x-1/2"
-              priority
+              className="h-full w-full object-cover object-center"
             />
           </div>
 

@@ -18,7 +18,7 @@ export type DeckCardProps = {
 }
 
 export type DeckCardType = (
-  props: DeckCardProps & { disabled: boolean },
+  props: DeckCardProps & { disabled?: boolean },
 ) => JSX.Element
 
 export type ColorClasseType = {
@@ -33,15 +33,19 @@ export type CustomDeckData = {
   description: string
   photo: File | null
   colorPredefinition: number
-  preferences: {
-    new: number
-    learning: number
-    reviewing: number
-  }
+  new: number
+  learning: number
+  reviewing: number
 }
 
 export type CustomDeckDataErrors = {
   name: string[]
   description: string[]
   photo: string[]
+  colorPredefinition: string[]
+  new: string[]
+  learning: string[]
+  reviewing: string[]
 }
+
+export type InputName = keyof CustomDeckData

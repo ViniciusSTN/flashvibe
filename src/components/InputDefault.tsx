@@ -42,7 +42,7 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           disabled={disable}
         />
-        <span className="absolute left-2 top-3">
+        <span className="absolute left-2 top-4">
           {image.length > 0 && (
             <Image
               src={image}

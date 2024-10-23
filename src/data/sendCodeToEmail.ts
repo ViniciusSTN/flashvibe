@@ -11,6 +11,8 @@ export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
     const url =
       process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/send-user-data/'
 
+    console.log(url)
+
     try {
       const response = await axios.post(url, {
         email,

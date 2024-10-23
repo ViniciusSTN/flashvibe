@@ -81,11 +81,15 @@ export const RegisterFormSection = () => {
         ...validation.error.formErrors.fieldErrors,
       })
     } else {
+      console.log(sendConfirmationCodeToEmail)
+
       const response = await sendConfirmationCodeToEmail(
         formValues.email,
         formValues.name,
         formValues.nickname,
       )
+
+      console.log(response)
 
       if (response.success) {
         setEmail(formValues.email)

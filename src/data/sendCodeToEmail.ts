@@ -6,6 +6,8 @@ import {
 } from '@/types/loginAndRegister'
 import axios from 'axios'
 
+console.log('Arquivo encontrado')
+
 export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
   async (email, name, nickname) => {
     const url =

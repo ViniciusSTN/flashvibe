@@ -6,14 +6,12 @@ import {
 } from '@/types/loginAndRegister'
 import axios from 'axios'
 
-console.log('Arquivo encontrado')
-
 export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
   async (email, name, nickname) => {
     const url =
       process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/send-user-data/'
 
-    console.log(url)
+    console.log('URL:', url)
 
     try {
       const response = await axios.post(url, {

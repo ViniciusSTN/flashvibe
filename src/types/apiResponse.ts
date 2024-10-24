@@ -24,5 +24,7 @@ export type SuccessWithUserCredentials = {
 }
 
 export type SuccessWithSessionTokenResponse = SuccessResponse & {
-  session_id: string
+  cookie: string
+  jwt_token: string
+  email: string
 }

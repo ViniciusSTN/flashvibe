@@ -73,14 +73,9 @@ export const LoginFormSection = () => {
         sentEmail,
         sentPassword,
       )
-
-      console.log('Credenciais', credential)
-
       const { accessToken } = credential.user as UserCredentials
 
       const response = await createUserSession(accessToken, formValues.user)
-
-      console.log('resposta', response)
 
       if (response.success) {
         toast.success('Bem vindo de volta!')

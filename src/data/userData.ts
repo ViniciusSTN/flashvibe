@@ -1,4 +1,5 @@
 import { auth } from '@/lib/firebase'
+import { SuccessWithSessionTokenResponse } from '@/types/apiResponse'
 import {
   CreateNewUserWithPasswordType,
   CreateNewUserIntoDatabaseType,
@@ -6,6 +7,7 @@ import {
 } from '@/types/loginAndRegister'
 import axios from 'axios'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
+import Cookies from 'universal-cookie'
 
 export const createNewUserWithPassword: CreateNewUserWithPasswordType = async (
   password,
@@ -98,6 +100,14 @@ export const createUserSession: CreateUserSessionType = async (
       id_token: token,
       email,
     })
+
+    const { cookie, jwt_token: jwtToken } =
+      response.data as SuccessWithSessionTokenResponse
+
+    const cookies = new Cookies()
+
+    cookies.set('jwt_token', jwtToken)
+    cookies.set('session', cookie)
 
     return response.data
   } catch (error: unknown) {

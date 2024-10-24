@@ -2,7 +2,6 @@ import {
   ErrorResponse,
   SuccessResponse,
   SuccessResponseWithJwtToken,
-  SuccessWithSessionTokenResponse,
   SuccessWithUserCredentials,
   SuccessWithUserData,
 } from './apiResponse'
@@ -49,4 +48,4 @@ export type CreateNewUserIntoDatabaseType = (
 export type CreateUserSessionType = (
   token: string,
   email: string,
-) => Promise<ErrorResponse | SuccessWithSessionTokenResponse>
+) => Promise<ErrorResponse | SuccessResponse>

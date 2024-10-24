@@ -87,12 +87,16 @@ export const createNewUserIntoDatabase: CreateNewUserIntoDatabaseType = async (
   }
 }
 
-export const createUserSession: CreateUserSessionType = async (token) => {
+export const createUserSession: CreateUserSessionType = async (
+  token,
+  email,
+) => {
   const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/login/'
 
   try {
     const response = await axios.post(url, {
       id_token: token,
+      email,
     })
 
     return response.data

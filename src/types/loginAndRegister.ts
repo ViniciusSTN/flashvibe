@@ -48,4 +48,5 @@ export type CreateNewUserIntoDatabaseType = (
 
 export type CreateUserSessionType = (
   token: string,
+  email: string,
 ) => Promise<ErrorResponse | SuccessWithSessionTokenResponse>

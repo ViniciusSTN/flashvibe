@@ -6,20 +6,16 @@ import { InputDefault } from '@/components/InputDefault'
 import { TextAreaDefault } from '@/components/TextAreaDefault'
 import { colorClasses } from '@/mocks/deckColors'
 import customDeckSchema from '@/schemas/customDeck'
-import { CustomDeckData, CustomDeckDataErrors, InputName } from '@/types/deck'
+import {
+  CustomDeckData,
+  CustomDeckDataErrors,
+  EditCustomDeckType,
+  InputName,
+} from '@/types/deck'
 import Image from 'next/image'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-
-const initialData: CustomDeckData = {
-  name: '',
-  description: '',
-  photo: null,
-  colorPredefinition: 4,
-  new: 3,
-  learning: 15,
-  reviewing: 2,
-}
 
 const initialErrors: CustomDeckDataErrors = {
   name: [],
@@ -31,15 +27,31 @@ const initialErrors: CustomDeckDataErrors = {
   reviewing: [],
 }
 
-export const CustomDeckSection = () => {
+export const EditCustomDeck: EditCustomDeckType = ({
+  initialData,
+  situation,
+  isPublic,
+  favorite,
+}) => {
+  const pathname = usePathname()
+
   const filteredColors = Object.entries(colorClasses).filter(
     ([key]) => Number(key) > 3,
   )
 
+  const [editing, setEditing] = useState<boolean>(false)
   const [fileName, setFileName] = useState<string>('')
   const [formData, setFormData] = useState<CustomDeckData>(initialData)
   const [formErrors, setFormErrors] =
     useState<CustomDeckDataErrors>(initialErrors)
+
+  useEffect(() => {
+    if (pathname === '/editar-deck') {
+      setEditing(true)
+      console.log('Dados iniciais', initialData)
+      console.log('FormData', formData)
+    }
+  }, [pathname, initialData, formData])
 
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -93,7 +105,7 @@ export const CustomDeckSection = () => {
     const validation = customDeckSchema.safeParse(formData)
 
     if (!validation.success) {
-      toast.warning('Não foi possível adicionar o deck, verifique os campos')
+      toast.warning('Não foi possível salvar o deck, verifique os campos')
 
       setFormErrors(() => ({
         ...initialErrors,
@@ -101,14 +113,17 @@ export const CustomDeckSection = () => {
       }))
     } else {
       // enviar para backend
-      toast.success('Deck criado com sucesso')
+      if (pathname === '/novo-deck/personalizado')
+        toast.success('Deck criado com sucesso')
+      else if (pathname === '/editar-deck')
+        toast.success('Deck editado com sucesso')
     }
   }
 
   return (
-    <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
+    <div>
       <h1 className="mb-16 text-center text-3xl font-semibold">
-        Adicionar deck personalizado
+        {editing ? 'Editar deck' : 'Adicionar deck personalizado'}
       </h1>
 
       <form
@@ -214,10 +229,12 @@ export const CustomDeckSection = () => {
                 estudar no dia.
               </p>
 
-              <p>
-                Recomendamos deixar padrão e alterar depois conforme sua
-                necessidade.
-              </p>
+              {!editing && (
+                <p>
+                  Recomendamos deixar padrão e alterar depois conforme sua
+                  necessidade.
+                </p>
+              )}
             </div>
 
             <div className="mb-5 flex gap-6">
@@ -280,20 +297,22 @@ export const CustomDeckSection = () => {
             <DeckCard
               colorPredefinition={formData.colorPredefinition}
               description=""
-              favorite={false}
+              favorite={favorite}
               flashcards={0}
               image={
-                formData.photo
-                  ? URL.createObjectURL(formData.photo)
-                  : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/deck-image-example.png?alt=media&token=7905dc10-fde7-4729-a088-fb87c94e2683'
+                typeof formData.photo === 'string'
+                  ? formData.photo
+                  : formData.photo instanceof File
+                    ? URL.createObjectURL(formData.photo)
+                    : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/deck-image-example.png?alt=media&token=7905dc10-fde7-4729-a088-fb87c94e2683'
               }
               lastModification={Date.now()}
               learning={0}
               new={0}
               reviewing={0}
               reviews={null}
-              public={false}
-              situation="New"
+              public={isPublic}
+              situation={situation}
               stars={null}
               title={formData.name.length > 0 ? formData.name : 'Deck name'}
               type="Custom deck"
@@ -313,7 +332,7 @@ export const CustomDeckSection = () => {
             />
 
             <ButtonDefault
-              text="Adicionar deck"
+              text={editing ? 'Editar deck' : 'Adicionar deck'}
               type="button"
               tailwind="w-full h-[42px]"
               radius="rounded-lg"
@@ -322,6 +341,6 @@ export const CustomDeckSection = () => {
           </div>
         </fieldset>
       </form>
-    </section>
+    </div>
   )
 }

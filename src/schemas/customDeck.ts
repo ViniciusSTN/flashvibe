@@ -8,15 +8,30 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
 ]
 
+// const fileSchema = z
+//   .any()
+//   .nullable()
+//   .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
+//     message: `A imagem deve ser menor que 1MB`,
+//   })
+//   .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), {
+//     message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
+//   })
+
+// somente validar quando for File, se for string (URL) quer dizer que é uma imagem já salva no Firebase e não precisa de validações, pois ela já passou por validações anteriormente
 const fileSchema = z
   .any()
   .nullable()
-  .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
+  .refine((file) => !(file instanceof File) || file.size <= MAX_FILE_SIZE, {
     message: `A imagem deve ser menor que 1MB`,
   })
-  .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), {
-    message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
-  })
+  .refine(
+    (file) =>
+      !(file instanceof File) || ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    {
+      message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
+    },
+  )
 
 const customDeckSchema = z.object({
   name: z

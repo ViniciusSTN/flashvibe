@@ -1,3 +1,5 @@
+import { ErrorResponse } from './apiResponse'
+
 export type DeckCardProps = {
   type: 'Standard Deck' | 'Custom deck'
   favorite: boolean
@@ -31,7 +33,7 @@ export type ColorClasseType = {
 export type CustomDeckData = {
   name: string
   description: string
-  photo: File | null
+  photo: File | string | null
   colorPredefinition: number
   new: number
   learning: number
@@ -49,3 +51,24 @@ export type CustomDeckDataErrors = {
 }
 
 export type InputName = keyof CustomDeckData
+
+export type EditCustomDeckProps = {
+  initialData: CustomDeckData
+  situation: 'Learning' | 'Finished' | 'New'
+  isPublic: boolean
+  favorite: boolean
+}
+
+export type EditCustomDeckType = (props: EditCustomDeckProps) => JSX.Element
+
+export type CustomDeckSuccessResponse = {
+  success: true
+  deck: CustomDeckData
+  situation: 'Learning' | 'Finished' | 'New'
+  isPublic: boolean
+  favorite: boolean
+}
+
+export type getUsersCustomDeckBaseDataType = (
+  deckId: number,
+) => Promise<CustomDeckSuccessResponse | ErrorResponse>

@@ -1,3 +1,6 @@
 export * from '@/states/atoms/showPassword'
 export * from '@/states/atoms/resendCounter'
 export * from '@/states/atoms/userData'
+export * from '@/states/atoms/deckActive'
+export * from '@/states/atoms/filters'
+export * from '@/states/atoms/flashcard'

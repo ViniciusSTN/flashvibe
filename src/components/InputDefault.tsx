@@ -15,6 +15,7 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
       tailwind = 'mb-0',
       name,
       onChange,
+      onBlur,
       value,
       error = [],
       label = '',
@@ -38,6 +39,7 @@ export const InputDefault = forwardRef<HTMLInputElement, InputProps>(
           name={name}
           id={name}
           onChange={onChange}
+          onBlur={onBlur}
           value={value}
           ref={ref}
           disabled={disable}

@@ -47,3 +47,9 @@ export const editCustomDeck: Metadata = {
   description:
     'Adicione decks personalizados da forma que preferir. Crie seus próprios flashcards e pratique inglês de forma prática e efetiva. Você poderá utilizar diversas ferramentas para adicionar áudios de pronúncia, traduções, frases de exemplo, imagens, e muito mais.',
 }
+
+export const addFlshcard: Metadata = {
+  title: 'Adicionar Flashcard Flashvibe',
+  description:
+    'Crie seus próprios flashcards e pratique inglês de forma prática e efetiva. Você poderá utilizar diversas ferramentas para adicionar áudios de pronúncia, traduções, frases de exemplo, imagens, e muito mais.',
+}

@@ -6,12 +6,12 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
-export const SearchTranslations = () => {
+export const SearchExamplesModal = () => {
   const [newFlashcardData, setNewFlashcardData] =
     useRecoilState(newFlashcardDataAtom)
   const setOverlay = useSetRecoilState(flashcardOverlayAtom)
 
-  const [translations, setTranslations] = useState<string[]>([])
+  const [examples, setExamples] = useState<string[]>([])
   const [checked, setChecked] = useState<string[]>([])
 
   function handleFormSubmit(event: React.FormEvent) {
@@ -22,11 +22,10 @@ export const SearchTranslations = () => {
     } else {
       setNewFlashcardData((prevState) => ({
         ...prevState,
-        translations: [
-          ...(prevState.translations || []),
+        examples: [
+          ...(prevState.examples || []),
           ...checked.filter(
-            (translation) =>
-              !(prevState.translations || []).includes(translation),
+            (example) => !(prevState.examples || []).includes(example),
           ),
         ],
       }))
@@ -36,22 +35,21 @@ export const SearchTranslations = () => {
   }
 
   useEffect(() => {
-    // buscar opções de tradução na API
+    // buscar opções de exemplos na API
 
-    const translations = [
-      'cada',
-      'todo',
-      'sempre',
-      'qualquer',
-      'tudo',
-      'cada um',
-      'todas as',
+    const examples = [
+      'She goes for a run every morning before work.',
+      'Every student in the class passed the test',
+      'I call my parents every weekend to catch up',
+      'Every time I visit that restaurant, I try something new',
+      'He tries to make every moment count during his travels',
+      'Every child deserves a safe and loving home',
     ]
 
-    setTranslations(translations)
+    setExamples(examples)
   }, [])
 
-  function handleSelectTranslation(translation: string) {
+  function handleSelectExample(translation: string) {
     if (!checked.includes(translation))
       setChecked((prevState) => [...prevState, translation])
     else setChecked(checked.filter((word) => word !== translation))
@@ -60,27 +58,27 @@ export const SearchTranslations = () => {
   return (
     <div className="fixed left-1/2 top-1/2 z-50 w-[80%] -translate-x-1/2 -translate-y-1/2 bg-white px-8 py-8 shadow-very-clean vsm:w-auto">
       <h3 className="mb-6 text-center text-xl font-medium">
-        Adicionar traduções
+        Adicionar exemplos de uso
       </h3>
 
       <p className="mb-6 text-center text-light-gray500">
-        Tradução para a palavra
+        Exemplo encontrados para
         <span className="font-medium"> {newFlashcardData.keyword}</span>
       </p>
 
       <p className="mb-1 text-center text-light-gray500">
-        Selecione as traduções que deseja adicionar
+        Selecione os exemplos que deseja adicionar
       </p>
 
       <form action="" onSubmit={handleFormSubmit}>
-        <div className="mb-8 max-h-64 max-w-464px overflow-y-scroll rounded-lg border border-light-gray225">
-          <ul className="flex flex-wrap items-center justify-center gap-2 px-6 py-8">
-            {translations.map((translation, index) => (
+        <div className="mb-8 max-h-60 max-w-464px overflow-y-scroll rounded-lg border border-light-gray225">
+          <ul>
+            {examples.map((translation, index) => (
               <li key={index}>
                 <button
                   type="button"
-                  onClick={() => handleSelectTranslation(translation)}
-                  className={`rounded-md border border-clean-blue900 px-5 py-2 ${
+                  onClick={() => handleSelectExample(translation)}
+                  className={`w-full border-b border-light-gray225 p-3 ${
                     checked.includes(translation)
                       ? 'bg-clean-blue700'
                       : 'bg-clean-blue200'

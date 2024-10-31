@@ -1,10 +1,24 @@
+export type flashcardOverlayType =
+  | 'translations'
+  | 'searchTranslations'
+  | 'examples'
+  | 'searchExamples'
+  | 'pronunciations'
+  | null
+
+export type PronunciationType = {
+  search: string
+  votes: number
+  audio: string
+}
+
 export type NewFlashcardType = {
   front: string
   keyword: string
   translations?: string[]
   examples: string[]
-  pronunciations?: string[]
-  images?: string[] | File[]
+  pronunciations?: PronunciationType[]
+  images?: (string | File)[]
 }
 
 export type NewFlashcardErrorsType = {
@@ -15,11 +29,3 @@ export type NewFlashcardErrorsType = {
   pronunciations: string[]
   images: string[]
 }
-
-export type flashcardOverlayType =
-  | 'translations'
-  | 'searchTranslations'
-  | 'examples'
-  | 'pronunciations'
-  | 'images'
-  | null

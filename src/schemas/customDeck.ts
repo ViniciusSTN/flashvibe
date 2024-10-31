@@ -8,16 +8,6 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
 ]
 
-// const fileSchema = z
-//   .any()
-//   .nullable()
-//   .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
-//     message: `A imagem deve ser menor que 1MB`,
-//   })
-//   .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), {
-//     message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
-//   })
-
 // somente validar quando for File, se for string (URL) quer dizer que é uma imagem já salva no Firebase e não precisa de validações, pois ela já passou por validações anteriormente
 const fileSchema = z
   .any()
@@ -26,8 +16,14 @@ const fileSchema = z
     message: `A imagem deve ser menor que 1MB`,
   })
   .refine(
-    (file) =>
-      !(file instanceof File) || ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    (file) => {
+      if (file instanceof File) {
+        const isValidType = ACCEPTED_IMAGE_TYPES.includes(file.type)
+        const isValidExtension = /\.(jpg|jpeg|png|webp)$/.test(file.name)
+        return isValidType && isValidExtension
+      }
+      return true
+    },
     {
       message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
     },

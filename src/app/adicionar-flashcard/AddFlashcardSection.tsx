@@ -2,37 +2,56 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import { frontSchema } from '@/schemas/flashcard'
+import {
+  createFlashcardSchema,
+  frontSchema,
+  imageValidations,
+} from '@/schemas/flashcard'
 import {
   flashcardOverlayAtom,
   newFlashcardDataAtom,
   newFlashcardErrorsAtom,
 } from '@/states'
 import { NewFlashcardErrorsType } from '@/types/flashcard'
-import { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { TranslationsModal } from './TranslationsModal'
-import { SearchTranslations } from './SearchTranslations'
+import { SearchTranslationsModal } from './SearchTranslationsModal'
+import { ExamplesModal } from './ExamplesModal'
+import { SearchExamplesModal } from './SearchExamplesModal'
+import { PronunciationsModal } from './PronunciationsModal'
+import Image from 'next/image'
+import { toast } from 'react-toastify'
+
+const initialErrors: NewFlashcardErrorsType = {
+  front: [],
+  examples: [],
+  images: [],
+  keyword: [],
+  pronunciations: [],
+  translations: [],
+}
 
 export const AddFlashcardSection = () => {
   const [flashcardData, setFlashcardData] = useRecoilState(newFlashcardDataAtom)
-
-  const [errors, setErrors] = useRecoilState<NewFlashcardErrorsType>(
-    newFlashcardErrorsAtom,
-  )
-
+  const [errors, setErrors] = useRecoilState(newFlashcardErrorsAtom)
   const [overlay, setOverlay] = useRecoilState(flashcardOverlayAtom)
 
   const [keywordOptions, setKeywordOptions] = useState<string[]>([])
 
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
   function handleFrontChange(event: React.ChangeEvent<HTMLInputElement>) {
     clearError('front')
 
-    setFlashcardData((prevState) => ({
-      ...prevState,
+    setFlashcardData({
       front: event.target.value,
       keyword: '',
-    }))
+      translations: [],
+      examples: [],
+      images: [],
+      pronunciations: [],
+    })
   }
 
   function handleFrontFinished() {
@@ -68,8 +87,114 @@ export const AddFlashcardSection = () => {
     }
   }
 
+  function handleDelete(
+    event: React.MouseEvent<HTMLButtonElement>,
+    type: 'translations' | 'examples' | 'pronunciations' | 'images',
+    index: number,
+  ) {
+    event.preventDefault()
+
+    setFlashcardData((prevState) => {
+      const currentArray = prevState[type]
+
+      if (Array.isArray(currentArray)) {
+        return {
+          ...prevState,
+          [type]: currentArray.filter((_, i) => i !== index),
+        }
+      }
+
+      return prevState
+    })
+  }
+
+  function handlePlayAudio(audioUrl: string) {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+
+    const audio = new Audio(audioUrl)
+    audio.volume = 0.4
+    audio.play()
+    audioRef.current = audio
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files
+    if (files) {
+      const filesArray = Array.from(files)
+
+      const validationResult = imageValidations.safeParse(filesArray)
+      if (!validationResult.success) {
+        const fieldErrors = validationResult.error.formErrors
+          .fieldErrors as Record<string, string[]>
+
+        const errorKeys = Object.keys(fieldErrors)
+
+        const firstKey = errorKeys[0]
+        if (firstKey) {
+          const firstErrorMessage = fieldErrors[firstKey][0]
+          if (firstErrorMessage) toast.warning(firstErrorMessage)
+        }
+      } else {
+        setFlashcardData((prevState) => ({
+          ...prevState,
+          images: [...(prevState.images || []), ...filesArray],
+        }))
+      }
+    }
+  }
+
+  const handleKeywordChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newKeyword = event.target.value
+
+    if (errors.keyword.length > 0) {
+      setErrors((prevState) => ({
+        ...prevState,
+        keyword: [],
+      }))
+    }
+
+    setFlashcardData((prevState) => ({
+      ...prevState,
+      keyword: newKeyword,
+      translations: [],
+      examples: [],
+      images: [],
+      pronunciations: [],
+    }))
+  }
+
+  function handleFormSubmit(event: React.FormEvent) {
+    event.preventDefault()
+
+    // console.log(flashcardData)
+
+    const validation = createFlashcardSchema.safeParse(flashcardData)
+
+    console.log(validation)
+
+    if (!validation.success) {
+      setErrors({
+        ...initialErrors,
+        ...validation.error.formErrors.fieldErrors,
+      })
+
+      const { examples } = validation.error?.formErrors.fieldErrors || {}
+
+      if (examples?.length) {
+        toast.warning(examples[0])
+      }
+    } else {
+      // Criar flashcard
+
+      toast.success('Flashcard criado com sucesso')
+    }
+  }
+
   return (
-    <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
+    <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-20">
       <button
         className={`fixed inset-0 z-50 bg-black transition-opacity ${
           !overlay
@@ -80,9 +205,16 @@ export const AddFlashcardSection = () => {
       ></button>
 
       {overlay === 'translations' && <TranslationsModal />}
-      {overlay === 'searchTranslations' && <SearchTranslations />}
+      {overlay === 'searchTranslations' && <SearchTranslationsModal />}
+      {overlay === 'examples' && <ExamplesModal />}
+      {overlay === 'searchExamples' && <SearchExamplesModal />}
+      {overlay === 'pronunciations' && <PronunciationsModal />}
 
-      <form action="" className="flex flex-col items-center">
+      <form
+        action=""
+        className="flex flex-col items-center"
+        onSubmit={handleFormSubmit}
+      >
         <h1 className="mb-16 text-center text-3xl font-semibold">
           Adicionar flashcard
         </h1>
@@ -114,17 +246,12 @@ export const AddFlashcardSection = () => {
                 <select
                   name=""
                   id=""
-                  className={`inputDefault px-4`}
+                  className={`inputDefault px-4 ${errors.keyword.length > 0 && 'inputDefaultError'} ${(flashcardData.front.length === 0 || errors.front.length > 0) && 'cursor-not-allowed'}`}
                   disabled={
                     flashcardData.front.length === 0 || errors.front.length > 0
                   }
                   value={flashcardData.keyword}
-                  onChange={(event) => {
-                    setFlashcardData((prevState) => ({
-                      ...prevState,
-                      keyword: event.target.value,
-                    }))
-                  }}
+                  onChange={(event) => handleKeywordChange(event)}
                 >
                   <option value="">Selecionar</option>
                   {keywordOptions.map((option, index) => {
@@ -135,6 +262,11 @@ export const AddFlashcardSection = () => {
                     )
                   })}
                 </select>
+                {errors.keyword?.length > 0 && (
+                  <small className="text-red-600 block">
+                    {errors.keyword[0]}
+                  </small>
+                )}
               </label>
             </div>
 
@@ -142,9 +274,30 @@ export const AddFlashcardSection = () => {
               <h3 className="font-medium">Traduções</h3>
               {flashcardData.translations &&
               flashcardData.translations.length > 0 ? (
-                flashcardData.translations.map((translation, index) => (
-                  <p key={index}>{translation}</p>
-                ))
+                <ul className="flex flex-col gap-2">
+                  {flashcardData.translations.map((translation, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between gap-2 rounded border border-light-gray225 px-2 py-[2px]"
+                    >
+                      {translation}
+                      <button
+                        onClick={(event) =>
+                          handleDelete(event, 'translations', index)
+                        }
+                        className="shrink-0"
+                      >
+                        <Image
+                          src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-svgrepo-com.svg?alt=media&token=f5a52b8f-6f12-4716-a4ab-91201310fc4d"
+                          alt={`excluir tradução ${index + 1}`}
+                          width={16}
+                          height={16}
+                          className="h-4 w-4"
+                        />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : (
                 <p className="font-medium italic text-light-gray500">
                   Nenhuma tradução adicionada
@@ -178,7 +331,30 @@ export const AddFlashcardSection = () => {
                 Exemplos de uso da palavra-chave *
               </h3>
               {flashcardData.examples && flashcardData.examples.length > 0 ? (
-                <p>Adicionar exemplos depois</p>
+                <ul className="flex flex-col gap-2">
+                  {flashcardData.examples.map((example, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between gap-2 rounded border border-light-gray225 px-2 py-[2px]"
+                    >
+                      {example}
+                      <button
+                        onClick={(event) =>
+                          handleDelete(event, 'examples', index)
+                        }
+                        className="shrink-0"
+                      >
+                        <Image
+                          src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-svgrepo-com.svg?alt=media&token=f5a52b8f-6f12-4716-a4ab-91201310fc4d"
+                          alt={`excluir exemplo de uso ${index + 1}`}
+                          width={16}
+                          height={16}
+                          className="h-4 w-4"
+                        />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : (
                 <p className="font-medium italic text-light-gray500">
                   Nenhum exemplo adicionado
@@ -202,7 +378,48 @@ export const AddFlashcardSection = () => {
               <h3 className="font-medium">Pronúncias</h3>
               {flashcardData.pronunciations &&
               flashcardData.pronunciations.length > 0 ? (
-                <p>Adicionar pronuncias depois</p>
+                <ul className="flex flex-col gap-2">
+                  {flashcardData.pronunciations.map((pronunciation, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between gap-2 rounded border border-light-gray225 px-2 py-[2px]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handlePlayAudio(pronunciation.audio)}
+                        >
+                          <Image
+                            src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/play-circle-svgrepo-com.svg?alt=media&token=58563bae-4f79-454c-a5f3-5446c1ff7b7d"
+                            alt="iniciar áudio da pronúncia"
+                            width={40}
+                            height={40}
+                            className="h-10 w-10"
+                          />
+                        </button>
+
+                        <span className="capitalize">
+                          {flashcardData.keyword}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={(event) =>
+                          handleDelete(event, 'pronunciations', index)
+                        }
+                        className="shrink-0"
+                      >
+                        <Image
+                          src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-svgrepo-com.svg?alt=media&token=f5a52b8f-6f12-4716-a4ab-91201310fc4d"
+                          alt={`excluir pronúncia ${index + 1}`}
+                          width={16}
+                          height={16}
+                          className="h-4 w-4"
+                        />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : (
                 <p className="font-medium italic text-light-gray500">
                   Nenhuma pronúncia adicionada
@@ -225,24 +442,84 @@ export const AddFlashcardSection = () => {
             <div className="flex flex-col gap-3">
               <h3 className="font-medium">Imagens</h3>
               {flashcardData.images && flashcardData.images.length > 0 ? (
-                <p>Adicionar imagens depois</p>
+                <ul className="grid max-w-[332px] grid-cols-3 gap-4">
+                  {flashcardData.images.map((image, index) => (
+                    <li
+                      key={index}
+                      className="relative flex items-center justify-center"
+                    >
+                      <Image
+                        src={
+                          image instanceof File
+                            ? URL.createObjectURL(image)
+                            : image
+                        }
+                        alt="imagem de exemplo"
+                        width={100}
+                        height={100}
+                        className="h-[100px] w-[100px] object-cover object-center"
+                      />
+
+                      <button
+                        onClick={(event) =>
+                          handleDelete(event, 'images', index)
+                        }
+                        className="absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                      >
+                        <Image
+                          src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-svgrepo-com.svg?alt=media&token=f5a52b8f-6f12-4716-a4ab-91201310fc4d"
+                          alt={`excluir imagem ${index + 1}`}
+                          width={24}
+                          height={24}
+                          className="h-6 w-6 opacity-55"
+                        />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : (
                 <p className="font-medium italic text-light-gray500">
                   Nenhuma imagem adicionada
                 </p>
               )}
-              <ButtonDefault
-                text="Adicionar imagens"
-                radius="rounded-md"
-                style="outDark"
-                type="button"
-                paddingy="py-2"
-                tailwind="w-[238px]"
-                disabled={
+
+              <div
+                className={`relative ${
                   flashcardData.keyword.length === 0 || errors.front.length > 0
-                }
-                onClick={() => setOverlay('images')}
-              />
+                    ? 'cursor-not-allowed'
+                    : 'cursor-pointer'
+                }`}
+              >
+                <ButtonDefault
+                  text="Adicionar imagens"
+                  radius="rounded-md"
+                  style="outDark"
+                  type="button"
+                  paddingy="py-2"
+                  tailwind="w-[238px]"
+                  disabled={
+                    flashcardData.keyword.length === 0 ||
+                    errors.front.length > 0
+                  }
+                />
+
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  onChange={handleFileChange}
+                  multiple
+                  className={`absolute left-0 top-0 h-full w-[238px] opacity-0 ${
+                    flashcardData.keyword.length === 0 ||
+                    errors.front.length > 0
+                      ? 'pointer-events-none'
+                      : 'cursor-pointer'
+                  }`}
+                  disabled={
+                    flashcardData.keyword.length === 0 ||
+                    errors.front.length > 0
+                  }
+                />
+              </div>
             </div>
           </fieldset>
         </div>

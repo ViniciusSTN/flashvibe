@@ -2,7 +2,7 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import { translationSchema } from '@/schemas/flashcard'
+import { exampleSchema } from '@/schemas/flashcard'
 import {
   flashcardOverlayAtom,
   newFlashcardDataAtom,
@@ -11,7 +11,7 @@ import {
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
-export const TranslationsModal = () => {
+export const ExamplesModal = () => {
   const [newFlashcardData, setNewFlashcardData] =
     useRecoilState(newFlashcardDataAtom)
 
@@ -21,31 +21,29 @@ export const TranslationsModal = () => {
 
   const setOverlay = useSetRecoilState(flashcardOverlayAtom)
 
-  const [word, setWord] = useState<string>('')
+  const [example, setExample] = useState<string>('')
 
   function handleFormSubmit(event: React.FormEvent) {
     event.preventDefault()
 
-    setNewFlashcardErrors((prevState) => ({ ...prevState, translations: [] }))
+    setNewFlashcardErrors((prevState) => ({ ...prevState, examples: [] }))
 
-    const validation = translationSchema.safeParse({ translation: word })
+    const validation = exampleSchema.safeParse({ example })
 
     if (!validation.success) {
       setNewFlashcardErrors((prevState) => ({
         ...prevState,
-        translations: [
-          ...(validation.error.formErrors.fieldErrors.translation || []),
-        ],
+        examples: [...(validation.error.formErrors.fieldErrors.example || [])],
       }))
     } else {
-      // enviar 'word' para API de correção gramatical
+      // enviar 'example' para API de correção gramatical
 
-      const allTranslations = newFlashcardData.translations
+      const allExamples = newFlashcardData.examples
 
-      if (allTranslations && !allTranslations.includes(word))
+      if (allExamples && !allExamples.includes(example))
         setNewFlashcardData((prevState) => ({
           ...prevState,
-          translations: [...(prevState.translations || []), word],
+          examples: [...(prevState.examples || []), example],
         }))
 
       setOverlay(null)
@@ -55,11 +53,11 @@ export const TranslationsModal = () => {
   return (
     <div className="fixed left-1/2 top-1/2 z-50 w-[80%] -translate-x-1/2 -translate-y-1/2 bg-white px-8 py-8 shadow-very-clean vsm:w-auto">
       <h3 className="mb-6 text-center text-xl font-medium">
-        Adicionar traduções
+        Adicionar exemplos de uso
       </h3>
 
       <p className="mb-6 text-center text-light-gray500">
-        Tradução para a palavra
+        Exemplo de uso da palavra
         <span className="font-medium"> {newFlashcardData.keyword}</span>
       </p>
 
@@ -71,21 +69,21 @@ export const TranslationsModal = () => {
         <InputDefault
           name="translation"
           type="text"
-          placeholder="Informe a tradução"
-          value={word}
-          onChange={(event) => setWord(event.target.value)}
-          error={newFlashcardErrors.translations}
+          placeholder="Informe o exemplo"
+          value={example}
+          onChange={(event) => setExample(event.target.value)}
+          error={newFlashcardErrors.examples}
         />
 
         <div className="mx-auto">
           <ButtonDefault
-            text="Buscar traduções"
+            text="Buscar exemplos"
             type="button"
             paddingy="py-2"
             paddingx="px-4"
             radius="rounded-md"
             style="outDark"
-            onClick={() => setOverlay('searchTranslations')}
+            onClick={() => setOverlay('searchExamples')}
           />
         </div>
 

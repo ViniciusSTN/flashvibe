@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const MAX_FILE_SIZE = 5000000
+const MAX_FILE_SIZE = 1000000
 const ACCEPTED_IMAGE_TYPES = [
   'image/jpeg',
   'image/jpg',
@@ -10,13 +10,23 @@ const ACCEPTED_IMAGE_TYPES = [
 
 const fileSchema = z
   .any()
-  .nullable()
-  .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
-    message: `A imagem deve ser menor que 5MB`,
+  .refine((file) => file.size <= MAX_FILE_SIZE, {
+    message: `A imagem deve ser menor que 1MB`,
   })
-  .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), {
-    message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
-  })
+  .refine(
+    (file) => {
+      const isValidType = ACCEPTED_IMAGE_TYPES.includes(file.type)
+      const isValidExtension =
+        file.name.endsWith('.jpg') ||
+        file.name.endsWith('.jpeg') ||
+        file.name.endsWith('.png') ||
+        file.name.endsWith('.webp')
+      return isValidType && isValidExtension
+    },
+    {
+      message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
+    },
+  )
 
 const userDataSchema = z.object({
   name: z

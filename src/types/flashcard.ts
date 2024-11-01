@@ -1,3 +1,5 @@
+import { ErrorResponse, SuccessResponse } from './apiResponse'
+
 export type flashcardOverlayType =
   | 'translations'
   | 'searchTranslations'
@@ -12,7 +14,7 @@ export type PronunciationType = {
   audio: string
 }
 
-export type NewFlashcardType = {
+export type FlashcardType = {
   front: string
   keyword: string
   translations?: string[]
@@ -21,7 +23,16 @@ export type NewFlashcardType = {
   images?: (string | File)[]
 }
 
-export type NewFlashcardErrorsType = {
+export type FlashcardDataType = {
+  front: string
+  keyword: string
+  translations?: string[]
+  examples: string[]
+  pronunciations?: string[]
+  images?: string[]
+}
+
+export type FlashcardErrorsType = {
   front: string[]
   keyword: string[]
   translations: string[]
@@ -29,3 +40,11 @@ export type NewFlashcardErrorsType = {
   pronunciations: string[]
   images: string[]
 }
+
+export type SuccessWithFlashcardData = SuccessResponse & {
+  flashcard: FlashcardType
+}
+
+export type GetAllFlashcardDataType = (
+  flashcardId: number,
+) => Promise<SuccessWithFlashcardData | ErrorResponse>

@@ -1,11 +1,11 @@
 import {
   flashcardOverlayType,
-  NewFlashcardErrorsType,
-  NewFlashcardType,
+  FlashcardErrorsType,
+  FlashcardType,
 } from '@/types/flashcard'
 import { atom } from 'recoil'
 
-export const newFlashcardDataAtom = atom<NewFlashcardType>({
+export const newFlashcardDataAtom = atom<FlashcardType>({
   key: 'newFlashcardData',
   default: {
     front: '',
@@ -17,7 +17,7 @@ export const newFlashcardDataAtom = atom<NewFlashcardType>({
   },
 })
 
-export const newFlashcardErrorsAtom = atom<NewFlashcardErrorsType>({
+export const newFlashcardErrorsAtom = atom<FlashcardErrorsType>({
   key: 'newFlashcardErrors',
   default: {
     front: [],

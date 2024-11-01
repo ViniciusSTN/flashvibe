@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
-export const PronunciationsModal = () => {
+export const EditFlashcardPronunciationsModal = () => {
   const [newFlashcardData, setNewFlashcardData] =
     useRecoilState(newFlashcardDataAtom)
   const setOverlay = useSetRecoilState(flashcardOverlayAtom)

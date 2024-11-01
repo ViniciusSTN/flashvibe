@@ -11,7 +11,7 @@ import {
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
-export const ExamplesModal = () => {
+export const EditFlashcardExamplesModal = () => {
   const [newFlashcardData, setNewFlashcardData] =
     useRecoilState(newFlashcardDataAtom)
 

@@ -1,5 +1,8 @@
-import { flashcardData } from '@/mocks/TemporaryFlashcards'
-import { GetAllFlashcardDataType } from '@/types/flashcard'
+import { deckFlashcardsData, flashcardData } from '@/mocks/TemporaryFlashcards'
+import {
+  GetAllFlashcardDataType,
+  GetDeckFlashcardsType,
+} from '@/types/flashcard'
 
 export const getAllFlashcardData: GetAllFlashcardDataType = async (
   flashcardId,
@@ -12,7 +15,7 @@ export const getAllFlashcardData: GetAllFlashcardDataType = async (
     }, 1000)
   })
 
-  if (flashcardData && flashcardId === 10) {
+  if (flashcardData) {
     return {
       success: true,
       message: 'Flashcard econtrado',
@@ -30,6 +33,28 @@ export const getAllFlashcardData: GetAllFlashcardDataType = async (
     return {
       success: false,
       error: ['Falha ao obter os dados do flashcard'],
+    }
+  }
+}
+
+export const getDeckFlashcards: GetDeckFlashcardsType = async (
+  deckId,
+  page,
+) => {
+  console.log(deckId, page)
+
+  if (deckFlashcardsData && deckId === 10) {
+    return {
+      success: true,
+      message: 'Flashcards encontrados',
+      flashcards: [...deckFlashcardsData],
+      lastPage: 6,
+      deckName: 'My English Words',
+    }
+  } else {
+    return {
+      success: false,
+      error: ['Falha ao obter dados de flashcards'],
     }
   }
 }

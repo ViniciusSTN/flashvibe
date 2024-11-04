@@ -1,0 +1,27 @@
+/* Slider */
+.swiper-slide {
+  width: 200px;
+  height: 200px;
+}
+
+/* 1 - menor que 610px */
+@media (max-width: 609px) {
+  .swiper {
+    width: 200px;
+  }
+}
+
+/* 2 - vsm (entre 610px e 1023px) */
+@media (min-width: 610px) and (max-width: 1023px) {
+  .swiper {
+    width: 430px;
+  }
+}
+
+/* 3 - lg (maior que 1024px) */
+@media (min-width: 1024px) {
+  .swiper {
+    width: 100%;
+  }
+}
+

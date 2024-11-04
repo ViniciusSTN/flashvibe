@@ -1,4 +1,5 @@
 import { MyDeckFiltersType, StandardDeckFiltersType } from '@/types/filters'
+import { FlashcardFiltersType } from '@/types/flashcard'
 import { atom, AtomEffect } from 'recoil'
 
 const localStorageEffect =
@@ -65,4 +66,18 @@ export const standardDeckFiltersAtom = atom<StandardDeckFiltersType>({
     },
   },
   effects: [localStorageEffect('standard_deck_filters')],
+})
+
+export const flashcardFiltersAtom = atom<FlashcardFiltersType>({
+  key: 'flashcardListFilters',
+  default: {
+    isActive: false,
+    searchBy: 'lastModifications',
+    situation: {
+      new: true,
+      learning: true,
+      reviewing: true,
+    },
+  },
+  effects: [localStorageEffect('flashcard_list_filters')],
 })

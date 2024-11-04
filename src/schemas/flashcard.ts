@@ -12,7 +12,7 @@ export const frontSchema = z.object({
   front: z
     .string()
     .min(1, { message: 'A frente é obrigatória' })
-    .max(50, { message: 'A frente deve ter menos que 50 caracateres' }),
+    .max(150, { message: 'A frente deve ter menos que 150 caracateres' }),
 })
 
 export const translationSchema = z.object({
@@ -55,7 +55,7 @@ export const createFlashcardSchema = z.object({
   front: z
     .string()
     .min(1, { message: 'A frente é obrigatória' })
-    .max(50, { message: 'A frente deve ter menos que 50 caracateres' }),
+    .max(150, { message: 'A frente deve ter menos que 150 caracateres' }),
   keyword: z.string().min(1, { message: 'A palavra-chave é obrigatória' }),
   examples: z
     .array(

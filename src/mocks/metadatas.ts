@@ -65,3 +65,9 @@ export const flashcards: Metadata = {
   description:
     'Crie seus próprios flashcards e pratique inglês de forma prática e efetiva. Você poderá utilizar diversas ferramentas para adicionar áudios de pronúncia, traduções, frases de exemplo, imagens, e muito mais.',
 }
+
+export const study: Metadata = {
+  title: 'Estudando Deck FlashVibe',
+  description:
+    'Aprofunde-se nos seus estudos com o FlashVibe. Revise seus decks, pratique seus flashcards e melhore sua fluência em inglês de forma personalizada e interativa. Aproveite as ferramentas que facilitam o aprendizado com áudios, traduções e exemplos.',
+}

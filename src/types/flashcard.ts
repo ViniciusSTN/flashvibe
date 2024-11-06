@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { ErrorResponse, SuccessResponse } from './apiResponse'
 
 export type flashcardOverlayType =
@@ -24,6 +25,7 @@ export type FlashcardType = {
 }
 
 export type FlashcardDataType = {
+  flashcardId: number
   front: string
   keyword: string
   translations?: string[]
@@ -105,4 +107,32 @@ export type FlashcardFiltersDataType = {
 
 export type FlashcardFiltersType = FlashcardFiltersDataType & {
   isActive: boolean
+}
+
+export type SuccessWithAllFlashcardsDataResponse = SuccessResponse & {
+  deckName: string
+  flashcards: FlashcardDataType[]
+}
+
+export type GetCardsToStudyType = (
+  deckId: number,
+) => Promise<SuccessWithAllFlashcardsDataResponse | ErrorResponse>
+
+export type FlashcardsToStudyType = {
+  flashcards: FlashcardDataType[]
+  deckName: string
+} | null
+
+export type FlashcardComponentProps = {
+  children?: ReactNode
+}
+
+export type FlashcardComponentType = (
+  props: FlashcardComponentProps,
+) => JSX.Element | null
+
+export type FeedbackType = {
+  active: boolean
+  flashcardId: number
+  stars: number
 }

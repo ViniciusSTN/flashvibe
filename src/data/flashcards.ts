@@ -1,6 +1,11 @@
-import { deckFlashcardsData, flashcardData } from '@/mocks/TemporaryFlashcards'
+import {
+  deckFlashcardsData,
+  flashcardData,
+  flashcardsData,
+} from '@/mocks/TemporaryFlashcards'
 import {
   GetAllFlashcardDataType,
+  GetCardsToStudyType,
   GetDeckFlashcardsType,
 } from '@/types/flashcard'
 
@@ -49,6 +54,30 @@ export const getDeckFlashcards: GetDeckFlashcardsType = async (
       message: 'Flashcards encontrados',
       flashcards: [...deckFlashcardsData],
       lastPage: 6,
+      deckName: 'My English Words',
+    }
+  } else {
+    return {
+      success: false,
+      error: ['Falha ao obter dados de flashcards'],
+    }
+  }
+}
+
+export const getCardsToStudy: GetCardsToStudyType = async (deckId) => {
+  console.log(deckId)
+
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  })
+
+  if (flashcardsData) {
+    return {
+      success: true,
+      message: 'Deck encontrado',
+      flashcards: [...flashcardsData],
       deckName: 'My English Words',
     }
   } else {

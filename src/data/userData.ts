@@ -4,6 +4,7 @@ import {
   CreateNewUserWithPasswordType,
   CreateNewUserIntoDatabaseType,
   CreateUserSessionType,
+  CreateNewUserViaSocialMedia,
 } from '@/types/loginAndRegister'
 import axios from 'axios'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
@@ -121,6 +122,41 @@ export const createUserSession: CreateUserSessionType = async (
       }
     } else {
       console.error('Error to login user:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const createNewUserViaSocialMedia: CreateNewUserViaSocialMedia = async (
+  username,
+  nickname,
+  email,
+) => {
+  const url =
+    process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/create-user-social/'
+
+  try {
+    const response = await axios.post(url, {
+      username,
+      nickname,
+      email,
+    })
+
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios error to create user using social media:',
+        error.response?.data,
+      )
+      return {
+        success: false,
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
+      }
+    } else {
+      console.error('Error to register user using social media:', error)
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }

@@ -49,3 +49,9 @@ export type CreateUserSessionType = (
   token: string,
   email: string,
 ) => Promise<ErrorResponse | SuccessResponse>
+
+export type CreateNewUserViaSocialMedia = (
+  username: string,
+  nickname: string,
+  email: string,
+) => Promise<ErrorResponse | SuccessResponse>

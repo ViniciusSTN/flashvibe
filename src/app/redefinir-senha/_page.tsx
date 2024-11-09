@@ -1,6 +1,6 @@
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
-import { ResetPasswordSection } from './ResetPasswordSection'
+import { ResetPasswordSection } from './_ResetPasswordSection'
 import { Metadata } from 'next'
 import { reset } from '@/mocks/metadatas'
 import { Suspense } from 'react'

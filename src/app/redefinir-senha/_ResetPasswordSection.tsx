@@ -12,6 +12,9 @@ import { ShowPassword } from '@/components/ShowPassword'
 import { redirect, useSearchParams } from 'next/navigation'
 import passwordSchema from '@/schemas/password'
 import { newPasswordInputs } from '@/mocks/password'
+import { auth } from '@/lib/firebase'
+import { confirmPasswordReset } from 'firebase/auth'
+import { toast } from 'react-toastify'
 
 const initialValues: FormChangePasswordValues = {
   password: '',
@@ -52,12 +55,12 @@ export const ResetPasswordSection = () => {
     if (formErrors[name as InputName].length > 0) {
       setFormErrors((prevState) => ({
         ...prevState,
-        ...(formErrors[name as InputName] = []),
+        [name as InputName]: [],
       }))
     }
   }
 
-  function handleFormSubmit(event: React.FormEvent) {
+  async function handleFormSubmit(event: React.FormEvent) {
     event.preventDefault()
 
     setLoader(true)
@@ -69,8 +72,20 @@ export const ResetPasswordSection = () => {
         ...initialErrors,
         ...validation.error.formErrors.fieldErrors,
       })
+      setLoader(false)
+      return
     } else {
-      // lógica para trocar de senha
+      try {
+        if (token) {
+          // corrigir depois (to ferrado)
+          await confirmPasswordReset(auth, token, formValues.password)
+          toast.success('Senha redefinida com sucesso!')
+          redirect('/')
+        }
+      } catch (error) {
+        toast.warning('Ocorreu um erro ao redefinir a senha. Tente novamente.')
+        console.error('Erro ao redefinir senha:', error)
+      }
     }
 
     setLoader(false)
@@ -83,7 +98,6 @@ export const ResetPasswordSection = () => {
       </h1>
 
       <form
-        action=""
         onSubmit={handleFormSubmit}
         className="flex w-full flex-col self-center"
       >
@@ -101,11 +115,13 @@ export const ResetPasswordSection = () => {
           />
         ))}
 
-        <ShowPassword />
+        <div className="mb-5 flex justify-end">
+          <ShowPassword />
+        </div>
 
         <div className="flex justify-center">
           <ButtonDefault
-            text={loader ? 'Enviando' : 'Confirmar'}
+            text={loader ? 'Enviando...' : 'Confirmar'}
             type="button"
             paddingx="px-4"
             radius="rounded-md"

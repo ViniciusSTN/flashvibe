@@ -1,5 +1,6 @@
 'use client'
 
+import { createNewUserViaSocialMedia, createUserSession } from '@/data/userData'
 import { auth } from '@/lib/firebase'
 import { userEmailAtom } from '@/states'
 import { CreateNewUserType } from '@/types/createNewUser'
@@ -11,10 +12,29 @@ import {
   signInWithPopup,
 } from 'firebase/auth'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
 
+export type FacebookProfile = {
+  first_name: string
+  name: string
+  picture: {
+    data: {
+      url: string
+    }
+  }
+}
+
+export type GoogleProfile = {
+  given_name: string
+  name: string
+  picture: string
+}
+
 export const SocialMediaSignIn = () => {
+  const router = useRouter()
+
   const setUserEmail = useSetRecoilState(userEmailAtom)
 
   const handleGoogleRegister = async () => {
@@ -35,18 +55,37 @@ export const SocialMediaSignIn = () => {
         const additionalUserInfo = getAdditionalUserInfo(result)
 
         if (additionalUserInfo) {
-          const isNewUser = additionalUserInfo.isNewUser
-          if (isNewUser) {
-            const { displayName, email } = result.user
+          const { isNewUser, providerId, profile } = additionalUserInfo
+          const { displayName, email } = result.user
 
+          if (isNewUser) {
             if (email) setUserEmail(email)
 
-            console.log(displayName?.split(' ')[0], email)
-            // enviar dados para o backend criar um novo registro no BD
-            // enviar dados para o backend logar o usuário
-            // redirecionar para a home e mostrar um toast de sucesso
+            const fullName =
+              providerId === 'facebook.com' && profile
+                ? (profile as FacebookProfile).name
+                : providerId === 'google.com' && profile
+                  ? (profile as GoogleProfile).name
+                  : displayName || ''
+
+            const nickName = `Usuário${Date.now()}`
+
+            if (fullName && email) {
+              const res = await createNewUserViaSocialMedia(
+                fullName,
+                nickName,
+                email,
+              )
+
+              if (res.success) {
+                toast.success('Cadastrado com sucesso')
+                loginUser()
+              } else {
+                toast.error('Erro ao registrar')
+              }
+            }
           } else {
-            // enviar dados para o backend logar o usuário
+            loginUser()
           }
         }
       }
@@ -59,6 +98,32 @@ export const SocialMediaSignIn = () => {
       } else {
         console.error('Erro ao fazer login: ', error)
       }
+    }
+  }
+
+  const loginUser = async () => {
+    try {
+      const user = auth.currentUser
+      if (user) {
+        const token = await user.getIdToken()
+        const email = user.email
+
+        if (token && email) {
+          const result = await createUserSession(token, email)
+
+          if (result.success) {
+            router.push('/')
+          } else {
+            console.error('Erro ao criar sessão do usuário:', result.error)
+          }
+        } else {
+          console.error('Falha ao obter token ou email do usuário.')
+        }
+      } else {
+        console.error('Usuário não autenticado. Por favor, faça login.')
+      }
+    } catch (error) {
+      console.error('Erro ao obter token JWT ou iniciar sessão:', error)
     }
   }
 

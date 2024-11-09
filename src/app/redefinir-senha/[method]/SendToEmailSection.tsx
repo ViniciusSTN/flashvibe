@@ -1,10 +1,12 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import { sendEmailToResetPassword } from '@/data/resetPassword'
 import { emailInput } from '@/mocks/resetPassword'
 import { emailSchema } from '@/schemas/resetPassword'
 import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 export const SendToEmailSection = () => {
   const [loader, setLoader] = useState<boolean>(false)
@@ -23,16 +25,15 @@ export const SendToEmailSection = () => {
       const errors = validation.error.formErrors.fieldErrors.email
       if (errors) setErrors(errors)
     } else {
-      const response = await sendEmailToResetPassword(email)
-      console.log(response)
+      try {
+        await sendPasswordResetEmail(auth, email)
 
-      if (response) {
-        console.log('deu certo saporra')
         setSuccess(true)
+        toast.success('Link enviado no e-mail')
+      } catch (error) {
+        toast.warning('Ocorreu um erro ao enviar o e-mail. Tente novamente.')
+        console.error('Erro ao enviar e-mail de redefinição:', error)
       }
-      // enviar email para o backend para que possa ser enviado um link de troca de senha para o email do usuário
-      // salvar email no recoil
-      // caso der certo, redirecionar para a página /redefinir-senha/email/codigo
     }
 
     setLoader(false)
@@ -54,7 +55,7 @@ export const SendToEmailSection = () => {
       </p>
       <form
         action=""
-        className="mb-14 flex flex-wrap justify-center gap-6"
+        className="mb-14 flex flex-wrap items-center justify-center gap-6"
         onSubmit={handleFormSubmit}
       >
         <InputDefault

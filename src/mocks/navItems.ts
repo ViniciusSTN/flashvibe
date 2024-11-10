@@ -67,12 +67,28 @@ export const items: NavItemProps[] = [
       },
     ],
   },
+]
+
+export const loginItems: NavItemProps[] = [
   {
     title: 'Meu perfil',
     links: [
       {
         name: 'Alterar meus dados',
         link: '/meu-perfil',
+      },
+    ],
+  },
+  {
+    title: 'Logar',
+    links: [
+      {
+        name: 'Fazer Login',
+        link: '/login',
+      },
+      {
+        name: 'Registrar',
+        link: '/registro',
       },
     ],
   },

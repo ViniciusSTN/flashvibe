@@ -1,4 +1,4 @@
-export type sliderType = {
+export type ApresentationSliderType = {
   text: string
   image: string
   alt: string

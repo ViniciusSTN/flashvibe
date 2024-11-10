@@ -46,7 +46,20 @@ const userDataSchema = z.object({
     .refine((value) => !value || /^\d+$/.test(value), {
       message: 'Celular inválido',
     }),
-  photo: fileSchema.optional(),
+  photo: z
+    .unknown()
+    .refine(
+      (value) => {
+        if (value instanceof File) {
+          return fileSchema.safeParse(value).success
+        }
+        return true
+      },
+      {
+        message: 'Formato de imagem inválido ou tamanho maior que 1MB',
+      },
+    )
+    .optional(),
 })
 
 export default userDataSchema

@@ -1,13 +1,17 @@
 'use client'
 
+import { useCookies } from '@/hooks/cookies'
 import { NavbarType } from '@/types/navBar'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
 
-export const Navbar: NavbarType = ({ items, mobile }) => {
+export const Navbar: NavbarType = ({ items, loginItems, mobile }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [menuOpened, setMenuOpened] = useState<boolean>(false)
+
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
 
   const handleNavItemClick = (index: number) => {
     setOpenIndex(openIndex === index ? null : index)
@@ -25,11 +29,16 @@ export const Navbar: NavbarType = ({ items, mobile }) => {
     setMenuOpened(!menuOpened)
   }
 
+  const navItems =
+    sessionCookie && jwtToken
+      ? [...items, loginItems[0]]
+      : [...items, loginItems[1]]
+
   return (
     <nav>
       {!mobile ? (
         <ul className="flex">
-          {items.map((item, index) => (
+          {navItems.map((item, index) => (
             <li
               key={index}
               className="relative"
@@ -44,7 +53,7 @@ export const Navbar: NavbarType = ({ items, mobile }) => {
               </button>
               {openIndex === index && (
                 <ul
-                  className={`absolute z-30 whitespace-nowrap bg-white px-10 py-5 shadow-md ${index === items.length - 1 ? 'right-0' : 'left-0'}`}
+                  className={`absolute z-30 whitespace-nowrap bg-white px-10 py-5 shadow-md ${index === navItems.length - 1 ? 'right-0' : 'left-0'}`}
                 >
                   {item.links.map((link, itemIndex) => (
                     <li key={`${index} ${itemIndex}`}>
@@ -90,7 +99,7 @@ export const Navbar: NavbarType = ({ items, mobile }) => {
           {menuOpened && (
             <nav className="absolute left-10 top-28 z-50 text-white">
               <ul className="flex flex-col gap-4">
-                {items.map((item, index) => (
+                {navItems.map((item, index) => (
                   <li key={index}>
                     <button
                       onClick={() => handleNavItemClick(index)}

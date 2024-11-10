@@ -1,11 +1,15 @@
 import { auth } from '@/lib/firebase'
-import { SuccessWithSessionTokenResponse } from '@/types/apiResponse'
+import {
+  SuccessWithSessionTokenResponse,
+  UserLogOutType,
+} from '@/types/apiResponse'
 import {
   CreateNewUserWithPasswordType,
   CreateNewUserIntoDatabaseType,
   CreateUserSessionType,
   CreateNewUserViaSocialMedia,
 } from '@/types/loginAndRegister'
+import { GetAllUserDataType, UpdateUserDataType } from '@/types/myProfile'
 import axios from 'axios'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import Cookies from 'universal-cookie'
@@ -102,12 +106,12 @@ export const createUserSession: CreateUserSessionType = async (
       email,
     })
 
-    const { cookie, jwt_token: jwtToken } =
+    const { cookie, Authorization } =
       response.data as SuccessWithSessionTokenResponse
 
     const cookies = new Cookies()
 
-    cookies.set('jwt_token', jwtToken)
+    cookies.set('Authorization', Authorization)
     cookies.set('session', cookie)
 
     return response.data
@@ -143,7 +147,7 @@ export const createNewUserViaSocialMedia: CreateNewUserViaSocialMedia = async (
     })
 
     return response.data
-  } catch (error) {
+  } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       console.error(
         'Axios error to create user using social media:',
@@ -157,6 +161,105 @@ export const createNewUserViaSocialMedia: CreateNewUserViaSocialMedia = async (
       }
     } else {
       console.error('Error to register user using social media:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const getAllUserData: GetAllUserDataType = async (token) => {
+  const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/user/'
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: token,
+      },
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error to get user data:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
+      }
+    } else {
+      console.error('Error to get user data:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const updateUserData: UpdateUserDataType = async (data, token) => {
+  const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/user/update/'
+
+  try {
+    const response = await axios.put(
+      url,
+      {
+        ...data,
+      },
+      {
+        headers: {
+          Authorization: token,
+        },
+      },
+    )
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error to update user data:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
+      }
+    } else {
+      console.error('Error to update user data:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const userLogOut: UserLogOutType = async (session, jwtToken) => {
+  const url = process.env.NEXT_PUBLIC_API_LOGIN_AND_REGISTER + '/logout/'
+
+  try {
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: jwtToken,
+          session,
+        },
+      },
+    )
+
+    if (typeof window !== 'undefined') {
+      document.cookie =
+        'Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;'
+      document.cookie =
+        'session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;'
+    }
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error when logging out user:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.message || [
+          'An unexpected error occurred',
+        ],
+      }
+    } else {
+      console.error('Error when logging out user:', error)
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }

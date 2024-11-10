@@ -1,14 +1,15 @@
 'use client'
 
-import { items } from '@/mocks/navItems'
+import { items, loginItems } from '@/mocks/navItems'
 import { HeaderType } from '@/types/header'
-import Image from 'next/image'
-import Link from 'next/link'
 import { Navbar } from './Navbar'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const Header: HeaderType = ({ short = false }) => {
   const [mobile, setMobile] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     function handleResize() {
@@ -16,6 +17,8 @@ const Header: HeaderType = ({ short = false }) => {
 
       if (size < 1024) setMobile(true)
       else setMobile(false)
+
+      setLoading(false)
     }
 
     handleResize()
@@ -56,7 +59,9 @@ const Header: HeaderType = ({ short = false }) => {
             />
           </Link>
 
-          <Navbar items={items} mobile={mobile} />
+          {!loading && (
+            <Navbar items={items} mobile={mobile} loginItems={loginItems} />
+          )}
         </header>
       )}
     </>

@@ -2,21 +2,27 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import { usePhoneMask } from '@/hooks/inputMasks'
+import { SpinLoader } from '@/components/SpinLoader'
+import { verifySession } from '@/data/pagesProtection'
+import { getAllUserData, updateUserData } from '@/data/userData'
+import { useCookies } from '@/hooks/cookies'
+import { formatPhone, usePhoneMask } from '@/hooks/inputMasks'
 import { inputs, phoneInput } from '@/mocks/myProfileForm'
-import userDataSchema from '@/schemas/changeUserData'
 import { AllUserData, AllUserDataErrors, InputName } from '@/types/myProfile'
-import Image from 'next/image'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import userDataSchema from '@/schemas/changeUserData'
+import Image from 'next/image'
+import { sendUserPhotoInFirebase } from '@/data/images'
 
 const defaultData: AllUserData = {
-  email: 'email@gmail.com',
-  name: 'Vinicius',
-  nickname: 'Vini',
+  email: '',
+  name: '',
+  nickname: '',
   phone: '',
   password: '',
-  photo: null,
+  photo: '',
 }
 
 const defaultErrors: AllUserDataErrors = {
@@ -32,8 +38,62 @@ export const MyProfileSection = () => {
   const [userData, setUserData] = useState<AllUserData>(defaultData)
   const [userDataErrors, setUserDataErrors] =
     useState<AllUserDataErrors>(defaultErrors)
+  const [cleanPhone, setCleanPhone] = useState<string>('')
+  const [loadig, setLoadig] = useState<boolean>(true)
+  const [sending, setSending] = useState<boolean>(false)
 
   const mask = usePhoneMask()
+
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
+
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!jwtToken && !sessionCookie) router.push('/')
+  }, [jwtToken, sessionCookie, router])
+
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+        if (!response.success) router.push('/')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
+
+  useEffect(() => {
+    const phone = userData.phone.replace(/\D/g, '')
+    if (phone) setCleanPhone(phone)
+  }, [userData.phone])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (jwtToken) {
+        const data = await getAllUserData(jwtToken)
+
+        if (data.success) {
+          const phone = data.data.phone.replace(/\D/g, '')
+          const formattedPhone = formatPhone(phone)
+
+          setUserData({
+            email: data.data.email,
+            name: data.data.name,
+            nickname: data.data.nickname,
+            phone: formattedPhone,
+            password: '',
+            photo: data.data.photo,
+          })
+        }
+
+        setLoadig(false)
+      }
+    }
+
+    fetchData()
+  }, [jwtToken, mask])
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { value, name } = event.target
@@ -67,7 +127,12 @@ export const MyProfileSection = () => {
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const validation = userDataSchema.safeParse(userData)
+    setSending(true)
+
+    const sendData = { ...userData, phone: cleanPhone }
+    // console.log(sendData)
+
+    const validation = userDataSchema.safeParse(sendData)
 
     if (!validation.success) {
       setUserDataErrors({
@@ -75,133 +140,214 @@ export const MyProfileSection = () => {
         ...validation.error.formErrors.fieldErrors,
       })
 
-      console.log(validation.error.formErrors)
-
       const imageErrors = validation.error.formErrors.fieldErrors.photo
       if (imageErrors) {
         toast.error(imageErrors[0])
       }
     } else {
       // verificar se colocou numero de celular e enviar codigo para ele
-      // alterar no banco de dados
-      console.log('deu certo')
+
+      sendUserData()
     }
+  }
+
+  const sendUserData = async () => {
+    if (userData.photo instanceof File) {
+      const image = userData.photo
+
+      const response = await sendUserPhotoInFirebase(image, 'users')
+
+      if (response.success) {
+        const sendData = {
+          ...userData,
+          photo: response.link,
+          phone: cleanPhone,
+        }
+
+        if (jwtToken) {
+          const response = await updateUserData(sendData, jwtToken)
+
+          if (response.success) {
+            toast.success('Dados atualizados')
+            router.push('/')
+          } else {
+            toast.error('Erro ao atualizar dados')
+          }
+        }
+      } else {
+        toast.warning('Erro ao salvar dados')
+      }
+    } else {
+      if (jwtToken) {
+        const sendData = {
+          ...userData,
+          phone: cleanPhone,
+        }
+
+        const response = await updateUserData(sendData, jwtToken)
+
+        if (response.success) {
+          toast.success('Dados atualizados')
+          router.push('/')
+        } else {
+          toast.error('Erro ao atualizar dados')
+        }
+      }
+    }
+
+    setSending(false)
   }
 
   return (
     <main className="min-h-screen-header">
-      <section className="mb-16 mt-12 flex flex-col items-center px-6">
-        <h1 className="mb-10 max-w-842px text-center text-2xl font-semibold">
-          Meu perfil
-        </h1>
-
-        <form
-          action=""
-          className="flex max-w-842px flex-wrap justify-center gap-32"
-          onSubmit={handleFormSubmit}
+      {loadig ? (
+        <div className="relative flex h-screen-header w-full items-center justify-center">
+          <SpinLoader />
+        </div>
+      ) : (
+        <section
+          className={`mb-16 mt-12 flex flex-col items-center px-6 ${sending && 'pointer-events-none'}`}
         >
-          <div className="flex max-w-420px flex-col gap-8">
-            <div>
-              <h2 className="mb-2 text-xl font-semibold">
-                Informações de usuário
-              </h2>
-              <p className="text-light-gray500">
-                Aqui você pode alterar suas informações
-              </p>
-            </div>
+          <h1 className="mb-10 max-w-842px text-center text-2xl font-semibold">
+            Meu perfil
+          </h1>
 
-            {inputs.map((input, index) => (
-              <InputDefault
-                name={input.name}
-                type={input.type}
-                key={index}
-                label={input.label}
-                value={userData[input.name as InputName]}
-                error={userDataErrors[input.name as InputName]}
-                onChange={(event) => handleInputChange(event)}
-                disable={input.disable}
-              />
-            ))}
-
-            <div>
+          <form
+            action=""
+            className="flex max-w-842px flex-wrap justify-center gap-32"
+            onSubmit={handleFormSubmit}
+          >
+            <div className="flex max-w-420px flex-col gap-8">
               <div>
-                <label htmlFor={phoneInput.name} className="font-medium">
-                  Celular
-                </label>
+                <h2 className="mb-2 text-xl font-semibold">
+                  Informações de usuário
+                </h2>
+                <p className="text-light-gray500">
+                  Aqui você pode alterar suas informações
+                </p>
               </div>
-              <InputDefault
-                name={phoneInput.name}
-                placeholder={phoneInput.placeholder ?? ''}
-                type={phoneInput.type}
-                image={phoneInput.image}
-                value={userData.phone}
-                onChange={handleInputChange}
-                ref={mask}
-                error={userDataErrors.phone}
-                tailwind="grow"
-              />
-            </div>
 
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div>
-                <label htmlFor="password" className="font-medium">
-                  Senha
-                </label>
+              {inputs.map((input, index) => (
                 <InputDefault
-                  name="password"
-                  type="password"
-                  value="**********"
-                  disable
+                  name={input.name}
+                  type={input.type}
+                  key={index}
+                  label={input.label}
+                  value={userData[input.name as InputName] || ''}
+                  error={userDataErrors[input.name as InputName]}
+                  onChange={handleInputChange}
+                  disable={input.disable}
+                />
+              ))}
+
+              <div>
+                <div>
+                  <label htmlFor={phoneInput.name} className="font-medium">
+                    Celular
+                  </label>
+                </div>
+                <InputDefault
+                  name={phoneInput.name}
+                  placeholder={phoneInput.placeholder ?? ''}
+                  type={phoneInput.type}
+                  image={phoneInput.image}
+                  value={userData.phone}
+                  onChange={handleInputChange}
+                  ref={mask}
+                  error={userDataErrors.phone}
+                  tailwind="grow"
                 />
               </div>
 
-              <ButtonDefault
-                style="outDark"
-                text="Alterar senha"
-                type="button"
-                radius="rounded-md"
-                paddingx="px-4"
-                tailwind="h-10"
-              />
-            </div>
-          </div>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <label htmlFor="password" className="font-medium">
+                    Senha
+                  </label>
+                  <InputDefault
+                    name="password"
+                    type="password"
+                    value="**********"
+                    onChange={handleInputChange}
+                    disable
+                  />
+                </div>
 
-          <div className="max-w-272px">
-            <h2 className="mb-6 text-center text-xl font-semibold">
-              Foto de pefil
-            </h2>
-            <div className="relative mb-16 h-272px w-272px">
-              <div className="h-full w-full rounded-full border border-light-gray225">
-                <Image
-                  alt="Selecione uma imagem"
-                  src={
-                    userData.photo
-                      ? URL.createObjectURL(userData.photo)
-                      : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/user-photo.webp?alt=media&token=1072d589-22e2-4c44-83a0-218b9f87ab06'
-                  }
-                  width={272}
-                  height={272}
-                  className="h-full w-full rounded-full object-cover object-center"
+                <ButtonDefault
+                  style="outDark"
+                  text="Alterar senha"
+                  type="link"
+                  link="/redefinir-senha/email"
+                  radius="rounded-md"
+                  paddingx="px-4"
+                  tailwind="h-10"
+                  disabled={sending}
                 />
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="absolute inset-0 rounded-full opacity-0"
-              />
             </div>
-            <ButtonDefault
-              type="button"
-              text="Salvar alterações"
-              submit
-              paddingy="py-2"
-              tailwind="w-full"
-              radius="rounded-lg"
-            />
-          </div>
-        </form>
-      </section>
+
+            <div className="max-w-272px">
+              <h2 className="mb-6 text-center text-xl font-semibold">
+                Foto de pefil
+              </h2>
+              <div className="relative mb-16 h-272px w-272px">
+                <div className="h-full w-full rounded-full border border-light-gray225">
+                  <Image
+                    alt="Selecione uma imagem"
+                    src={
+                      userData.photo instanceof File
+                        ? URL.createObjectURL(userData.photo)
+                        : userData.photo ||
+                          'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/user-photo.webp?alt=media&token=1072d589-22e2-4c44-83a0-218b9f87ab06'
+                    }
+                    width={272}
+                    height={272}
+                    className="h-full w-full rounded-full object-cover object-center"
+                  />
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 rounded-full opacity-0"
+                />
+              </div>
+              <div className="mb-16">
+                <ButtonDefault
+                  type="button"
+                  text="Salvar alterações"
+                  submit
+                  paddingy="py-2"
+                  tailwind="w-full"
+                  radius="rounded-lg"
+                  disabled={sending}
+                />
+              </div>
+
+              <div className="flex gap-5">
+                <ButtonDefault
+                  type="button"
+                  text="Deletar conta"
+                  paddingy="py-2"
+                  tailwind="w-full"
+                  radius="rounded-lg"
+                  disabled={sending}
+                />
+
+                <ButtonDefault
+                  type="link"
+                  link="/meu-perfil/deslogar"
+                  text="Sair"
+                  paddingy="py-2"
+                  tailwind="w-full"
+                  radius="rounded-lg"
+                  disabled={sending}
+                />
+              </div>
+            </div>
+          </form>
+        </section>
+      )}
     </main>
   )
 }

@@ -19,7 +19,7 @@ export const ButtonDefault: ButtonType = ({
     <>
       {type === 'button' && (
         <button
-          className={`${style === 'dark' && 'bg-principal-blue font-medium text-white hover:text-light-blue200'} ${style === 'outDark' && 'border border-principal-blue font-bold text-principal-blue hover:text-secondary-blue'} text-base transition-colors ${shadow && 'shadow-very-clean shadow-light-gray250'} ${!disabled && 'active:outline active:outline-2 active:outline-secondary-blue'} ${disabled && 'cursor-not-allowed'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          className={`${style === 'dark' && 'bg-principal-blue font-medium text-white hover:text-light-blue200'} ${style === 'outDark' && 'border border-principal-blue font-medium text-principal-blue hover:text-secondary-blue'} text-base transition-colors ${shadow && 'shadow-very-clean shadow-light-gray250'} ${!disabled && 'active:outline active:outline-2 active:outline-secondary-blue'} ${disabled && 'cursor-not-allowed'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
           type={submit ? 'submit' : 'button'}
           disabled={disabled}
           onClick={onClick}
@@ -31,8 +31,9 @@ export const ButtonDefault: ButtonType = ({
 
       {type === 'link' && (
         <button
+          type="button"
           disabled={disabled}
-          className={`${style === 'dark' && 'bg-principal-blue text-white hover:text-light-blue900'} ${style === 'outDark' && 'border border-principal-blue font-bold text-principal-blue hover:text-secondary-blue'} ${style === 'light' && 'bg-white text-principal-blue hover:text-light-blue900'} text-base font-bold transition-colors active:outline active:outline-2 active:outline-light-blue900 ${shadow && 'shadow-clean shadow-light-gray250'} ${disabled && 'cursor-not-allowed'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
+          className={`${style === 'dark' && 'bg-principal-blue text-white hover:text-light-blue900'} ${style === 'outDark' && 'border border-principal-blue font-medium text-principal-blue hover:text-secondary-blue'} ${style === 'light' && 'bg-white text-principal-blue hover:text-light-blue900'} text-base font-medium transition-colors active:outline active:outline-2 active:outline-light-blue900 ${shadow && 'shadow-clean shadow-light-gray250'} ${disabled && 'cursor-not-allowed'} ${radius && radius} ${tailwind && tailwind} ${paddingx} ${paddingy}`}
         >
           <Link href={link}>{text}</Link>
         </button>

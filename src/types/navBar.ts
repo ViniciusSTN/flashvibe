@@ -2,6 +2,7 @@ import { NavItemProps } from './navItem'
 
 export type NavbarProps = {
   items: NavItemProps[]
+  loginItems: NavItemProps[]
   mobile: boolean
 }
 

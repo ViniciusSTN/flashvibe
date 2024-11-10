@@ -14,6 +14,8 @@ import { MyDeckModal } from './MyDeckModal'
 import Link from 'next/link'
 import usePagination from '@/hooks/pagination'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
+import { verifySession } from '@/data/pagesProtection'
+import { useCookies } from '@/hooks/cookies'
 
 export const MyDecksSection = () => {
   const searchParams = useSearchParams()
@@ -22,6 +24,8 @@ export const MyDecksSection = () => {
   const getPage = useCallback(() => {
     return searchParams.get('pag')
   }, [searchParams])
+
+  const sessionCookie = useCookies('session')
 
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
@@ -46,6 +50,17 @@ export const MyDecksSection = () => {
     setPageActive(page)
     router.push(`/meus-decks?pag=${page}`)
   }
+
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+        if (!response.success) router.push('/')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
 
   useEffect(() => {
     setDeckActive(null)

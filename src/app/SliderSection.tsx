@@ -8,7 +8,7 @@ import 'swiper/css/pagination'
 import './swiperStyle.css'
 
 import { EffectCoverflow, Pagination } from 'swiper/modules'
-import { sliders } from '@/mocks/slider'
+import { sliders } from '@/mocks/pageApresentationSlider'
 import { Charm } from 'next/font/google'
 
 const charm = Charm({ weight: ['700'], subsets: ['latin'] })

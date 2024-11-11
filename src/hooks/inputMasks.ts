@@ -8,6 +8,8 @@ export const usePhoneMask = () => {
 }
 
 export const formatPhone = (rawPhone: string) => {
+  if (rawPhone.length === 0) return ''
+
   const phone = rawPhone.replace(/\D/g, '')
 
   const countryCode = phone.slice(0, 2)

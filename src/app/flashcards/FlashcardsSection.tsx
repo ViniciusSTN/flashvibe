@@ -14,6 +14,8 @@ import usePagination from '@/hooks/pagination'
 import Image from 'next/image'
 import { flashcardModalAtom } from '@/states'
 import { toast } from 'react-toastify'
+import { verifySession } from '@/data/pagesProtection'
+import { useCookies } from '@/hooks/cookies'
 
 export const FlashcardsSection = () => {
   const searchParams = useSearchParams()
@@ -34,21 +36,35 @@ export const FlashcardsSection = () => {
   const [loadingData, setLoadingData] = useState<boolean>(false)
 
   const paginationButtons = usePagination(amountPages, pageActive)
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
 
   const [filters, setFilters] = useRecoilState(flashcardFiltersAtom)
   const setFlashcard = useSetRecoilState(flashcardModalAtom)
 
-  function handleShowFiltersClick() {
-    setFilters((prevState) => ({
-      ...prevState,
-      isActive: !prevState.isActive,
-    }))
-  }
+  useEffect(() => {
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
 
-  function handlePageButtonClick(page: number) {
-    setPageActive(page)
-    router.push(`/flashcards?deckid=${deckId}&pag=${page}`)
-  }
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
 
   useEffect(() => {
     function handleResize() {
@@ -93,6 +109,18 @@ export const FlashcardsSection = () => {
       }
     }
   }, [searchParams, amountPages, router, getPage, deckId])
+
+  function handleShowFiltersClick() {
+    setFilters((prevState) => ({
+      ...prevState,
+      isActive: !prevState.isActive,
+    }))
+  }
+
+  function handlePageButtonClick(page: number) {
+    setPageActive(page)
+    router.push(`/flashcards?deckid=${deckId}&pag=${page}`)
+  }
 
   async function handleFlashcardClick(flashcardId: number) {
     setLoadingData(true)

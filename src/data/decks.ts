@@ -79,7 +79,7 @@ export const getUsersCustomDeckBaseData: getUsersCustomDeckBaseDataType =
       reviewing: 3,
     }
 
-    if (customDeck && deckId === 1) {
+    if (customDeck && deckId === 10) {
       return {
         success: true,
         deck: customDeck,

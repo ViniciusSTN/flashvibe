@@ -11,13 +11,17 @@ import {
   flashcardsToStudyAtom,
   flashcardWasTurnedAtom,
 } from '@/states'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { FeedbackModal } from './FeedbackModal'
+import { useCookies } from '@/hooks/cookies'
+import { verifySession } from '@/data/pagesProtection'
 
 export const StudySection = () => {
+  const router = useRouter()
+
   const searchParams = useSearchParams()
   const deckId = searchParams.get('deckId')
 
@@ -32,6 +36,32 @@ export const StudySection = () => {
   const [searchingFlashcards, setSearchingFlashcards] = useState<boolean>(true)
 
   const convertToFlashcardModal = useConvertFlashcard()
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
+
+  useEffect(() => {
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
+
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
 
   useEffect(() => {
     const fetchCards = async () => {

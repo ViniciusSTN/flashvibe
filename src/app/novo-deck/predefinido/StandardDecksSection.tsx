@@ -12,6 +12,9 @@ import { DeckCardProps } from '@/types/deck'
 import { DeckCard } from '@/components/DeckCard'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { StandardDeckModal } from './StandardDeckModal'
+import { verifySession } from '@/data/pagesProtection'
+import { useCookies } from '@/hooks/cookies'
+import { toast } from 'react-toastify'
 
 export const StandardDecksSection = () => {
   const searchParams = useSearchParams()
@@ -31,11 +34,32 @@ export const StandardDecksSection = () => {
   const setDeckActive = useSetRecoilState(deckActiveAtom)
 
   const paginationButtons = usePagination(amountPages, pageActive)
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
 
-  function handlePageButtonClick(page: number) {
-    setPageActive(page)
-    router.push(`/novo-deck/predefinido?pag=${page}`)
-  }
+  useEffect(() => {
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
+
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
 
   useEffect(() => {
     setDeckActive(null)
@@ -86,6 +110,11 @@ export const StandardDecksSection = () => {
       }
     }
   }, [searchParams, amountPages, router, getPage])
+
+  function handlePageButtonClick(page: number) {
+    setPageActive(page)
+    router.push(`/novo-deck/predefinido?pag=${page}`)
+  }
 
   function handleShowFiltersClick() {
     setFilters((prevState) => ({

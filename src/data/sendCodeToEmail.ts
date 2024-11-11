@@ -26,7 +26,7 @@ export const sendConfirmationCodeToEmail: SendConfirmationCodeToEmailType =
         )
         return {
           success: false,
-          error: error.response?.data?.message || [
+          error: error.response?.data?.error || [
             'An unexpected error occurred',
           ],
         }

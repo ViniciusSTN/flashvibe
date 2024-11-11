@@ -50,24 +50,28 @@ export const MyProfileSection = () => {
   const router = useRouter()
 
   useEffect(() => {
-    if (!jwtToken && !sessionCookie) router.push('/')
-  }, [jwtToken, sessionCookie, router])
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
 
   useEffect(() => {
     const validateSection = async () => {
       if (sessionCookie) {
         const response = await verifySession(sessionCookie)
-        if (!response.success) router.push('/')
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
       }
     }
 
     validateSection()
   }, [router, sessionCookie])
-
-  useEffect(() => {
-    const phone = userData.phone.replace(/\D/g, '')
-    if (phone) setCleanPhone(phone)
-  }, [userData.phone])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,6 +120,9 @@ export const MyProfileSection = () => {
         ...prevValues,
         [name]: formattedValue,
       }))
+    } else if (name === 'phone') {
+      const phone = value.replace(/\D/g, '')
+      setCleanPhone(phone)
     }
   }
 
@@ -144,6 +151,8 @@ export const MyProfileSection = () => {
       if (imageErrors) {
         toast.error(imageErrors[0])
       }
+
+      setSending(false)
     } else {
       // verificar se colocou numero de celular e enviar codigo para ele
 

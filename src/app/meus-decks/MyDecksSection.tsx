@@ -16,6 +16,7 @@ import usePagination from '@/hooks/pagination'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
+import { toast } from 'react-toastify'
 
 export const MyDecksSection = () => {
   const searchParams = useSearchParams()
@@ -26,6 +27,7 @@ export const MyDecksSection = () => {
   }, [searchParams])
 
   const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
 
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
@@ -52,10 +54,23 @@ export const MyDecksSection = () => {
   }
 
   useEffect(() => {
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
+
+  useEffect(() => {
     const validateSection = async () => {
       if (sessionCookie) {
         const response = await verifySession(sessionCookie)
-        if (!response.success) router.push('/')
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
       }
     }
 

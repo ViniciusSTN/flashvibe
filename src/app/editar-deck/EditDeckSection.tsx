@@ -4,11 +4,16 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { EditCustomDeck } from '@/components/EditCustomDeck'
 import { SpinLoader } from '@/components/SpinLoader'
 import { getUsersCustomDeckBaseData } from '@/data/decks'
+import { verifySession } from '@/data/pagesProtection'
+import { useCookies } from '@/hooks/cookies'
 import { CustomDeckData } from '@/types/deck'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 export const EditDeckSection = () => {
+  const router = useRouter()
+
   const [deckData, setDeckData] = useState<CustomDeckData | null>(null)
   const [situation, setSituation] = useState<
     'Learning' | 'Finished' | 'New' | null
@@ -19,8 +24,34 @@ export const EditDeckSection = () => {
   const [loading, setLoading] = useState<boolean>(true)
 
   const params = useSearchParams()
+  const sessionCookie = useCookies('session')
+  const jwtToken = useCookies('Authorization')
 
   const deckId = Number(params.get('id'))
+
+  useEffect(() => {
+    if (!sessionCookie && !jwtToken) {
+      router.push('/login')
+    }
+  }, [sessionCookie, jwtToken, router])
+
+  useEffect(() => {
+    const validateSection = async () => {
+      if (sessionCookie) {
+        const response = await verifySession(sessionCookie)
+
+        if (!response.success) {
+          toast.warning('É preciso logar novamente')
+          router.push('/login')
+        }
+      } else {
+        toast.warning('É preciso logar novamente')
+        router.push('/login')
+      }
+    }
+
+    validateSection()
+  }, [router, sessionCookie])
 
   useEffect(() => {
     async function getUserDeckData() {

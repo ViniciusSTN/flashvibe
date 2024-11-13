@@ -1,7 +1,7 @@
-import { ErrorResponse } from './apiResponse'
+import { ErrorResponse, SuccessResponse } from './apiResponse'
 
 export type DeckCardProps = {
-  type: 'Standard Deck' | 'Custom deck'
+  type: 'Standard Deck' | 'Custom Deck'
   favorite: boolean
   colorPredefinition: number
   title: string
@@ -72,3 +72,43 @@ export type CustomDeckSuccessResponse = {
 export type getUsersCustomDeckBaseDataType = (
   deckId: number,
 ) => Promise<CustomDeckSuccessResponse | ErrorResponse>
+
+export type ReturnedDeck = {
+  id: number
+  type: 'Standard' | 'Custom'
+  colorPredefinition: number
+  title: string
+  image: string | null
+  lastModification: number
+  createdData: number
+  description: string | null
+  public: boolean
+  difficult: 'Beginner' | 'Intermediate' | 'Advanced' | null
+  stars: number | null
+  reviews: number | null
+  favorite: boolean
+  flashcards: number
+  situation: string
+  new: number
+  learning: number
+  reviewing: number
+}
+
+export type SuccessResponseWithDecks = SuccessResponse & {
+  decks: ReturnedDeck[]
+  flashcardMin: number
+  flashcardMax: number
+  hasNext: boolean
+  hasPrevious: boolean
+  pageNumber: number
+  totalPages: number
+}
+
+export type GetAllUserDecksType = (
+  page: number,
+  orderBy: string,
+  min: number,
+  max: number,
+  situation: string[],
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponseWithDecks>

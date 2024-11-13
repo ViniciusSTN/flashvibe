@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { MyDeckFilters } from './MyDeckFilters'
 import { DeckCard } from '@/components/DeckCard'
-import { getAllUserDecks } from '@/data/decks'
+import { getAllUserDecks, mapReturnedDeckToDeckCardProps } from '@/data/decks'
 import { DeckCardProps } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MyDeckModal } from './MyDeckModal'
@@ -97,22 +97,55 @@ export const MyDecksSection = () => {
 
   useEffect(() => {
     const fetchDecks = async () => {
+      setDeckLoading(true)
+
       const page = searchParams.get('pag') || '1'
 
-      const response = await getAllUserDecks(Number(page))
+      const situations = Object.entries(filters.situation)
+        .filter(([, value]) => value)
+        .map(([key]) => key)
 
-      if (response.success && response.decks) {
-        setDecks(response.decks)
-        setAmountPages(response.lastPage)
-      } else {
-        console.error(response.message)
+      if (jwtToken) {
+        const response = await getAllUserDecks(
+          Number(page),
+          filters.searchBy,
+          filters.flashcards.min,
+          filters.flashcards.max,
+          situations,
+          jwtToken,
+        )
+
+        if (response.success && response.decks) {
+          console.log('deu bom: ', response)
+
+          const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
+          setDecks(mappedDecks)
+          setAmountPages(response.totalPages)
+
+          setFilters((prevState) => ({
+            ...prevState,
+            flashcards: {
+              min: response.flashcardMin,
+              max: response.flashcardMax,
+            },
+          }))
+        } else {
+          toast.error('Erro ao buscar decks')
+        }
+
+        setDeckLoading(false)
       }
-
-      setDeckLoading(false)
     }
 
     fetchDecks()
-  }, [searchParams])
+  }, [
+    searchParams,
+    filters.situation,
+    filters.searchBy,
+    filters.flashcards,
+    setFilters,
+    jwtToken,
+  ])
 
   useEffect(() => {
     const page = getPage()
@@ -203,7 +236,9 @@ export const MyDecksSection = () => {
           />
 
           {newDeckActive && (
-            <div className="absolute right-0 top-14 z-20 flex flex-col text-nowrap bg-white font-medium shadow-hight">
+            <div
+              className={`absolute ${mobile ? 'right-0 sm:left-0 sm:right-auto' : 'right-0'} top-14 z-20 flex flex-col text-nowrap bg-white font-medium shadow-hight`}
+            >
               <Link
                 href="/novo-deck/predefinido"
                 className="border-b border-light-gray225 px-8 py-5"

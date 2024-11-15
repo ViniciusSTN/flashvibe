@@ -109,11 +109,16 @@ export const DeckCard: DeckCardType = ({ disabled = false, ...props }) => {
 
           <div className="absolute bottom-10 left-1/2 h-40 w-40 -translate-x-1/2">
             <Image
-              src={props.image}
+              src={
+                props.image.length > 0
+                  ? props.image
+                  : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/logo192x192.svg?alt=media&token=39af92c2-bc6d-46bd-b619-eaceed2f1e8b'
+              }
               alt="Capa do deck"
               height={192}
               width={192}
               className="h-full w-full object-cover object-center"
+              priority
             />
           </div>
 

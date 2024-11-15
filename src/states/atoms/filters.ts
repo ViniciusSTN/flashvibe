@@ -1,35 +1,35 @@
 import { MyDeckFiltersType, StandardDeckFiltersType } from '@/types/filters'
 import { FlashcardFiltersType } from '@/types/flashcard'
-import { atom, AtomEffect } from 'recoil'
+import { atom } from 'recoil'
 
-const localStorageEffect =
-  <T>(key: string): AtomEffect<T> =>
-  ({ setSelf, onSet }) => {
-    if (typeof window === 'undefined') {
-      return
-    }
+// const localStorageEffect =
+//   <T>(key: string): AtomEffect<T> =>
+//   ({ setSelf, onSet }) => {
+//     if (typeof window === 'undefined') {
+//       return
+//     }
 
-    try {
-      const savedValue = localStorage.getItem(key)
-      if (savedValue !== null) {
-        setSelf(JSON.parse(savedValue))
-      }
-    } catch (error) {
-      console.error(`Erro ao recuperar ${key} do localStorage:`, error)
-    }
+//     try {
+//       const savedValue = localStorage.getItem(key)
+//       if (savedValue !== null) {
+//         setSelf(JSON.parse(savedValue))
+//       }
+//     } catch (error) {
+//       console.error(`Erro ao recuperar ${key} do localStorage:`, error)
+//     }
 
-    onSet((newValue, _, isReset) => {
-      try {
-        if (isReset) {
-          localStorage.removeItem(key)
-        } else {
-          localStorage.setItem(key, JSON.stringify(newValue))
-        }
-      } catch (error) {
-        console.error(`Erro ao salvar ${key} no localStorage:`, error)
-      }
-    })
-  }
+//     onSet((newValue, _, isReset) => {
+//       try {
+//         if (isReset) {
+//           localStorage.removeItem(key)
+//         } else {
+//           localStorage.setItem(key, JSON.stringify(newValue))
+//         }
+//       } catch (error) {
+//         console.error(`Erro ao salvar ${key} no localStorage:`, error)
+//       }
+//     })
+//   }
 
 export const myDeckFiltersAtom = atom<MyDeckFiltersType>({
   key: 'MyDeckFilters',
@@ -39,15 +39,15 @@ export const myDeckFiltersAtom = atom<MyDeckFiltersType>({
     searchBy: 'lastModifications',
     flashcards: {
       min: 0,
-      max: 1000,
+      max: 0,
     },
     situation: {
-      favorites: true,
-      learning: true,
-      finished: true,
+      favorites: false,
+      learning: false,
+      finished: false,
     },
   },
-  effects: [localStorageEffect('my_deck_filters')],
+  // effects: [localStorageEffect('my_deck_filters')],
 })
 
 export const standardDeckFiltersAtom = atom<StandardDeckFiltersType>({
@@ -57,7 +57,7 @@ export const standardDeckFiltersAtom = atom<StandardDeckFiltersType>({
     searchBy: 'newer',
     feedback: {
       min: 0,
-      max: 0,
+      max: 200,
     },
     difficulty: {
       beginner: true,
@@ -65,7 +65,7 @@ export const standardDeckFiltersAtom = atom<StandardDeckFiltersType>({
       advanced: true,
     },
   },
-  effects: [localStorageEffect('standard_deck_filters')],
+  // effects: [localStorageEffect('standard_deck_filters')],
 })
 
 export const flashcardFiltersAtom = atom<FlashcardFiltersType>({
@@ -79,5 +79,5 @@ export const flashcardFiltersAtom = atom<FlashcardFiltersType>({
       reviewing: true,
     },
   },
-  effects: [localStorageEffect('flashcard_list_filters')],
+  // effects: [localStorageEffect('flashcard_list_filters')],
 })

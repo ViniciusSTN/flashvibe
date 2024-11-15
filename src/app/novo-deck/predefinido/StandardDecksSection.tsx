@@ -2,12 +2,16 @@
 
 import { standardDeckFiltersAtom } from '@/states/atoms/filters'
 import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { StandardDeckFilters } from './StandardDeckFilter'
 import usePagination from '@/hooks/pagination'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getAllStandardDecks } from '@/data/decks'
+import {
+  getAllStandardDecks,
+  getQuantityReviews,
+  mapReturnedStandardDeckToDeckCardProps,
+} from '@/data/decks'
 import { DeckCardProps } from '@/types/deck'
 import { DeckCard } from '@/components/DeckCard'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
@@ -36,6 +40,12 @@ export const StandardDecksSection = () => {
   const paginationButtons = usePagination(amountPages, pageActive)
   const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+
+  const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
+  const searchBy = useMemo(
+    () => searchParams.get('searchBy') || 'newer',
+    [searchParams],
+  )
 
   useEffect(() => {
     if (!sessionCookie && !jwtToken) {
@@ -81,35 +91,90 @@ export const StandardDecksSection = () => {
   }, [])
 
   useEffect(() => {
+    if (!page) return
+
     const fetchDecks = async () => {
-      const page = searchParams.get('pag') || '1'
+      setDeckLoading(true)
 
-      const response = await getAllStandardDecks(Number(page))
+      if (jwtToken) {
+        // const page = searchParams.get('pag') || '1'
+        // const searchBy = searchParams.get('searchBy') || 'newer'
+        const feedbackMin = parseInt(searchParams.get('feedbackMin') || '0')
+        const feedbackMax = parseInt(searchParams.get('feedbackMax') || '0')
+        const difficulty = searchParams.getAll('difficulty') || []
 
-      if (response.success && response.decks) {
-        setDecks(response.decks)
-        setAmountPages(response.lastPage)
-      } else {
-        console.error(response.message)
+        const response = await getAllStandardDecks(
+          Number(page),
+          searchBy,
+          feedbackMin,
+          feedbackMax,
+          difficulty,
+          jwtToken,
+        )
+
+        if (response.success && response.standardDecks) {
+          const mappedDecks = response.standardDecks.map(
+            mapReturnedStandardDeckToDeckCardProps,
+          )
+
+          setDecks(mappedDecks)
+          setAmountPages(response.totalPages)
+        } else {
+          setDecks([])
+          setAmountPages(0)
+
+          if (
+            !response.success &&
+            response.error?.includes('Decks not found')
+          ) {
+            toast.warning('Nenhum deck foi encontrado')
+          } else {
+            toast.error('Erro ao buscar decks')
+          }
+        }
       }
 
       setDeckLoading(false)
     }
 
     fetchDecks()
-  }, [searchParams])
+  }, [jwtToken, page, searchBy, searchParams])
 
   useEffect(() => {
-    const page = getPage()
+    const fetchQuantityReviews = async () => {
+      if (jwtToken) {
+        const response = await getQuantityReviews(jwtToken)
 
+        if (response.success) {
+          setFilters((prevState) => ({
+            ...prevState,
+            feedback: {
+              min: response.minReviews,
+              max: response.maxReviews,
+            },
+          }))
+        } else {
+          setFilters((prevState) => ({
+            ...prevState,
+            feedback: {
+              min: 0,
+              max: 0,
+            },
+          }))
+        }
+      }
+    }
+
+    fetchQuantityReviews()
+  }, [jwtToken, setFilters])
+
+  useEffect(() => {
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
-      } else {
-        router.replace('/novo-deck/predefinido?pag=1')
       }
     }
-  }, [searchParams, amountPages, router, getPage])
+  }, [searchParams, amountPages, page])
 
   function handlePageButtonClick(page: number) {
     setPageActive(page)
@@ -220,6 +285,7 @@ export const StandardDecksSection = () => {
                       public={deck.public}
                       reviews={deck.reviews}
                       stars={deck.stars}
+                      deckId={deck.deckId}
                     />
                   </li>
                 ))}
@@ -247,7 +313,7 @@ export const StandardDecksSection = () => {
           ) : (
             <div className="h-[800px]">
               <h4 className="mt-32 text-center text-xl sm:mt-40 lg:mt-60">
-                Você já possui todos os decks pré-definidos
+                Nenhum deck encontrado
               </h4>
             </div>
           )}

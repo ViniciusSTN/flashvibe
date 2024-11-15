@@ -6,7 +6,7 @@ export const items: NavItemProps[] = [
     links: [
       {
         name: 'Meus decks',
-        link: '/meus-decks',
+        link: '/meus-decks?pag=1',
       },
       {
         name: 'Aprendizado',

@@ -2,7 +2,8 @@ import { DeckCardProps } from '@/types/deck'
 
 export const decks: DeckCardProps[] = [
   {
-    type: 'Custom deck',
+    deckId: 1,
+    type: 'Custom Deck',
     favorite: true,
     colorPredefinition: 4,
     title: 'My English frases with Friends',
@@ -21,7 +22,8 @@ export const decks: DeckCardProps[] = [
     difficult: null,
   },
   {
-    type: 'Custom deck',
+    deckId: 2,
+    type: 'Custom Deck',
     favorite: true,
     colorPredefinition: 4,
     title: 'My English frases with Friends',
@@ -40,7 +42,8 @@ export const decks: DeckCardProps[] = [
     difficult: null,
   },
   {
-    type: 'Custom deck',
+    deckId: 3,
+    type: 'Custom Deck',
     favorite: false,
     colorPredefinition: 4,
     title: 'My English frases with Friends',
@@ -59,7 +62,8 @@ export const decks: DeckCardProps[] = [
     difficult: null,
   },
   {
-    type: 'Custom deck',
+    deckId: 4,
+    type: 'Custom Deck',
     favorite: true,
     colorPredefinition: 5,
     title: 'My English words with Friends',
@@ -78,6 +82,7 @@ export const decks: DeckCardProps[] = [
     difficult: null,
   },
   {
+    deckId: 5,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -97,6 +102,7 @@ export const decks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 6,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -116,6 +122,7 @@ export const decks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 7,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -135,6 +142,7 @@ export const decks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 8,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -154,6 +162,7 @@ export const decks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 9,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -176,6 +185,7 @@ export const decks: DeckCardProps[] = [
 
 export const standardDecks: DeckCardProps[] = [
   {
+    deckId: 10,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -195,6 +205,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 11,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 2,
@@ -214,6 +225,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 12,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 3,
@@ -233,6 +245,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 13,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -252,6 +265,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 14,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 2,
@@ -271,6 +285,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 15,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 3,
@@ -290,6 +305,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 16,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 1,
@@ -309,6 +325,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 17,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 2,
@@ -328,6 +345,7 @@ export const standardDecks: DeckCardProps[] = [
     description: 'Standard deck for beginners with irregular verbs',
   },
   {
+    deckId: 18,
     type: 'Standard Deck',
     favorite: false,
     colorPredefinition: 3,

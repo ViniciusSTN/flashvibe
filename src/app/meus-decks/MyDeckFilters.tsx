@@ -1,11 +1,12 @@
-import Slider from 'rc-slider'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { MyDeckFiltersDataType } from '@/types/filters'
-import Image from 'next/image'
-import 'rc-slider/assets/index.css'
 import { useRecoilState } from 'recoil'
 import { myDeckFiltersAtom } from '@/states/atoms/filters'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Slider from 'rc-slider'
+import Image from 'next/image'
+import 'rc-slider/assets/index.css'
 
 const defaultData: MyDeckFiltersDataType = {
   type: 'all',
@@ -15,36 +16,28 @@ const defaultData: MyDeckFiltersDataType = {
   },
   searchBy: 'lastModifications',
   situation: {
-    favorites: true,
-    finished: true,
-    learning: true,
+    favorites: false,
+    finished: false,
+    learning: false,
   },
 }
 
 export const MyDeckFilters = () => {
-  const [initialRange, setInitialRange] = useState({ min: 0, max: 0 })
-  const [filterData, setFilterData] =
-    useState<MyDeckFiltersDataType>(defaultData)
+  // const [initialRange, setInitialRange] = useState({ min: 0, max: 0 })
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const [deckFilters, setDeckFilters] = useRecoilState(myDeckFiltersAtom)
+
+  const [filterData, setFilterData] = useState<MyDeckFiltersDataType>(
+    () => deckFilters ?? defaultData,
+  )
 
   const [hidden, setHidden] = useState({
     searchBy: false,
     flashcards: false,
     situation: false,
   })
-
-  const [deckFilters, setDeckFilters] = useRecoilState(myDeckFiltersAtom)
-
-  useEffect(() => {
-    // const result = getMinAndMaxFlashcardsAmount()
-    const result = { min: 100, max: 1000 } // simulando o retorno da API
-
-    setInitialRange({ ...result })
-
-    setFilterData((prevState) => ({
-      ...prevState,
-      flashcards: { min: result.min, max: result.max },
-    }))
-  }, [])
 
   const handleSliderChange = (newValues: number | number[]) => {
     if (Array.isArray(newValues)) {
@@ -121,20 +114,48 @@ export const MyDeckFilters = () => {
     setFilterData({
       ...defaultData,
       flashcards: {
-        min: initialRange.min,
-        max: initialRange.max,
+        ...deckFilters.flashcards,
       },
     })
+
+    setDeckFilters((prevState) => ({
+      ...defaultData,
+      flashcards: {
+        ...prevState.flashcards,
+      },
+      isActive: prevState.isActive,
+    }))
   }
 
   const handleFilterSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
+    const queryParams = new URLSearchParams()
+
+    queryParams.set('type', filterData.type)
+    queryParams.set('searchBy', filterData.searchBy)
+    queryParams.set('flashcardsMin', String(filterData.flashcards.min))
+    queryParams.set('flashcardsMax', String(filterData.flashcards.max))
+
+    Object.keys(filterData.situation).forEach((key) => {
+      if (filterData.situation[key as keyof typeof filterData.situation]) {
+        queryParams.append('situation', key)
+      }
+    })
+
+    const page = searchParams.get('pag') || '1'
+
+    router.replace(`/meus-decks?pag=${page}&${queryParams.toString()}`)
+
     setDeckFilters((prevState) => ({
-      ...prevState,
+      isActive: prevState.isActive,
       ...filterData,
     }))
   }
+
+  useEffect(() => {
+    setFilterData(deckFilters)
+  }, [deckFilters])
 
   return (
     <form
@@ -279,9 +300,9 @@ export const MyDeckFilters = () => {
         >
           <Slider
             range
-            min={initialRange.min}
-            max={initialRange.max}
-            step={10}
+            min={deckFilters.flashcards.min}
+            max={deckFilters.flashcards.max}
+            step={2}
             value={[filterData.flashcards.min, filterData.flashcards.max]}
             onChange={handleSliderChange}
           />

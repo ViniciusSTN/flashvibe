@@ -4,6 +4,9 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
 import { InputDefault } from '@/components/InputDefault'
 import { TextAreaDefault } from '@/components/TextAreaDefault'
+import { createCustomDeck } from '@/data/decks'
+import { sendUserPhotoInFirebase } from '@/data/images'
+import { useCookies } from '@/hooks/cookies'
 import { colorClasses } from '@/mocks/deckColors'
 import customDeckSchema from '@/schemas/customDeck'
 import {
@@ -34,6 +37,8 @@ export const EditCustomDeck: EditCustomDeckType = ({
   favorite,
 }) => {
   const pathname = usePathname()
+
+  const jwtToken = useCookies('Authorization')
 
   const filteredColors = Object.entries(colorClasses).filter(
     ([key]) => Number(key) > 3,
@@ -112,11 +117,52 @@ export const EditCustomDeck: EditCustomDeckType = ({
         ...validation.error.formErrors.fieldErrors,
       }))
     } else {
-      // enviar para backend
-      if (pathname === '/novo-deck/personalizado')
-        toast.success('Deck criado com sucesso')
-      else if (pathname === '/editar-deck')
-        toast.success('Deck editado com sucesso')
+      postNewDeck()
+    }
+  }
+
+  const postNewDeck = async () => {
+    console.log('enviando')
+
+    if (pathname === '/novo-deck/personalizado') {
+      if (jwtToken) {
+        if (formData.photo instanceof File) {
+          const image = formData.photo
+          const sendPhotoResponse = await sendUserPhotoInFirebase(
+            image,
+            'decks',
+          )
+
+          if (sendPhotoResponse.success) {
+            const data = { ...formData, photo: sendPhotoResponse.link }
+
+            const createDeckResponse = await createCustomDeck(data, jwtToken)
+
+            console.log(createDeckResponse)
+
+            if (createDeckResponse.success) {
+              toast.success('Deck criado com sucesso')
+              console.log('deu bom')
+            } else {
+              toast.warning('Não foi possível criar o deck')
+              console.log('deu ruim')
+            }
+          }
+        } else {
+          const data = { ...formData }
+          const createDeckResponse = await createCustomDeck(data, jwtToken)
+
+          if (createDeckResponse.success) {
+            toast.success('Deck criado com sucesso')
+            console.log('deu bom')
+          } else {
+            toast.warning('Não foi possível criar o deck')
+            console.log('deu ruim')
+          }
+        }
+      }
+    } else if (pathname === '/editar-deck') {
+      toast.success('Deck editado com sucesso')
     }
   }
 
@@ -315,7 +361,8 @@ export const EditCustomDeck: EditCustomDeckType = ({
               situation={situation}
               stars={null}
               title={formData.name.length > 0 ? formData.name : 'Deck name'}
-              type="Custom deck"
+              type="Custom Deck"
+              deckId={0}
               disabled
             />
           </div>

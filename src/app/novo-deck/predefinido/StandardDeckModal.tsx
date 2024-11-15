@@ -1,13 +1,42 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
-import useTimeAgo from '@/hooks/timeAgo'
+import { assignDeckToUser } from '@/data/decks'
+import { useCookies } from '@/hooks/cookies'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
-import Image from 'next/image'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
+import useTimeAgo from '@/hooks/timeAgo'
+import Image from 'next/image'
 
 export const StandardDeckModal = () => {
   const [deckActive, setDeckActive] = useRecoilState(deckActiveAtom)
   const timeAgo = useTimeAgo(deckActive?.lastModification || 0)
+  const [loading, setLoading] = useState(false)
+
+  const jwtToken = useCookies('Authorization')
+
+  const handleAddDeck = async () => {
+    // console.log('adicionando')
+
+    setLoading(true)
+
+    if (jwtToken && deckActive) {
+      const response = await assignDeckToUser(deckActive.deckId, jwtToken)
+
+      if (response.success) {
+        toast.success('Deck adicionado')
+      } else {
+        if (response.error.includes('Already belongs to the user')) {
+          toast.warning('Você já adicionou esse deck')
+        } else {
+          toast.error('Erro ao adicionar deck')
+        }
+      }
+    }
+
+    setLoading(false)
+  }
 
   return (
     <>
@@ -60,11 +89,13 @@ export const StandardDeckModal = () => {
             </div>
 
             <ButtonDefault
-              text="Adicionar deck"
+              text={loading ? 'Adicionando...' : 'Adicionar deck'}
               type="button"
               style="dark"
               radius="rounded-lg"
               tailwind="w-full h-[50px]"
+              onClick={handleAddDeck}
+              disabled={loading}
             />
           </div>
         </div>

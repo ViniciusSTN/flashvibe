@@ -1,6 +1,7 @@
 import { ErrorResponse, SuccessResponse } from './apiResponse'
 
 export type DeckCardProps = {
+  deckId: number
   type: 'Standard Deck' | 'Custom Deck'
   favorite: boolean
   colorPredefinition: number
@@ -106,9 +107,95 @@ export type SuccessResponseWithDecks = SuccessResponse & {
 
 export type GetAllUserDecksType = (
   page: number,
+  type: string,
   orderBy: string,
   min: number,
   max: number,
   situation: string[],
   jwtToken: string,
 ) => Promise<ErrorResponse | SuccessResponseWithDecks>
+
+export type CreateCustomDeckType = (
+  deck: CustomDeckData,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type CreateStandardDeckType = (
+  deck: DeckCardProps,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type ReturnedStandardDeck = {
+  id: number
+  type: 'Standard' | 'Custom'
+  colorPredefinition: number
+  title: string
+  image: string
+  lastModification: number
+  createdData: number
+  description: string
+  difficult: 'Beginner' | 'Intermediate' | 'Advanced'
+  stars: number
+  reviews: number
+  flashcards: number
+}
+
+export type SuccessResponseWithStandardDecks = SuccessResponse & {
+  standardDecks: ReturnedStandardDeck[]
+  minReviews: number
+  maxReviews: number
+  hasNext: true
+  hasPrevious: false
+  pageNumber: number
+  totalPages: number
+}
+
+export type ErrorResponseWithHasAllDecks = ErrorResponse & {
+  hasAllDecks: boolean
+}
+
+export type GetAllStandardDecksType = (
+  page: number,
+  orderBy: string,
+  min: number,
+  max: number,
+  difficulty: string[],
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponseWithStandardDecks>
+
+export type AssignDeckToUserType = (
+  deckId: number,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+// export type ReviewsType = {
+//   min: number
+//   max: number
+// }
+
+// export type FilterParamsStandardDeckFilters = {
+//   searchBy: string
+//   feedbackMin: number
+//   feedbackMax: number
+//   difficulty: string
+// }
+
+export type SuccessResponseWithMinAndMaxReviews = SuccessResponse & {
+  minReviews: number
+  maxReviews: number
+}
+
+export type GetQuantityReviewsType = (
+  jwtToken: string,
+) => Promise<ErrorResponseWithHasAllDecks | SuccessResponseWithMinAndMaxReviews>
+
+export type SuccessResponseWithMinAndMaxFlashcards = SuccessResponse & {
+  flashcardMin: number
+  flashcardMax: number
+}
+
+export type GetQuantityFlashcardsType = (
+  jwtToken: string,
+) => Promise<
+  ErrorResponseWithHasAllDecks | SuccessResponseWithMinAndMaxFlashcards
+>

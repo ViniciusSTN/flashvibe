@@ -3,11 +3,15 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { myDeckFiltersAtom } from '@/states/atoms/filters'
 import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { MyDeckFilters } from './MyDeckFilters'
 import { DeckCard } from '@/components/DeckCard'
-import { getAllUserDecks, mapReturnedDeckToDeckCardProps } from '@/data/decks'
+import {
+  getAllUserDecks,
+  getQuantityFlashcards,
+  mapReturnedDeckToDeckCardProps,
+} from '@/data/decks'
 import { DeckCardProps } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MyDeckModal } from './MyDeckModal'
@@ -54,28 +58,22 @@ export const MyDecksSection = () => {
   }
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
-      router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
+    const validateSession = async () => {
+      if (!sessionCookie || !jwtToken) {
+        toast.warning('É preciso logar novamente')
+        return router.push('/login')
+      }
 
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
+      const response = await verifySession(sessionCookie)
 
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
+      if (!response.success) {
         toast.warning('É preciso logar novamente')
         router.push('/login')
       }
     }
 
-    validateSection()
-  }, [router, sessionCookie])
+    validateSession()
+  }, [sessionCookie, jwtToken, router])
 
   useEffect(() => {
     setDeckActive(null)
@@ -95,33 +93,74 @@ export const MyDecksSection = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
+  const searchBy = useMemo(
+    () => searchParams.get('searchBy') || 'lastModifications',
+    [searchParams],
+  )
+
   useEffect(() => {
+    console.log(searchParams.toString(), searchBy)
+  }, [searchParams, searchBy])
+
+  useEffect(() => {
+    if (!page) return
+
     const fetchDecks = async () => {
       setDeckLoading(true)
 
-      const page = searchParams.get('pag') || '1'
-
-      const situations = Object.entries(filters.situation)
-        .filter(([, value]) => value)
-        .map(([key]) => key)
-
       if (jwtToken) {
+        // const page = searchParams.get('pag') || '1'
+        // const searchBy = searchParams.get('searchBy') || 'lastModifications'
+        const type = searchParams.get('type') || 'all'
+        const formattedSearchBy =
+          searchBy.charAt(0).toUpperCase() + searchBy.slice(1)
+        const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
+        const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
+        const situations = searchParams.getAll('situation') || []
+
         const response = await getAllUserDecks(
           Number(page),
-          filters.searchBy,
-          filters.flashcards.min,
-          filters.flashcards.max,
+          type,
+          formattedSearchBy,
+          flashcardsMin,
+          flashcardsMax,
           situations,
           jwtToken,
         )
 
         if (response.success && response.decks) {
-          console.log('deu bom: ', response)
-
           const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
+
           setDecks(mappedDecks)
           setAmountPages(response.totalPages)
+        } else {
+          setDecks([])
+          setAmountPages(0)
 
+          if (
+            !response.success &&
+            response.error?.includes('Decks not found')
+          ) {
+            toast.warning('Nenhum deck encontrado. Verifique os filtros')
+          } else {
+            toast.error('Erro ao buscar decks')
+          }
+        }
+
+        setDeckLoading(false)
+      }
+    }
+
+    fetchDecks()
+  }, [jwtToken, page, searchBy, searchParams])
+
+  useEffect(() => {
+    const fetchQuantityFlashcards = async () => {
+      if (jwtToken) {
+        const response = await getQuantityFlashcards(jwtToken)
+
+        if (response.success) {
           setFilters((prevState) => ({
             ...prevState,
             flashcards: {
@@ -130,34 +169,27 @@ export const MyDecksSection = () => {
             },
           }))
         } else {
-          toast.error('Erro ao buscar decks')
+          setFilters((prevState) => ({
+            ...prevState,
+            flashcards: {
+              min: 0,
+              max: 0,
+            },
+          }))
         }
-
-        setDeckLoading(false)
       }
     }
 
-    fetchDecks()
-  }, [
-    searchParams,
-    filters.situation,
-    filters.searchBy,
-    filters.flashcards,
-    setFilters,
-    jwtToken,
-  ])
+    fetchQuantityFlashcards()
+  }, [jwtToken, setFilters])
 
   useEffect(() => {
-    const page = getPage()
-
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
-      } else {
-        router.replace('/meus-decks?pag=1')
       }
     }
-  }, [searchParams, amountPages, router, getPage])
+  }, [searchParams, amountPages, page])
 
   if (mobile === null) {
     return (
@@ -240,7 +272,7 @@ export const MyDecksSection = () => {
               className={`absolute ${mobile ? 'right-0 sm:left-0 sm:right-auto' : 'right-0'} top-14 z-20 flex flex-col text-nowrap bg-white font-medium shadow-hight`}
             >
               <Link
-                href="/novo-deck/predefinido"
+                href="/novo-deck/predefinido?pag=1"
                 className="border-b border-light-gray225 px-8 py-5"
               >
                 Deck predefinido
@@ -284,6 +316,7 @@ export const MyDecksSection = () => {
                       public={deck.public}
                       reviews={deck.reviews}
                       stars={deck.stars}
+                      deckId={deck.deckId}
                     />
                   </li>
                 ))}
@@ -311,7 +344,7 @@ export const MyDecksSection = () => {
           ) : (
             <div className="h-[800px]">
               <h4 className="mt-32 text-center text-xl sm:mt-40 lg:mt-60">
-                Você ainda não possui decks
+                Nenhum deck encontrado
               </h4>
             </div>
           )}

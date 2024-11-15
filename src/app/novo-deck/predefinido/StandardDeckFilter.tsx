@@ -6,6 +6,7 @@ import Image from 'next/image'
 import 'rc-slider/assets/index.css'
 import { useRecoilState } from 'recoil'
 import { standardDeckFiltersAtom } from '@/states/atoms/filters'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const defaultData: StandardDeckFiltersDataType = {
   feedback: {
@@ -21,9 +22,11 @@ const defaultData: StandardDeckFiltersDataType = {
 }
 
 export const StandardDeckFilters = () => {
-  const [initialRange, setInitialRange] = useState({ min: 0, max: 0 })
-  const [filterData, setFilterData] =
-    useState<StandardDeckFiltersDataType>(defaultData)
+  const [deckFilters, setDeckFilters] = useRecoilState(standardDeckFiltersAtom)
+
+  const [filterData, setFilterData] = useState<StandardDeckFiltersDataType>(
+    () => deckFilters ?? defaultData,
+  )
 
   const [hidden, setHidden] = useState({
     searchBy: false,
@@ -31,19 +34,12 @@ export const StandardDeckFilters = () => {
     difficulty: false,
   })
 
-  const [deckFilters, setDeckFilters] = useRecoilState(standardDeckFiltersAtom)
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
-    // const result = getMinAndMaxFlashcardsAmount()
-    const result = { min: 100, max: 1000 } // simulando o retorno da API
-
-    setInitialRange({ ...result })
-
-    setFilterData((prevState) => ({
-      ...prevState,
-      feedback: { min: result.min, max: result.max },
-    }))
-  }, [])
+    setFilterData(deckFilters)
+  }, [deckFilters])
 
   const handleSliderChange = (newValues: number | number[]) => {
     if (Array.isArray(newValues)) {
@@ -110,16 +106,39 @@ export const StandardDeckFilters = () => {
     setFilterData({
       ...defaultData,
       feedback: {
-        min: initialRange.min,
-        max: initialRange.max,
+        ...deckFilters.feedback,
       },
     })
+
+    setDeckFilters((prevState) => ({
+      ...defaultData,
+      feedback: {
+        ...prevState.feedback,
+      },
+      isActive: prevState.isActive,
+    }))
   }
 
   const handleFilterSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
-    console.log('Dados', filterData)
+    const queryParams = new URLSearchParams()
+
+    queryParams.set('searchBy', filterData.searchBy)
+    queryParams.set('feedbackMin', String(filterData.feedback.min))
+    queryParams.set('feedbackMax', String(filterData.feedback.max))
+
+    Object.keys(filterData.difficulty).forEach((key) => {
+      if (filterData.difficulty[key as keyof typeof filterData.difficulty]) {
+        queryParams.append('difficulty', key)
+      }
+    })
+
+    const page = searchParams.get('pag') || '1'
+
+    router.replace(
+      `/novo-deck/predefinido?pag=${page}&${queryParams.toString()}`,
+    )
 
     setDeckFilters((prevState) => ({
       isActive: prevState.isActive,
@@ -302,9 +321,9 @@ export const StandardDeckFilters = () => {
         >
           <Slider
             range
-            min={initialRange.min}
-            max={initialRange.max}
-            step={10}
+            min={deckFilters.feedback.min}
+            max={deckFilters.feedback.max}
+            step={2}
             value={[filterData.feedback.min, filterData.feedback.max]}
             onChange={handleSliderChange}
           />

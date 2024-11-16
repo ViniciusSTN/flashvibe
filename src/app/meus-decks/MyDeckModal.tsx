@@ -1,16 +1,26 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
-import useTimeAgo from '@/hooks/timeAgo'
+import { deleteDeckAtom } from '@/states'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
-import Image from 'next/image'
 import { useState } from 'react'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import useTimeAgo from '@/hooks/timeAgo'
+import Image from 'next/image'
 
 export const MyDeckModal = () => {
   const [deckActive, setDeckActive] = useRecoilState(deckActiveAtom)
+  const setDeckDelete = useSetRecoilState(deleteDeckAtom)
+
   const [flashcardsClicked, setFlashcardsClicked] = useState<boolean>(false)
 
   const timeAgo = useTimeAgo(deckActive?.lastModification || 0)
+
+  function handleDeleteClick() {
+    if (deckActive?.deckId) {
+      setDeckDelete({ deckId: deckActive?.deckId, modalActive: true })
+      setDeckActive(null)
+    }
+  }
 
   return (
     <>
@@ -82,15 +92,27 @@ export const MyDeckModal = () => {
                 </div>
               </div>
 
-              <ButtonDefault
-                text="Editar deck"
-                type="link"
-                link={`/editar-deck?deck=passar-o-id-depois`}
-                style="outDark"
-                tailwind="w-full"
-                paddingy="py-3"
-                radius="rounded-lg"
-              />
+              {deckActive.type === 'Custom Deck' ? (
+                <ButtonDefault
+                  text="Editar deck"
+                  type="link"
+                  link={`/editar-deck?id=${deckActive.deckId}`}
+                  style="outDark"
+                  tailwind="w-full"
+                  paddingy="py-3"
+                  radius="rounded-lg"
+                />
+              ) : (
+                <ButtonDefault
+                  text="Deletar deck"
+                  type="button"
+                  style="outDark"
+                  tailwind="w-full"
+                  paddingy="py-3"
+                  radius="rounded-lg"
+                  onClick={handleDeleteClick}
+                />
+              )}
 
               <ButtonDefault
                 text="Flashcards"

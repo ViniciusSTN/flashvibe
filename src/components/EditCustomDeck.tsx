@@ -4,11 +4,12 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
 import { InputDefault } from '@/components/InputDefault'
 import { TextAreaDefault } from '@/components/TextAreaDefault'
-import { createCustomDeck } from '@/data/decks'
+import { createCustomDeck, updateCustomDeck } from '@/data/decks'
 import { sendUserPhotoInFirebase } from '@/data/images'
 import { useCookies } from '@/hooks/cookies'
 import { colorClasses } from '@/mocks/deckColors'
 import customDeckSchema from '@/schemas/customDeck'
+import { deleteDeckAtom } from '@/states'
 import {
   CustomDeckData,
   CustomDeckDataErrors,
@@ -16,9 +17,10 @@ import {
   InputName,
 } from '@/types/deck'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import { useSetRecoilState } from 'recoil'
 
 const initialErrors: CustomDeckDataErrors = {
   name: [],
@@ -31,12 +33,14 @@ const initialErrors: CustomDeckDataErrors = {
 }
 
 export const EditCustomDeck: EditCustomDeckType = ({
+  deckId,
   initialData,
   situation,
   isPublic,
   favorite,
 }) => {
   const pathname = usePathname()
+  const router = useRouter()
 
   const jwtToken = useCookies('Authorization')
 
@@ -49,12 +53,13 @@ export const EditCustomDeck: EditCustomDeckType = ({
   const [formData, setFormData] = useState<CustomDeckData>(initialData)
   const [formErrors, setFormErrors] =
     useState<CustomDeckDataErrors>(initialErrors)
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const setDeckDelete = useSetRecoilState(deleteDeckAtom)
 
   useEffect(() => {
     if (pathname === '/editar-deck') {
       setEditing(true)
-      console.log('Dados iniciais', initialData)
-      console.log('FormData', formData)
     }
   }, [pathname, initialData, formData])
 
@@ -121,8 +126,16 @@ export const EditCustomDeck: EditCustomDeckType = ({
     }
   }
 
+  function handleDeleteClick() {
+    if (deckId)
+      setDeckDelete({
+        modalActive: true,
+        deckId,
+      })
+  }
+
   const postNewDeck = async () => {
-    console.log('enviando')
+    setLoading(true)
 
     if (pathname === '/novo-deck/personalizado') {
       if (jwtToken) {
@@ -134,36 +147,86 @@ export const EditCustomDeck: EditCustomDeckType = ({
           )
 
           if (sendPhotoResponse.success) {
-            const data = { ...formData, photo: sendPhotoResponse.link }
+            const data: CustomDeckData = {
+              ...formData,
+              photo: sendPhotoResponse.link,
+            }
 
             const createDeckResponse = await createCustomDeck(data, jwtToken)
 
-            console.log(createDeckResponse)
-
             if (createDeckResponse.success) {
               toast.success('Deck criado com sucesso')
-              console.log('deu bom')
+              router.push('/meus-decks?pag=1')
             } else {
               toast.warning('Não foi possível criar o deck')
-              console.log('deu ruim')
             }
           }
         } else {
-          const data = { ...formData }
+          const data: CustomDeckData = {
+            ...formData,
+            photo:
+              'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/logo192x192.svg?alt=media&token=39af92c2-bc6d-46bd-b619-eaceed2f1e8b',
+          }
+
           const createDeckResponse = await createCustomDeck(data, jwtToken)
 
           if (createDeckResponse.success) {
             toast.success('Deck criado com sucesso')
-            console.log('deu bom')
+            router.push('/meus-decks?pag=1')
           } else {
             toast.warning('Não foi possível criar o deck')
-            console.log('deu ruim')
           }
         }
       }
     } else if (pathname === '/editar-deck') {
-      toast.success('Deck editado com sucesso')
+      if (jwtToken) {
+        if (formData.photo instanceof File) {
+          const image = formData.photo
+          const sendPhotoResponse = await sendUserPhotoInFirebase(
+            image,
+            'decks',
+          )
+
+          if (sendPhotoResponse.success) {
+            const data = { ...formData, photo: sendPhotoResponse.link }
+
+            if (deckId) {
+              const createDeckResponse = await updateCustomDeck(
+                deckId,
+                data,
+                jwtToken,
+              )
+
+              if (createDeckResponse.success) {
+                toast.success('Deck atualizado com sucesso')
+                router.push('/meus-decks?pag=1')
+              } else {
+                toast.warning('Não foi possível atualizar o deck')
+              }
+            }
+          }
+        } else {
+          const data = { ...formData }
+
+          if (deckId) {
+            const createDeckResponse = await updateCustomDeck(
+              deckId,
+              data,
+              jwtToken,
+            )
+
+            if (createDeckResponse.success) {
+              toast.success('Deck atualizado com sucesso')
+              router.push('/meus-decks?pag=1')
+            } else {
+              toast.warning('Não foi possível atualizar o deck')
+            }
+          }
+        }
+      }
     }
+
+    setLoading(false)
   }
 
   return (
@@ -350,7 +413,7 @@ export const EditCustomDeck: EditCustomDeckType = ({
                   ? formData.photo
                   : formData.photo instanceof File
                     ? URL.createObjectURL(formData.photo)
-                    : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/deck-image-example.png?alt=media&token=7905dc10-fde7-4729-a088-fb87c94e2683'
+                    : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/logo192x192.svg?alt=media&token=39af92c2-bc6d-46bd-b619-eaceed2f1e8b'
               }
               lastModification={Date.now()}
               learning={0}
@@ -371,19 +434,38 @@ export const EditCustomDeck: EditCustomDeckType = ({
             <ButtonDefault
               text="Cancelar"
               type="link"
-              link="/meus-decks"
+              link="/meus-decks?pag=1"
               paddingy="py-2"
               tailwind="w-full"
               radius="rounded-lg"
               style="outDark"
             />
 
+            {editing && (
+              <ButtonDefault
+                text="Deletar deck"
+                type="button"
+                paddingy="py-2"
+                tailwind="w-full"
+                radius="rounded-lg"
+                style="outDark"
+                onClick={handleDeleteClick}
+              />
+            )}
+
             <ButtonDefault
-              text={editing ? 'Editar deck' : 'Adicionar deck'}
+              text={
+                loading
+                  ? 'Enviando...'
+                  : editing
+                    ? 'Editar deck'
+                    : 'Adicionar deck'
+              }
               type="button"
               tailwind="w-full h-[42px]"
               radius="rounded-lg"
               submit
+              disabled={loading}
             />
           </div>
         </fieldset>

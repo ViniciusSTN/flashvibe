@@ -13,7 +13,7 @@ import {
   InputName,
 } from '@/types/register'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
 
@@ -91,18 +91,12 @@ export const RegisterFormSection = () => {
         setEmail(formValues.email)
         router.push(`/registro/confirmacao?code=${response.jwt_token}`)
       } else {
-        console.log(response.error)
-
         toast.warning(response.error[0])
       }
     }
 
     setLoader(false)
   }
-
-  useEffect(() => {
-    console.log(formErrors)
-  }, [formErrors])
 
   return (
     <section className="flex grow items-center justify-center px-6 py-10">

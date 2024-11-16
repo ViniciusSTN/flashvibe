@@ -54,8 +54,11 @@ export const MyDecksSection = () => {
   }
 
   function handlePageButtonClick(page: number) {
+    const queryParams = new URLSearchParams(searchParams)
+    queryParams.set('pag', page.toString())
+
     setPageActive(page)
-    router.push(`/meus-decks?pag=${page}`)
+    router.push(`/meus-decks?${queryParams.toString()}`)
   }
 
   useEffect(() => {
@@ -109,6 +112,7 @@ export const MyDecksSection = () => {
       if (jwtToken) {
         // const page = searchParams.get('pag') || '1'
         // const searchBy = searchParams.get('searchBy') || 'lastModifications'
+
         const type = searchParams.get('type') || 'all'
         const formattedSearchBy =
           searchBy.charAt(0).toUpperCase() + searchBy.slice(1)
@@ -120,7 +124,7 @@ export const MyDecksSection = () => {
         setAmountPages(0)
 
         const response = await getAllUserDecks(
-          Number(page),
+          Number(1),
           type,
           formattedSearchBy,
           flashcardsMin,

@@ -41,7 +41,7 @@ export const DeckCard: DeckCardType = ({ disabled = false, ...props }) => {
 
       <div className={`${colorClasses[props.colorPredefinition]?.light} p-3`}>
         <div className="relative h-[341px] rounded-2xl bg-white py-2">
-          {props.stars && props.reviews && (
+          {props.stars !== null && props.reviews !== null && (
             <div className="absolute flex w-full items-center justify-between px-2">
               <div className="flex gap-2">
                 <p className="font-medium">{props.stars.toFixed(1)}</p>

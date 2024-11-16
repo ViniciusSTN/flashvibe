@@ -21,6 +21,7 @@ import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { toast } from 'react-toastify'
+import { DeleteModal } from '@/components/DeleteModal'
 
 export const MyDecksSection = () => {
   const searchParams = useSearchParams()
@@ -100,10 +101,6 @@ export const MyDecksSection = () => {
   )
 
   useEffect(() => {
-    console.log(searchParams.toString(), searchBy)
-  }, [searchParams, searchBy])
-
-  useEffect(() => {
     if (!page) return
 
     const fetchDecks = async () => {
@@ -118,6 +115,9 @@ export const MyDecksSection = () => {
         const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
         const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
         const situations = searchParams.getAll('situation') || []
+
+        setDecks([])
+        setAmountPages(0)
 
         const response = await getAllUserDecks(
           Number(page),
@@ -135,9 +135,6 @@ export const MyDecksSection = () => {
           setDecks(mappedDecks)
           setAmountPages(response.totalPages)
         } else {
-          setDecks([])
-          setAmountPages(0)
-
           if (
             !response.success &&
             response.error?.includes('Decks not found')
@@ -202,6 +199,7 @@ export const MyDecksSection = () => {
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
       <MyDeckModal />
+      <DeleteModal />
 
       <h1 className="mb-10 text-center text-3xl font-semibold">Meus decks</h1>
       <div

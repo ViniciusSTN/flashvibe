@@ -1,12 +1,13 @@
 'use client'
 
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { DeleteModal } from '@/components/DeleteModal'
 import { EditCustomDeck } from '@/components/EditCustomDeck'
 import { SpinLoader } from '@/components/SpinLoader'
 import { getUsersCustomDeckBaseData } from '@/data/decks'
 import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
-import { CustomDeckData } from '@/types/deck'
+import { ApiCustomDeck } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -14,7 +15,7 @@ import { toast } from 'react-toastify'
 export const EditDeckSection = () => {
   const router = useRouter()
 
-  const [deckData, setDeckData] = useState<CustomDeckData | null>(null)
+  const [deckData, setDeckData] = useState<ApiCustomDeck | null>(null)
   const [situation, setSituation] = useState<
     'Learning' | 'Finished' | 'New' | null
   >(null)
@@ -55,32 +56,26 @@ export const EditDeckSection = () => {
 
   useEffect(() => {
     async function getUserDeckData() {
-      try {
-        const result = await getUsersCustomDeckBaseData(deckId)
-
-        console.log(result)
+      if (jwtToken) {
+        const result = await getUsersCustomDeckBaseData(deckId, jwtToken)
 
         if (result.success) {
           setDeckData(result.deck)
-          setSituation(result.situation)
-          setIsPublic(result.isPublic)
-          setFavorite(result.favorite)
+          // setSituation(result.deck.situation)
+          setSituation('New')
+          setIsPublic(result.deck.public)
+          setFavorite(result.deck.favorite)
         } else {
           setExists(false)
+          toast.error('Erro ao buscar dados do deck')
         }
-      } catch (err) {
-        console.log(err)
-      } finally {
+
         setLoading(false)
       }
     }
 
     getUserDeckData()
-  }, [deckId])
-
-  useEffect(() => {
-    console.log(exists)
-  }, [exists])
+  }, [deckId, jwtToken])
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
@@ -91,12 +86,25 @@ export const EditDeckSection = () => {
       )}
 
       {deckData && situation && isPublic !== null && favorite !== null && (
-        <EditCustomDeck
-          initialData={deckData}
-          situation={situation}
-          isPublic={isPublic}
-          favorite={favorite}
-        />
+        <>
+          <EditCustomDeck
+            initialData={{
+              name: deckData.title,
+              description: deckData.description ?? '',
+              photo: deckData.image,
+              colorPredefinition: deckData.colorPredefinition,
+              new: deckData.new,
+              learning: deckData.learning,
+              reviewing: deckData.reviewing,
+            }}
+            situation={situation}
+            isPublic={isPublic}
+            favorite={favorite}
+            deckId={deckId}
+          />
+
+          <DeleteModal />
+        </>
       )}
 
       {!exists && (

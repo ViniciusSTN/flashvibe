@@ -24,7 +24,7 @@ export const FeedbackModal = () => {
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    console.log(feedback)
+    // console.log(feedback)
     // enviar feedback para o backend atualizar no banco de dados
 
     setFeedback((prevState) => ({ ...prevState, active: false, stars: 0 }))

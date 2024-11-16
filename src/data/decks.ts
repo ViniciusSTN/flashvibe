@@ -2,15 +2,16 @@ import {
   AssignDeckToUserType,
   CreateCustomDeckType,
   CreateStandardDeckType,
-  CustomDeckData,
   DeckCardProps,
+  DeleteUserDeck,
   GetAllStandardDecksType,
   GetAllUserDecksType,
   GetQuantityFlashcardsType,
   GetQuantityReviewsType,
-  getUsersCustomDeckBaseDataType,
+  GetUsersCustomDeckBaseDataType,
   ReturnedDeck,
   ReturnedStandardDeck,
+  UpdateCustomDeckType,
 } from '@/types/deck'
 import axios from 'axios'
 
@@ -41,14 +42,13 @@ export const getAllUserDecks: GetAllUserDecksType = async (
     urlWithFlashcards +
     (situationsParams.length > 0 ? `${situationsParams}` : '')
 
-  // console.log(finalUrl)
-
   try {
     const response = await axios.get(finalUrl, {
       headers: {
         Authorization: jwtToken,
       },
     })
+
     return response.data
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -100,43 +100,34 @@ export function mapReturnedDeckToDeckCardProps(
   }
 }
 
-export const getUsersCustomDeckBaseData: getUsersCustomDeckBaseDataType =
-  async (deckId) => {
-    // Simulação de atraso
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 1000)
-    })
+export const getUsersCustomDeckBaseData: GetUsersCustomDeckBaseDataType =
+  async (deckId, jwtToken) => {
+    const url =
+      process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS + `/get-deck/${deckId}/`
 
-    const situation = 'Learning'
-    const isPublic = true
-    const favorite = true
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: jwtToken,
+        },
+      })
 
-    const customDeck: CustomDeckData = {
-      name: 'English Words',
-      description: 'Most used words in everyday life',
-      photo:
-        'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/7720441.jpg?alt=media&token=18f8641a-2eb4-4c3d-83ed-6bb005b4e358',
-      colorPredefinition: 7,
-      new: 5,
-      learning: 17,
-      reviewing: 3,
-    }
-
-    if (customDeck && deckId === 10) {
-      return {
-        success: true,
-        deck: customDeck,
-        situation,
-        isPublic,
-        favorite,
-        error: customDeck ? null : ['Falha'],
-      }
-    } else {
-      return {
-        success: false,
-        error: ['Falha'],
+      return response.data
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          'Axios error getting quantity reviews:',
+          error.response?.data,
+        )
+        return {
+          success: false,
+          error: error.response?.data?.error || [
+            'An unexpected error occurred',
+          ],
+        }
+      } else {
+        console.error('Error getting quantity reviews:', error)
+        return { success: false, error: ['An unexpected error occurred'] }
       }
     }
   }
@@ -145,7 +136,7 @@ export const createCustomDeck: CreateCustomDeckType = async (
   deck,
   jwtToken,
 ) => {
-  const url = process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS + `/create/`
+  const url = process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS + `/create-deck/`
 
   try {
     const response = await axios.post(
@@ -179,6 +170,51 @@ export const createCustomDeck: CreateCustomDeckType = async (
       }
     } else {
       console.error('Error posting custom user deck:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const updateCustomDeck: UpdateCustomDeckType = async (
+  deckId,
+  deck,
+  jwtToken,
+) => {
+  const url =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS + `/update-deck/${deckId}/`
+
+  try {
+    const response = await axios.put(
+      url,
+      {
+        deckName: deck.name,
+        description: deck.description,
+        img: deck.photo,
+        color: deck.colorPredefinition,
+        new: deck.new,
+        learning: deck.learning,
+        review: deck.reviewing,
+      },
+      {
+        headers: {
+          Authorization: jwtToken,
+        },
+      },
+    )
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios error updating custom user deck:',
+        error.response?.data,
+      )
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error updating custom user deck:', error)
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }
@@ -253,8 +289,6 @@ export const getAllStandardDecks: GetAllStandardDecksType = async (
   const finalUrl =
     urlWithReviews + (difficultyParams.length > 0 ? `${difficultyParams}` : '')
 
-  // console.log(finalUrl)
-
   try {
     const response = await axios.get(finalUrl, {
       headers: {
@@ -311,8 +345,6 @@ export const assignDeckToUser: AssignDeckToUserType = async (
   const url =
     process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
     `/add-deck-to-user/${deckId}/`
-
-  // console.log(url)
 
   try {
     const response = await axios.post(
@@ -403,6 +435,32 @@ export const getQuantityFlashcards: GetQuantityFlashcardsType = async (
       }
     } else {
       console.error('Error getting quantity flashcards:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const deleteUserDeck: DeleteUserDeck = async (deckId, jwtToken) => {
+  const url =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS + `/delete-deck/${deckId}/`
+
+  try {
+    const response = await axios.delete(url, {
+      headers: {
+        Authorization: jwtToken,
+      },
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error deleting deck:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error deleting deck:', error)
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }

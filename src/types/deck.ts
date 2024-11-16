@@ -58,21 +58,39 @@ export type EditCustomDeckProps = {
   situation: 'Learning' | 'Finished' | 'New'
   isPublic: boolean
   favorite: boolean
+  deckId?: number
 }
 
 export type EditCustomDeckType = (props: EditCustomDeckProps) => JSX.Element
 
-export type CustomDeckSuccessResponse = {
-  success: true
-  deck: CustomDeckData
-  situation: 'Learning' | 'Finished' | 'New'
-  isPublic: boolean
+export type ApiCustomDeck = {
+  id: number
+  type: string
+  colorPredefinition: number
+  title: string
+  image: string
+  lastModification: number
+  createdData: number
+  description: string | null
+  public: boolean
+  difficult: null
+  stars: number | null
+  reviews: number
   favorite: boolean
+  flashcards: number
+  new: number
+  learning: number
+  reviewing: number
 }
 
-export type getUsersCustomDeckBaseDataType = (
+export type SuccessResponseWithCustomDeckData = SuccessResponse & {
+  deck: ApiCustomDeck
+}
+
+export type GetUsersCustomDeckBaseDataType = (
   deckId: number,
-) => Promise<CustomDeckSuccessResponse | ErrorResponse>
+  jwtToken: string,
+) => Promise<SuccessResponseWithCustomDeckData | ErrorResponse>
 
 export type ReturnedDeck = {
   id: number
@@ -116,6 +134,12 @@ export type GetAllUserDecksType = (
 ) => Promise<ErrorResponse | SuccessResponseWithDecks>
 
 export type CreateCustomDeckType = (
+  deck: CustomDeckData,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type UpdateCustomDeckType = (
+  deckId: number,
   deck: CustomDeckData,
   jwtToken: string,
 ) => Promise<ErrorResponse | SuccessResponse>
@@ -199,3 +223,13 @@ export type GetQuantityFlashcardsType = (
 ) => Promise<
   ErrorResponseWithHasAllDecks | SuccessResponseWithMinAndMaxFlashcards
 >
+
+export type DeleteDeckType = {
+  modalActive: boolean
+  deckId: number | null
+}
+
+export type DeleteUserDeck = (
+  deckId: number,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>

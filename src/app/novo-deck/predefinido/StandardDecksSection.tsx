@@ -103,6 +103,9 @@ export const StandardDecksSection = () => {
         const feedbackMax = parseInt(searchParams.get('feedbackMax') || '0')
         const difficulty = searchParams.getAll('difficulty') || []
 
+        setDecks([])
+        setAmountPages(0)
+
         const response = await getAllStandardDecks(
           Number(page),
           searchBy,
@@ -111,7 +114,6 @@ export const StandardDecksSection = () => {
           difficulty,
           jwtToken,
         )
-
         if (response.success && response.standardDecks) {
           const mappedDecks = response.standardDecks.map(
             mapReturnedStandardDeckToDeckCardProps,
@@ -120,9 +122,6 @@ export const StandardDecksSection = () => {
           setDecks(mappedDecks)
           setAmountPages(response.totalPages)
         } else {
-          setDecks([])
-          setAmountPages(0)
-
           if (
             !response.success &&
             response.error?.includes('Decks not found')

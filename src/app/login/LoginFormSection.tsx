@@ -84,13 +84,13 @@ export const LoginFormSection = () => {
         toast.error('Não foi possível realizar o login')
       }
     } catch (error) {
-      console.log('Erro ao logar usuário', error)
+      console.error('Erro ao logar usuário', error)
       if ((error as AuthError).code === 'auth/invalid-credential') {
         toast.error('Credenciais inválidas')
       } else if ((error as AuthError).code === 'auth/too-many-requests') {
         toast.warning('Muitas tentativas. Aguarde e tente novamente')
       } else {
-        console.log(error)
+        console.error(error)
       }
     }
   }

@@ -184,8 +184,6 @@ export const EditFlashcardData = () => {
 
     const validation = createFlashcardSchema.safeParse(flashcardData)
 
-    console.log(validation)
-
     if (!validation.success) {
       setErrors({
         ...initialErrors,

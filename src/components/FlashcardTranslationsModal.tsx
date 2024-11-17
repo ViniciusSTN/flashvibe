@@ -8,6 +8,7 @@ import {
   newFlashcardDataAtom,
   newFlashcardErrorsAtom,
 } from '@/states'
+import { FlashcardTranslationsType } from '@/types/flashcard'
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
@@ -40,13 +41,23 @@ export const FlashcardTranslationsModal = () => {
     } else {
       // enviar 'word' para API de correção gramatical
 
-      const allTranslations = newFlashcardData.translations
+      const allTranslations: FlashcardTranslationsType[] =
+        newFlashcardData.translations || []
 
-      if (allTranslations && !allTranslations.includes(word))
+      if (
+        allTranslations &&
+        !allTranslations.some(
+          (translation) => translation.textTranslation === word,
+        )
+      ) {
         setNewFlashcardData((prevState) => ({
           ...prevState,
-          translations: [...(prevState.translations || []), word],
+          translations: [
+            ...(prevState.translations || []),
+            { id: 0, textTranslation: word },
+          ],
         }))
+      }
 
       setOverlay(null)
     }

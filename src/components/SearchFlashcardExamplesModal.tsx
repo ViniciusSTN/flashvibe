@@ -1,6 +1,7 @@
 'use client'
 
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { getExamplesSentences } from '@/data/flashcards'
 import { flashcardOverlayAtom, newFlashcardDataAtom } from '@/states'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -24,9 +25,14 @@ export const SearchFlashcardExamplesModal = () => {
         ...prevState,
         examples: [
           ...(prevState.examples || []),
-          ...checked.filter(
-            (example) => !(prevState.examples || []).includes(example),
-          ),
+          ...checked
+            .filter(
+              (example) =>
+                !(prevState.examples || []).some(
+                  (existingExample) => existingExample.textExample === example,
+                ),
+            )
+            .map((example) => ({ id: 0, textExample: example })),
         ],
       }))
 
@@ -36,18 +42,18 @@ export const SearchFlashcardExamplesModal = () => {
 
   useEffect(() => {
     // buscar opções de exemplos na API
+    const fetchExamples = async () => {
+      const response = await getExamplesSentences(newFlashcardData.keyword)
 
-    const examples = [
-      'She goes for a run every morning before work.',
-      'Every student in the class passed the test',
-      'I call my parents every weekend to catch up',
-      'Every time I visit that restaurant, I try something new',
-      'He tries to make every moment count during his travels',
-      'Every child deserves a safe and loving home',
-    ]
+      if (response.success && response.examples.length > 0) {
+        setExamples(response.examples.map((example) => example.sourceSentence))
+      } else {
+        toast.warning('Não foram encontrados exemplos')
+      }
+    }
 
-    setExamples(examples)
-  }, [])
+    fetchExamples()
+  }, [newFlashcardData.keyword])
 
   function handleSelectExample(translation: string) {
     if (!checked.includes(translation))

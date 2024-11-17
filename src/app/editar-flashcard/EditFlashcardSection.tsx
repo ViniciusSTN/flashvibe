@@ -18,7 +18,8 @@ export const EditFlashcardSection = () => {
 
   const [loader, setLoader] = useState<boolean>(true)
   const searchParams = useSearchParams()
-  const param = searchParams.get('id')
+  const deckId = searchParams.get('deckId')
+  const flashcardId = searchParams.get('flashcardId')
 
   const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
@@ -49,7 +50,15 @@ export const EditFlashcardSection = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getAllFlashcardData(Number(param))
+      if (!jwtToken) return
+
+      const response = await getAllFlashcardData(
+        Number(flashcardId),
+        Number(deckId),
+        jwtToken,
+      )
+
+      console.log('resposta: ', response)
 
       if (response.success) {
         setFlashcardData(response.flashcard)
@@ -61,8 +70,12 @@ export const EditFlashcardSection = () => {
       setLoader(false)
     }
 
-    fetchData()
-  }, [setFlashcardData, router, param])
+    if (deckId && flashcardId) {
+      fetchData()
+    } else {
+      router.push(`/flashcards?pag=1&deckId${deckId}`)
+    }
+  }, [setFlashcardData, router, deckId, flashcardId, jwtToken])
 
   return (
     <section>
@@ -71,7 +84,7 @@ export const EditFlashcardSection = () => {
           <SpinLoader />
         </div>
       ) : (
-        <EditFlashcardData />
+        deckId && <EditFlashcardData deckId={deckId} />
       )}
     </section>
   )

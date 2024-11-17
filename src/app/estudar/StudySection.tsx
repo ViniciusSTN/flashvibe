@@ -4,7 +4,6 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { Flashcard } from '@/components/Flashcard'
 import { SpinLoader } from '@/components/SpinLoader'
 import { getCardsToStudy } from '@/data/flashcards'
-import useConvertFlashcard from '@/hooks/convertFlashcard'
 import {
   flashcardFeedbackAtom,
   flashcardModalAtom,
@@ -35,7 +34,7 @@ export const StudySection = () => {
 
   const [searchingFlashcards, setSearchingFlashcards] = useState<boolean>(true)
 
-  const convertToFlashcardModal = useConvertFlashcard()
+  // const convertToFlashcardModal = useConvertFlashcard()
   const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
 
@@ -73,8 +72,8 @@ export const StudySection = () => {
           deckName: response.deckName,
         })
 
-        if (response.flashcards.length > 0)
-          setFlashcardActive(convertToFlashcardModal(response.flashcards[0]))
+        // if (response.flashcards.length > 0)
+        //   setFlashcardActive(response.flashcards[0])
       }
 
       setSearchingFlashcards(false)
@@ -85,18 +84,10 @@ export const StudySection = () => {
     } else {
       setSearchingFlashcards(false)
 
-      if (flashcardsToStudy.flashcards.length > 0)
-        setFlashcardActive(
-          convertToFlashcardModal(flashcardsToStudy.flashcards[0]),
-        )
+      // if (flashcardsToStudy.flashcards.length > 0)
+      //   setFlashcardActive(flashcardsToStudy.flashcards[0])
     }
-  }, [
-    deckId,
-    setFlashcardsToStudy,
-    setFlashcardActive,
-    convertToFlashcardModal,
-    flashcardsToStudy,
-  ])
+  }, [deckId, setFlashcardsToStudy, setFlashcardActive, flashcardsToStudy])
 
   function handleNextClick() {
     if (!flashcardWasTurned) {

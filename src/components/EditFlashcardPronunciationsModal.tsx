@@ -1,17 +1,20 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { getPronunciations } from '@/data/flashcards'
 import { flashcardOverlayAtom, newFlashcardDataAtom } from '@/states'
-import { PronunciationType } from '@/types/flashcard'
-import Image from 'next/image'
+import { FlashcardPronunciationType } from '@/types/flashcard'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState, useSetRecoilState } from 'recoil'
+import Image from 'next/image'
 
 export const EditFlashcardPronunciationsModal = () => {
   const [newFlashcardData, setNewFlashcardData] =
     useRecoilState(newFlashcardDataAtom)
   const setOverlay = useSetRecoilState(flashcardOverlayAtom)
-  const [pronunciations, setPronunciations] = useState<PronunciationType[]>([])
-  const [checked, setChecked] = useState<PronunciationType[]>([])
+  const [pronunciations, setPronunciations] = useState<
+    FlashcardPronunciationType[]
+  >([])
+  const [checked, setChecked] = useState<FlashcardPronunciationType[]>([])
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -21,10 +24,11 @@ export const EditFlashcardPronunciationsModal = () => {
       toast.warning('Nenhuma opção selecionada')
     } else {
       const existingAudios =
-        newFlashcardData.pronunciations?.map((p) => p.audio) || []
+        newFlashcardData.pronunciations?.map((p) => p.voiceName) || []
       const newPronunciations = checked.filter(
-        (pronunciation) => !existingAudios.includes(pronunciation.audio),
+        (pronunciation) => !existingAudios.includes(pronunciation.voiceName),
       )
+      console.log(checked)
       setNewFlashcardData((prevState) => ({
         ...prevState,
         pronunciations: [
@@ -50,39 +54,29 @@ export const EditFlashcardPronunciationsModal = () => {
   }
 
   useEffect(() => {
-    // buscar opções de pronuncias na API
+    // buscar opções de tradução na API
+    const fetchPronunciations = async () => {
+      const response = await getPronunciations(newFlashcardData.keyword)
 
-    const pronunciations: PronunciationType[] = [
-      {
-        search: 'Pronunciado por sarita_kitty (Feminino de Reino Unido)',
-        votes: 30,
-        audio:
-          'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/pronunciations%2Fpronunciation_en_make.mp3?alt=media&token=17af0c16-e019-46e9-a844-54be23699d9d',
-      },
-      {
-        search: 'Pronunciado por sarita_kitty (Feminino de Reino Unido)',
-        votes: 20,
-        audio:
-          'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/pronunciations%2Fpronunciation_en_make%20(3).mp3?alt=media&token=68c9be31-b9f9-4f82-b827-da8138200221',
-      },
-      {
-        search: 'Pronunciado por GeauxTigers (Masculino de Estados Unidos)',
-        votes: 10,
-        audio:
-          'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/pronunciations%2Fpronunciation_en_make%20(2).mp3?alt=media&token=97794182-2f37-4dbc-9893-ef6a0c0747a8',
-      },
-    ]
+      if (response.success && response.audioInfo.length > 0) {
+        setPronunciations(response.audioInfo.map((audio) => audio))
+      } else {
+        toast.warning('Não foram encontradas traduções')
+      }
+    }
 
-    setPronunciations(pronunciations)
-  }, [])
+    fetchPronunciations()
+  }, [newFlashcardData.keyword])
 
-  function handleSelectPronunciation(pronunciation: PronunciationType) {
-    if (!checked.some((item) => item.audio === pronunciation.audio)) {
-      handlePlayAudio(pronunciation.audio)
+  function handleSelectPronunciation(
+    pronunciation: FlashcardPronunciationType,
+  ) {
+    if (!checked.some((item) => item.audioUrl === pronunciation.audioUrl)) {
+      handlePlayAudio(pronunciation.audioUrl)
       setChecked((prevState) => [...prevState, pronunciation])
     } else {
       setChecked((prevState) =>
-        prevState.filter((item) => item.audio !== pronunciation.audio),
+        prevState.filter((item) => item.audioUrl !== pronunciation.audioUrl),
       )
     }
   }
@@ -125,9 +119,15 @@ export const EditFlashcardPronunciationsModal = () => {
                     className="h-10 w-10"
                   />
 
-                  <div>
-                    <p className="text-sm">{pronunciation.search}</p>
-                    <small>{pronunciation.votes} votos</small>
+                  <div className="flex items-center">
+                    <p className="text-sm">
+                      <span className="border-r-2 border-light-gray250 pr-1">
+                        {pronunciation.voiceName} (
+                        {pronunciation.sex.toUpperCase()})
+                      </span>
+
+                      <span className="pl-1">{pronunciation.country}</span>
+                    </p>
                   </div>
                 </div>
               </li>

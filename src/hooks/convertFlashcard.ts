@@ -1,24 +1,36 @@
-import { useCallback } from 'react'
-import { FlashcardDataType, FlashcardModalType } from '@/types/flashcard'
+// import { useCallback } from 'react'
+// import { FlashcardDataType, FlashcardModalType } from '@/types/flashcard'
 
-const useConvertFlashcard = () => {
-  const convertToFlashcardModal = useCallback(
-    (flashcard: FlashcardDataType): FlashcardModalType => {
-      return {
-        ...flashcard,
-        turned: false,
-        pronunciations:
-          flashcard.pronunciations?.map((p) => ({
-            search: p,
-            votes: 0,
-            audio: '',
-          })) || [],
-      }
-    },
-    [],
-  )
+// const useConvertFlashcard = () => {
+//   const convertToFlashcardModal = useCallback(
+//     (flashcard: FlashcardDataType): FlashcardModalType => {
+//       return {
+//         ...flashcard,
+//         mainPhrase: flashcard.front, // Usando 'front' como 'mainPhrase'
+//         turned: false,
+//         pronunciations:
+//           flashcard.pronunciations?.map((audioUrl) => ({
+//             audioUrl,
+//             voiceName: '', // Ajuste conforme necessário
+//             sex: '', // Ajuste conforme necessário
+//             country: '', // Ajuste conforme necessário
+//           })) || [],
+//         examples:
+//           flashcard.examples.map((textExample, index) => ({
+//             id: index, // Usando o índice como 'id', se necessário
+//             textExample,
+//           })) || [],
+//         translations:
+//           flashcard.translations?.map((textTranslation, index) => ({
+//             id: index, // Usando o índice como 'id', se necessário
+//             textTranslation,
+//           })) || [],
+//       }
+//     },
+//     [],
+//   )
 
-  return convertToFlashcardModal
-}
+//   return convertToFlashcardModal
+// }
 
-export default useConvertFlashcard
+// export default useConvertFlashcard

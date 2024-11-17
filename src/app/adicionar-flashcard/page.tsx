@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import { addFlashcard } from '@/mocks/metadatas'
 import { Metadata } from 'next'
 import { AddFlashcardSection } from './AddFlashcardSection'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = { ...addFlashcard }
 
@@ -11,7 +12,9 @@ export default function AddFlashcard() {
     <>
       <Header />
       <main>
-        <AddFlashcardSection />
+        <Suspense fallback={<div>Carregando...</div>}>
+          <AddFlashcardSection />
+        </Suspense>
       </main>
       <Footer theme="dark" />
     </>

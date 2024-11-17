@@ -8,6 +8,7 @@ import {
   newFlashcardDataAtom,
   newFlashcardErrorsAtom,
 } from '@/states'
+import { FlashcardExampleType } from '@/types/flashcard'
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
@@ -38,13 +39,19 @@ export const EditFlashcardExamplesModal = () => {
     } else {
       // enviar 'example' para API de correção gramatical
 
+      const newExample: FlashcardExampleType = {
+        id: 0,
+        textExample: example,
+      }
+
       const allExamples = newFlashcardData.examples
 
-      if (allExamples && !allExamples.includes(example))
+      if (!allExamples.some((ex) => ex.textExample === example)) {
         setNewFlashcardData((prevState) => ({
           ...prevState,
-          examples: [...(prevState.examples || []), example],
+          examples: [...allExamples, newExample],
         }))
+      }
 
       setOverlay(null)
     }

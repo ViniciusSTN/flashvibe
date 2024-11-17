@@ -125,12 +125,18 @@ export const FlashcardsSection = () => {
   async function handleFlashcardClick(flashcardId: number) {
     setLoadingData(true)
 
-    const response = await getAllFlashcardData(flashcardId)
+    if (deckId && jwtToken) {
+      const response = await getAllFlashcardData(
+        flashcardId,
+        Number(deckId),
+        jwtToken,
+      )
 
-    if (response.success) {
-      setFlashcard({ ...response.flashcard, turned: false, flashcardId })
-    } else {
-      toast.error('Erro ao obter flashcard')
+      if (response.success) {
+        setFlashcard({ ...response.flashcard, turned: false, flashcardId })
+      } else {
+        toast.error('Erro ao obter flashcard')
+      }
     }
 
     setLoadingData(false)

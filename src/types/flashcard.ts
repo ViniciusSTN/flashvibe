@@ -7,21 +7,13 @@ export type flashcardOverlayType =
   | 'examples'
   | 'searchExamples'
   | 'pronunciations'
+  | 'front'
   | null
 
 export type PronunciationType = {
   search: string
   votes: number
   audio: string
-}
-
-export type FlashcardType = {
-  front: string
-  keyword: string
-  translations?: string[]
-  examples: string[]
-  pronunciations?: PronunciationType[]
-  images?: (string | File)[]
 }
 
 export type FlashcardDataType = {
@@ -35,21 +27,13 @@ export type FlashcardDataType = {
 }
 
 export type FlashcardErrorsType = {
-  front: string[]
+  mainPhrase: string[]
   keyword: string[]
   translations: string[]
   examples: string[]
   pronunciations: string[]
   images: string[]
 }
-
-export type SuccessWithFlashcardData = SuccessResponse & {
-  flashcard: FlashcardType
-}
-
-export type GetAllFlashcardDataType = (
-  flashcardId: number,
-) => Promise<SuccessWithFlashcardData | ErrorResponse>
 
 export type FlashcardFront = {
   flashcardId: number
@@ -76,13 +60,6 @@ export type ListedFlashcardProps = {
 }
 
 export type ListedFlashcardType = (props: ListedFlashcardProps) => JSX.Element
-
-export type FlashcardModalType =
-  | (FlashcardType & {
-      turned: boolean
-      flashcardId: number
-    })
-  | null
 
 export type FlashcardSliderProps = {
   sliders: (string | File)[]
@@ -136,3 +113,164 @@ export type FeedbackType = {
   flashcardId: number
   stars: number
 }
+
+export type SentenceCorretionType = {
+  replacement: string
+  sentence: string
+}
+
+export type SuccessResponseWithCorrectedSentence = SuccessResponse & {
+  corrections?: SentenceCorretionType[]
+}
+
+export type CorrectSentenceType = (
+  sentence: string,
+) => Promise<ErrorResponse | SuccessResponseWithCorrectedSentence>
+
+export type FrontCorretionsModalProps = {
+  corrections: SentenceCorretionType[]
+  front: string
+}
+
+export type FrontCorretionsModalType = (
+  props: FrontCorretionsModalProps,
+) => JSX.Element
+
+export type TranslationsType = {
+  sourceWord: string
+  translation: number
+}
+
+export type SuccessResponseWithTranslations = SuccessResponse & {
+  translations: TranslationsType[]
+}
+
+export type GetTranslationsType = (
+  word: string,
+) => Promise<ErrorResponse | SuccessResponseWithTranslations>
+
+export type ExampleType = {
+  sourceSentence: string
+}
+
+export type SuccessResponseWithExamples = SuccessResponse & {
+  examples: ExampleType[]
+}
+
+export type GetExamplesSentencesType = (
+  word: string,
+) => Promise<ErrorResponse | SuccessResponseWithExamples>
+
+export type FlashcardPronunciationType = {
+  id?: number
+  keyword?: string
+  audioUrl: string
+  voiceName: string
+  sex: string
+  country: string
+}
+
+export type SuccessResponseWithPronunciations = SuccessResponse & {
+  audioInfo: FlashcardPronunciationType[]
+}
+
+export type GetPronunciationsType = (
+  word: string,
+) => Promise<ErrorResponse | SuccessResponseWithPronunciations>
+
+export type FlashcardExampleType = {
+  id: number
+  textExample: string
+}
+
+export type FlashcardTranslationsType = {
+  id: number
+  textTranslation: string
+}
+
+export type FlashcardImageType = {
+  id: number
+  fileUrl: string | File
+}
+
+export type SendFlashcardImageType = {
+  id: number
+  fileUrl: string
+}
+
+export type FlashcardWithoutImages = {
+  keyword: string
+  mainPhrase: string
+  examples: FlashcardExampleType[]
+  translations: FlashcardTranslationsType[]
+  pronunciations: FlashcardPronunciationType[]
+}
+
+export type FlashcardType = FlashcardWithoutImages & {
+  images: FlashcardImageType[]
+}
+
+export type SendFlashcardType = FlashcardWithoutImages & {
+  images: SendFlashcardImageType[]
+}
+
+export type SuccessWithFlashcardData = SuccessResponse & {
+  flashcard: FlashcardType
+}
+
+export type GetAllFlashcardDataType = (
+  flashcardId: number,
+  deckId: number,
+  jwtToken: string,
+) => Promise<SuccessWithFlashcardData | ErrorResponse>
+
+export type FlashcardModalType =
+  | (FlashcardType & {
+      turned: boolean
+      flashcardId: number
+    })
+  | null
+
+export type SendExampleType = {
+  textExample: string
+}
+
+export type SendTranslationType = {
+  textTranslation: string
+}
+
+export type SendPronunciationType = {
+  keyword: string
+  audioUrl: string
+}
+
+export type SendImageType = {
+  imageUrl: string
+  description: string
+}
+
+export type CreateFlashcardType = (
+  jwtToken: string,
+  deckId: number,
+  keyword: string,
+  mainPhrase: string,
+  examples: SendExampleType[],
+  translations: SendTranslationType[],
+  pronunciations: FlashcardPronunciationType[],
+  images: SendImageType[],
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type EditFlashcardDataProps = {
+  deckId: string
+}
+
+export type EditFlashcardDataType = (
+  props: EditFlashcardDataProps,
+) => JSX.Element
+
+export type UpdateFlashcard = (
+  flashcardId: number,
+  deckId: number,
+  jwtToken: string,
+  flashcard: SendFlashcardType,
+) => Promise<ErrorResponse | SuccessResponse>

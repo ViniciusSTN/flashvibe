@@ -12,7 +12,16 @@ import {
   newFlashcardDataAtom,
   newFlashcardErrorsAtom,
 } from '@/states'
-import { FlashcardErrorsType } from '@/types/flashcard'
+import {
+  EditFlashcardDataType,
+  FlashcardErrorsType,
+  SendExampleType,
+  SendFlashcardImageType,
+  SendFlashcardType,
+  SendImageType,
+  SendTranslationType,
+  SentenceCorretionType,
+} from '@/types/flashcard'
 import { useEffect, useRef, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { FlashcardTranslationsModal } from './FlashcardTranslationsModal'
@@ -20,12 +29,21 @@ import { SearchFlashcardTranslationsModal } from './SearchFlashcardTranslationsM
 import { EditFlashcardExamplesModal } from './EditFlashcardExamplesModal'
 import { SearchFlashcardExamplesModal } from './SearchFlashcardExamplesModal'
 import { EditFlashcardPronunciationsModal } from './EditFlashcardPronunciationsModal'
-import Image from 'next/image'
 import { toast } from 'react-toastify'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+  correctSentence,
+  createFlashcard,
+  updateFlashcard,
+} from '@/data/flashcards'
+import { FrontCorretionsModal } from './FrontCorretionsModal'
+import { SpinLoader } from './SpinLoader'
+import { sendManyUserPhotosInFirebase } from '@/data/images'
+import { useCookies } from '@/hooks/cookies'
+import Image from 'next/image'
 
 const initialErrors: FlashcardErrorsType = {
-  front: [],
+  mainPhrase: [],
   examples: [],
   images: [],
   keyword: [],
@@ -33,36 +51,49 @@ const initialErrors: FlashcardErrorsType = {
   translations: [],
 }
 
-export const EditFlashcardData = () => {
+export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
   const [flashcardData, setFlashcardData] = useRecoilState(newFlashcardDataAtom)
   const [errors, setErrors] = useRecoilState(newFlashcardErrorsAtom)
   const [overlay, setOverlay] = useRecoilState(flashcardOverlayAtom)
 
   const [keywordOptions, setKeywordOptions] = useState<string[]>([])
   const [editing, setEditing] = useState<boolean>()
+  const [loading, setLoading] = useState<boolean>(false)
+  const [sending, setSending] = useState<boolean>(false)
+  const [frontCorretions, setFrontCorretions] = useState<
+    SentenceCorretionType[]
+  >([])
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const path = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const jwtToken = useCookies('Authorization')
+
+  const flashcardId = searchParams.get('flashcardId')
 
   useEffect(() => {
     setEditing(path === '/editar-flashcard')
   }, [path])
 
   useEffect(() => {
-    if (flashcardData.front) {
+    if (flashcardData.mainPhrase) {
       const keywords = Array.from(
-        new Set(flashcardData.front.toLowerCase().split(' ').filter(Boolean)),
+        new Set(
+          flashcardData.mainPhrase.toLowerCase().split(' ').filter(Boolean),
+        ),
       )
       setKeywordOptions(keywords)
     }
-  }, [flashcardData.front])
+  }, [flashcardData.mainPhrase])
 
   function handleFrontChange(event: React.ChangeEvent<HTMLInputElement>) {
-    clearError('front')
+    clearError('mainPhrase')
 
     setFlashcardData({
-      front: event.target.value,
+      mainPhrase: event.target.value,
       keyword: '',
       translations: [],
       examples: [],
@@ -73,13 +104,14 @@ export const EditFlashcardData = () => {
 
   function handleFrontFinished() {
     const validation = frontSchema.safeParse({
-      front: flashcardData.front,
+      mainPhrase: flashcardData.mainPhrase,
     })
 
     if (validation.success) {
       // API de correção gramatical
+      sendFrontToCorretion()
     } else {
-      const frontError = validation.error.formErrors.fieldErrors?.front
+      const frontError = validation.error.formErrors.fieldErrors?.mainPhrase
       if (frontError) {
         setErrors((prevState) => ({
           ...prevState,
@@ -87,6 +119,23 @@ export const EditFlashcardData = () => {
         }))
       }
     }
+  }
+
+  const sendFrontToCorretion = async () => {
+    setLoading(true)
+
+    const response = await correctSentence(flashcardData.mainPhrase)
+
+    if (
+      response.success &&
+      response.corrections &&
+      response.corrections.length > 0
+    ) {
+      setOverlay('front')
+      setFrontCorretions(response.corrections)
+    }
+
+    setLoading(false)
   }
 
   function clearError(field: keyof FlashcardErrorsType) {
@@ -126,8 +175,11 @@ export const EditFlashcardData = () => {
     }
 
     const audio = new Audio(audioUrl)
-    audio.volume = 0.4
-    audio.play()
+    audio.volume = 0.5
+    audio.play().catch((error) => {
+      console.error('Erro ao tentar reproduzir o áudio:', error)
+      toast.error('Erro ao reproduzir áudio')
+    })
     audioRef.current = audio
   }
 
@@ -151,7 +203,13 @@ export const EditFlashcardData = () => {
       } else {
         setFlashcardData((prevState) => ({
           ...prevState,
-          images: [...(prevState.images || []), ...filesArray],
+          images: [
+            ...(prevState.images || []),
+            ...filesArray.map((file) => ({
+              id: 0,
+              fileUrl: file,
+            })),
+          ],
         }))
       }
     }
@@ -177,10 +235,8 @@ export const EditFlashcardData = () => {
     }))
   }
 
-  function handleFormSubmit(event: React.FormEvent) {
+  const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-
-    // console.log(flashcardData)
 
     const validation = createFlashcardSchema.safeParse(flashcardData)
 
@@ -198,12 +254,199 @@ export const EditFlashcardData = () => {
     } else {
       // Criar flashcard
 
-      toast.success('Flashcard criado com sucesso')
+      if (flashcardData.images && flashcardData.images.length > 5) {
+        toast.warning('Deve ter no máximo 5 imagens')
+        return
+      }
+
+      if (
+        flashcardData.pronunciations &&
+        flashcardData.pronunciations.length > 5
+      ) {
+        toast.warning('Deve ter no máximo 5 pronúncias')
+        return
+      }
+
+      if (
+        flashcardData.translations &&
+        flashcardData.translations.length > 20
+      ) {
+        toast.warning('Deve ter no máximo 20 traduções')
+        return
+      }
+
+      sendDataToApi()
     }
   }
 
+  const sendDataToApi = async () => {
+    setSending(true)
+
+    if (path !== '/adicionar-flashcard' && path !== '/editar-flashcard') return
+
+    const imagesFiles: File[] =
+      flashcardData.images
+        ?.filter((image) => image.fileUrl instanceof File)
+        .map((image) => image.fileUrl as File) || []
+
+    const imagesWithUrl: SendFlashcardImageType[] = (flashcardData.images
+      ?.filter((image) => typeof image.fileUrl === 'string')
+      .map((image) => ({
+        fileUrl: image.fileUrl,
+        id: image.id,
+      })) || []) as SendFlashcardImageType[]
+
+    const sendExamples: SendExampleType[] = flashcardData.examples.map(
+      (example) => ({
+        textExample: example.textExample,
+      }),
+    )
+
+    const pronunciationsToUpdate = flashcardData.pronunciations.map(
+      (pronunciation) => ({
+        ...pronunciation,
+        keyword: flashcardData.keyword,
+      }),
+    )
+
+    const sendTranslations: SendTranslationType[] =
+      flashcardData.translations?.map((translation) => ({
+        textTranslation: translation.textTranslation,
+      })) ?? []
+
+    if (imagesFiles.length !== 0) {
+      const imagesResponse = await sendManyUserPhotosInFirebase(
+        imagesFiles,
+        'examples',
+      )
+
+      if (imagesResponse.success) {
+        const sendImagesToCreate: SendImageType[] = [
+          ...imagesResponse.links.map((link) => ({
+            imageUrl: link,
+            description: 'Imagem de exemplo de uso',
+          })),
+        ]
+
+        const sendImagesToUpdate: SendFlashcardImageType[] = [
+          ...imagesResponse.links.map((link) => ({
+            id: 0,
+            fileUrl: link,
+          })),
+          ...imagesWithUrl,
+        ]
+
+        if (path === '/adicionar-flashcard' && Number(deckId) && jwtToken) {
+          // adicionar flashcard com imagens do firebase
+          const response = await createFlashcard(
+            jwtToken,
+            Number(deckId),
+            flashcardData.keyword,
+            flashcardData.mainPhrase,
+            sendExamples,
+            sendTranslations,
+            flashcardData.pronunciations,
+            sendImagesToCreate,
+          )
+
+          if (response.success) {
+            toast.success('Deck criado com sucesso')
+            router.push(`/flashcards?deckId=${deckId}`)
+          } else {
+            toast.error('Erro ao criar flashcard')
+          }
+        } else if (
+          path === '/editar-flashcard' &&
+          Number(deckId) &&
+          jwtToken &&
+          flashcardId
+        ) {
+          // atualizar flashcard com imagens do firebase
+          const sendFlashcard: SendFlashcardType = {
+            ...flashcardData,
+            pronunciations: pronunciationsToUpdate,
+            images: sendImagesToUpdate,
+          }
+
+          const response = await updateFlashcard(
+            Number(flashcardId),
+            Number(deckId),
+            jwtToken,
+            sendFlashcard,
+          )
+
+          if (response.success) {
+            toast.success('Deck atualizado com sucesso')
+            router.push(`/flashcards?deckId=${deckId}`)
+          } else {
+            toast.error('Erro ao atualizar flashcard')
+          }
+        }
+      } else {
+        toast.error('Erro ao salvar imagens, tente novamente')
+      }
+    } else {
+      // adicionar flashcard sem imagens
+      if (path === '/adicionar-flashcard' && Number(deckId) && jwtToken) {
+        const response = await createFlashcard(
+          jwtToken,
+          Number(deckId),
+          flashcardData.keyword,
+          flashcardData.mainPhrase,
+          sendExamples,
+          sendTranslations,
+          flashcardData.pronunciations,
+          [],
+        )
+
+        if (response.success) {
+          toast.success('Deck criado com sucesso')
+          router.push(`/flashcards?deckId=${deckId}`)
+        } else {
+          toast.error('Erro ao criar flashcard')
+        }
+      } else if (
+        path === '/editar-flashcard' &&
+        Number(deckId) &&
+        jwtToken &&
+        flashcardId
+      ) {
+        // editar flashcard sem novas imagens
+        const sendFlashcard: SendFlashcardType = {
+          ...flashcardData,
+          images: imagesWithUrl,
+          pronunciations: pronunciationsToUpdate,
+        }
+
+        const response = await updateFlashcard(
+          Number(flashcardId),
+          Number(deckId),
+          jwtToken,
+          sendFlashcard,
+        )
+
+        if (response.success) {
+          toast.success('Deck atualizado com sucesso')
+          router.push(`/flashcards?deckId=${deckId}`)
+        } else {
+          toast.error('Erro ao atualizar flashcard')
+        }
+      }
+    }
+
+    setSending(false)
+  }
+
   return (
-    <div className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-20">
+    <div
+      className={`mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-20 ${loading && 'pointer-events-none'}`}
+    >
+      {(loading || sending) && (
+        <div className="fixed inset-0 flex items-center justify-center">
+          <SpinLoader />
+        </div>
+      )}
+
       <button
         className={`fixed inset-0 z-50 bg-black transition-opacity ${
           !overlay
@@ -218,6 +461,12 @@ export const EditFlashcardData = () => {
       {overlay === 'examples' && <EditFlashcardExamplesModal />}
       {overlay === 'searchExamples' && <SearchFlashcardExamplesModal />}
       {overlay === 'pronunciations' && <EditFlashcardPronunciationsModal />}
+      {overlay === 'front' && (
+        <FrontCorretionsModal
+          corrections={frontCorretions}
+          front={flashcardData.mainPhrase}
+        />
+      )}
 
       <form
         action=""
@@ -245,10 +494,10 @@ export const EditFlashcardData = () => {
               type="text"
               label="Frente *"
               placeholder="Ex: I eat an apple every day"
-              error={errors.front}
+              error={errors.mainPhrase}
               onChange={handleFrontChange}
               onBlur={handleFrontFinished}
-              value={flashcardData.front}
+              value={flashcardData.mainPhrase}
               disable={editing}
             />
 
@@ -258,10 +507,10 @@ export const EditFlashcardData = () => {
                 <select
                   name=""
                   id=""
-                  className={`inputDefault px-4 ${errors.keyword.length > 0 && 'inputDefaultError'} ${(flashcardData.front.length === 0 || errors.front.length > 0) && 'cursor-not-allowed'} ${editing && 'inputDefaultDisabled'}`}
+                  className={`inputDefault px-4 ${errors.keyword.length > 0 && 'inputDefaultError'} ${(flashcardData.mainPhrase.length === 0 || errors.mainPhrase.length > 0) && 'cursor-not-allowed'} ${editing && 'inputDefaultDisabled'}`}
                   disabled={
-                    flashcardData.front.length === 0 ||
-                    errors.front.length > 0 ||
+                    flashcardData.mainPhrase.length === 0 ||
+                    errors.mainPhrase.length > 0 ||
                     editing
                   }
                   value={flashcardData.keyword}
@@ -294,7 +543,7 @@ export const EditFlashcardData = () => {
                       key={index}
                       className="flex items-center justify-between gap-2 rounded border border-light-gray225 px-2 py-[2px]"
                     >
-                      {translation}
+                      {translation.textTranslation}
                       <button
                         onClick={(event) =>
                           handleDelete(event, 'translations', index)
@@ -325,7 +574,8 @@ export const EditFlashcardData = () => {
                 paddingy="py-2"
                 tailwind="w-[238px]"
                 disabled={
-                  flashcardData.keyword.length === 0 || errors.front.length > 0
+                  flashcardData.keyword.length === 0 ||
+                  errors.mainPhrase.length > 0
                 }
                 onClick={() => setOverlay('translations')}
               />
@@ -351,7 +601,7 @@ export const EditFlashcardData = () => {
                       key={index}
                       className="flex items-center justify-between gap-2 rounded border border-light-gray225 px-2 py-[2px]"
                     >
-                      {example}
+                      {example.textExample}
                       <button
                         onClick={(event) =>
                           handleDelete(event, 'examples', index)
@@ -382,7 +632,8 @@ export const EditFlashcardData = () => {
                 paddingy="py-2"
                 tailwind="w-[238px]"
                 disabled={
-                  flashcardData.keyword.length === 0 || errors.front.length > 0
+                  flashcardData.keyword.length === 0 ||
+                  errors.mainPhrase.length > 0
                 }
                 onClick={() => setOverlay('examples')}
               />
@@ -401,7 +652,9 @@ export const EditFlashcardData = () => {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => handlePlayAudio(pronunciation.audio)}
+                          onClick={() =>
+                            handlePlayAudio(pronunciation.audioUrl)
+                          }
                         >
                           <Image
                             src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/play-circle-svgrepo-com.svg?alt=media&token=58563bae-4f79-454c-a5f3-5446c1ff7b7d"
@@ -447,7 +700,8 @@ export const EditFlashcardData = () => {
                 paddingy="py-2"
                 tailwind="w-[238px]"
                 disabled={
-                  flashcardData.keyword.length === 0 || errors.front.length > 0
+                  flashcardData.keyword.length === 0 ||
+                  errors.mainPhrase.length > 0
                 }
                 onClick={() => setOverlay('pronunciations')}
               />
@@ -464,9 +718,9 @@ export const EditFlashcardData = () => {
                     >
                       <Image
                         src={
-                          image instanceof File
-                            ? URL.createObjectURL(image)
-                            : image
+                          image.fileUrl instanceof File
+                            ? URL.createObjectURL(image.fileUrl)
+                            : image.fileUrl
                         }
                         alt="imagem de exemplo"
                         width={100}
@@ -499,7 +753,8 @@ export const EditFlashcardData = () => {
 
               <div
                 className={`relative ${
-                  flashcardData.keyword.length === 0 || errors.front.length > 0
+                  flashcardData.keyword.length === 0 ||
+                  errors.mainPhrase.length > 0
                     ? 'cursor-not-allowed'
                     : 'cursor-pointer'
                 }`}
@@ -513,7 +768,7 @@ export const EditFlashcardData = () => {
                   tailwind="w-[238px]"
                   disabled={
                     flashcardData.keyword.length === 0 ||
-                    errors.front.length > 0
+                    errors.mainPhrase.length > 0
                   }
                 />
 
@@ -524,13 +779,13 @@ export const EditFlashcardData = () => {
                   multiple
                   className={`absolute left-0 top-0 h-full w-[238px] opacity-0 ${
                     flashcardData.keyword.length === 0 ||
-                    errors.front.length > 0
+                    errors.mainPhrase.length > 0
                       ? 'pointer-events-none'
                       : 'cursor-pointer'
                   }`}
                   disabled={
                     flashcardData.keyword.length === 0 ||
-                    errors.front.length > 0
+                    errors.mainPhrase.length > 0
                   }
                 />
               </div>

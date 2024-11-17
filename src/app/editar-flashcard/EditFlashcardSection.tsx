@@ -64,7 +64,7 @@ export const EditFlashcardSection = () => {
         setFlashcardData(response.flashcard)
       } else {
         toast.error('Flashcard não encontrado')
-        router.back()
+        router.push(`/flashcards?pag=1&deckId=${deckId}`)
       }
 
       setLoader(false)

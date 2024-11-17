@@ -40,6 +40,7 @@ import { FrontCorretionsModal } from './FrontCorretionsModal'
 import { SpinLoader } from './SpinLoader'
 import { sendManyUserPhotosInFirebase } from '@/data/images'
 import { useCookies } from '@/hooks/cookies'
+import { DeleteFlashcardModal } from './DeleteFlashcardModal'
 import Image from 'next/image'
 
 const initialErrors: FlashcardErrorsType = {
@@ -461,6 +462,13 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
       {overlay === 'examples' && <EditFlashcardExamplesModal />}
       {overlay === 'searchExamples' && <SearchFlashcardExamplesModal />}
       {overlay === 'pronunciations' && <EditFlashcardPronunciationsModal />}
+      {overlay === 'delete' && (
+        <DeleteFlashcardModal
+          flashcardId={flashcardId ?? ''}
+          jwtToken={jwtToken ?? ''}
+          deckId={deckId}
+        />
+      )}
       {overlay === 'front' && (
         <FrontCorretionsModal
           corrections={frontCorretions}
@@ -804,11 +812,20 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
           />
 
           <ButtonDefault
-            text="Criar flashcard"
+            text="Deletar flashcard"
+            type="button"
+            style="outDark"
+            radius="rounded-md"
+            tailwind="w-[175px] h-[42px]"
+            onClick={() => setOverlay('delete')}
+          />
+
+          <ButtonDefault
+            text={`${editing ? 'Editar flashcard' : 'Criar flashcard'}`}
             type="button"
             radius="rounded-md"
-            submit
             tailwind="w-[175px] h-[42px]"
+            submit
           />
         </div>
       </form>

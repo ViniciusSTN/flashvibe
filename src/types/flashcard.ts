@@ -8,6 +8,7 @@ export type flashcardOverlayType =
   | 'searchExamples'
   | 'pronunciations'
   | 'front'
+  | 'delete'
   | null
 
 export type PronunciationType = {
@@ -274,3 +275,19 @@ export type UpdateFlashcard = (
   jwtToken: string,
   flashcard: SendFlashcardType,
 ) => Promise<ErrorResponse | SuccessResponse>
+
+export type DeleteFlashcardType = (
+  flashcardId: number,
+  deckId: number,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type DeleteFlashcardModalProps = {
+  flashcardId: string
+  deckId: string
+  jwtToken: string
+}
+
+export type DeleteFlashcardModalType = (
+  props: DeleteFlashcardModalProps,
+) => JSX.Element

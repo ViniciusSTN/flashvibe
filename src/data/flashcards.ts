@@ -2,6 +2,7 @@ import { deckFlashcardsData, flashcardsData } from '@/mocks/TemporaryFlashcards'
 import {
   CorrectSentenceType,
   CreateFlashcardType,
+  DeleteFlashcardType,
   GetAllFlashcardDataType,
   GetCardsToStudyType,
   GetDeckFlashcardsType,
@@ -276,6 +277,37 @@ export const updateFlashcard: UpdateFlashcard = async (
       }
     } else {
       console.error('Error updating flashcard:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
+    }
+  }
+}
+
+export const deleteFlashcard: DeleteFlashcardType = async (
+  flashcardId,
+  deckId,
+  jwtToken,
+) => {
+  const url =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
+    `/delete-flashcard/${flashcardId}/${deckId}/`
+
+  try {
+    const response = await axios.delete(url, {
+      headers: {
+        Authorization: jwtToken,
+      },
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error deleting flashcard:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error deleting flashcard:', error)
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }

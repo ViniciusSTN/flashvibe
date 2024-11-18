@@ -1,4 +1,4 @@
-import { deckFlashcardsData, flashcardsData } from '@/mocks/TemporaryFlashcards'
+import { flashcardsData } from '@/mocks/TemporaryFlashcards'
 import {
   CorrectSentenceType,
   CreateFlashcardType,
@@ -47,21 +47,63 @@ export const getAllFlashcardData: GetAllFlashcardDataType = async (
 export const getDeckFlashcards: GetDeckFlashcardsType = async (
   deckId,
   page,
+  orderBy,
+  situations,
+  jwtToken,
 ) => {
-  console.log(deckId, page)
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
+    `/get-all-flashcard/${page}/${deckId}/?`
 
-  if (deckFlashcardsData && deckId === 10) {
-    return {
-      success: true,
-      message: 'Flashcards encontrados',
-      flashcards: [...deckFlashcardsData],
-      lastPage: 6,
-      deckName: 'My English Words',
+  const params = new URLSearchParams()
+
+  // Adicionar orderBy diretamente
+  const validOrderByValues = [
+    'newer',
+    'older',
+    'lastModifications',
+    'lastStudied',
+    'mostReviewed',
+    'lessReviewed',
+  ]
+
+  if (validOrderByValues.includes(orderBy)) {
+    params.append('orderBy', orderBy)
+  }
+
+  const validSituations = ['new', 'learning', 'reviewing']
+
+  situations.forEach((situation) => {
+    if (validSituations.includes(situation)) {
+      params.append(
+        situation.charAt(0).toUpperCase() + situation.slice(1),
+        'true',
+      )
     }
-  } else {
-    return {
-      success: false,
-      error: ['Falha ao obter dados de flashcards'],
+  })
+
+  const url = `${baseUrl}${params.toString()}`
+
+  console.log(url)
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: jwtToken,
+      },
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error getting flashcard data:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error getting flashcard data:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
     }
   }
 }

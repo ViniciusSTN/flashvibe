@@ -2,7 +2,7 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { flashcardFiltersAtom } from '@/states/atoms/filters'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FlashcardsFilters } from './FlashcardsFilters'
@@ -16,6 +16,7 @@ import { flashcardModalAtom } from '@/states'
 import { toast } from 'react-toastify'
 import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
+import { SpinLoader } from '@/components/SpinLoader'
 
 export const FlashcardsSection = () => {
   const searchParams = useSearchParams()
@@ -42,29 +43,29 @@ export const FlashcardsSection = () => {
   const [filters, setFilters] = useRecoilState(flashcardFiltersAtom)
   const setFlashcard = useSetRecoilState(flashcardModalAtom)
 
-  useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
-      router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
+  const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
+  const searchBy = useMemo(
+    () => searchParams.get('searchBy') || 'lastModifications',
+    [searchParams],
+  )
 
   useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
+    const validateSession = async () => {
+      if (!sessionCookie || !jwtToken) {
+        toast.warning('É preciso logar novamente')
+        return router.push('/login')
+      }
 
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
+      const response = await verifySession(sessionCookie)
+
+      if (!response.success) {
         toast.warning('É preciso logar novamente')
         router.push('/login')
       }
     }
 
-    validateSection()
-  }, [router, sessionCookie])
+    validateSession()
+  }, [sessionCookie, jwtToken, router])
 
   useEffect(() => {
     function handleResize() {
@@ -82,33 +83,45 @@ export const FlashcardsSection = () => {
 
   useEffect(() => {
     const fetchFlashcards = async () => {
-      const page = searchParams.get('pag') || '1'
+      if (!jwtToken) return
 
-      const response = await getDeckFlashcards(Number(deckId), Number(page))
+      const situations = searchParams.getAll('situation') || []
 
-      if (response.success && response.flashcards && response.deckName) {
-        setFlashcards(response.flashcards)
-        setAmountPages(response.lastPage)
-        setDeckName(response.deckName)
+      setFlashcards([])
+      setAmountPages(0)
+      setFlashcard(null)
+
+      const response = await getDeckFlashcards(
+        Number(deckId),
+        Number(page),
+        searchBy,
+        situations,
+        jwtToken,
+      )
+
+      if (response.success && response.flashcard && response.deck) {
+        setFlashcards(response.flashcard)
+        setAmountPages(response.totalPages)
+        setDeckName(response.deck)
+      } else {
+        toast.warning('Nenhum flashcard encontrado')
       }
+
+      console.log(response)
 
       setFlashcardLoading(false)
     }
 
     fetchFlashcards()
-  }, [searchParams, deckId])
+  }, [searchParams, deckId, searchBy, page, jwtToken, setFlashcard])
 
   useEffect(() => {
-    const page = getPage()
-
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
-      } else {
-        router.replace(`/flashcards?deckId=${deckId}&pag=1`)
       }
     }
-  }, [searchParams, amountPages, router, getPage, deckId])
+  }, [searchParams, amountPages, page])
 
   function handleShowFiltersClick() {
     setFilters((prevState) => ({
@@ -118,8 +131,11 @@ export const FlashcardsSection = () => {
   }
 
   function handlePageButtonClick(page: number) {
+    const queryParams = new URLSearchParams(searchParams)
+    queryParams.set('pag', page.toString())
+
     setPageActive(page)
-    router.push(`/flashcards?deckid=${deckId}&pag=${page}`)
+    router.push(`/flashcards?${queryParams.toString()}`)
   }
 
   async function handleFlashcardClick(flashcardId: number) {
@@ -152,7 +168,13 @@ export const FlashcardsSection = () => {
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
-      <FlashcardModal />
+      <FlashcardModal deckId={Number(deckId)} />
+
+      {loadingData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <SpinLoader />
+        </div>
+      )}
 
       <h1 className="mb-10 text-center text-3xl font-semibold">
         Flashcards {deckName}
@@ -215,7 +237,7 @@ export const FlashcardsSection = () => {
           <ButtonDefault
             text="Adicionar flashcard"
             type="link"
-            link={`/adicionar-flashcard`}
+            link={`/adicionar-flashcard?deckId=${deckId}`}
             radius="rounded-md"
             tailwind={`h-10 ${mobile ? 'px-4 text-nowrap' : 'w-310px'}`}
           />
@@ -236,11 +258,11 @@ export const FlashcardsSection = () => {
                 {flashcards.map((flashcard, index) => (
                   <li key={index} className="flex justify-center">
                     <ListedFlashcard
-                      front={flashcard.front}
+                      front={flashcard.main_phrase}
                       keyword={flashcard.keyword}
                       disabled={loadingData}
                       onClick={() =>
-                        handleFlashcardClick(flashcard.flashcardId)
+                        !loadingData && handleFlashcardClick(flashcard.id)
                       }
                     />
                   </li>

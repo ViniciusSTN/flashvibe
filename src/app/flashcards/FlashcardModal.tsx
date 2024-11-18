@@ -3,8 +3,9 @@ import { flashcardModalAtom } from '@/states'
 import { Flashcard } from '@/components/Flashcard'
 import Image from 'next/image'
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { FlashcardModalComponentType } from '@/types/flashcard'
 
-export const FlashcardModal = () => {
+export const FlashcardModal: FlashcardModalComponentType = ({ deckId }) => {
   const [flashcardActive, setFlashcardActive] =
     useRecoilState(flashcardModalAtom)
 
@@ -29,7 +30,7 @@ export const FlashcardModal = () => {
             <ButtonDefault
               text="Editar"
               type="link"
-              link={`/editar-flashcard?id=${flashcardActive.flashcardId}`}
+              link={`/editar-flashcard?flashcardId=${flashcardActive.flashcardId}&deckId=${deckId}`}
               paddingx="px-5"
               paddingy="py-2"
               radius="rounded-md"

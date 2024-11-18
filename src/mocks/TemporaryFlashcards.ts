@@ -1,4 +1,4 @@
-import { FlashcardDataType, FlashcardFront } from '@/types/flashcard'
+import { FlashcardDataType } from '@/types/flashcard'
 
 export const flashcardData: FlashcardDataType = {
   flashcardId: 1,
@@ -37,66 +37,6 @@ export const flashcardData: FlashcardDataType = {
   ],
   translations: ['gostar', 'adorar', 'como'],
 }
-
-export const deckFlashcardsData: FlashcardFront[] = [
-  {
-    flashcardId: 20,
-    front: 'I need directions to the nearest subway station.',
-    keyword: 'directions',
-  },
-  {
-    flashcardId: 21,
-    front: "I'd like to book a table for two at 7 PM, please.",
-    keyword: 'book',
-  },
-  {
-    flashcardId: 22,
-    front: 'Can you please help me find my lost phone? I lost my phone',
-    keyword: 'phone',
-  },
-  {
-    flashcardId: 23,
-    front:
-      'Could you explain how to get to the airport from here, as I am a bit lost and would really appreciate your assistance with directions?',
-    keyword: 'airport',
-  },
-  {
-    flashcardId: 24,
-    front:
-      "What are the must-visit attractions in this city for someone who's here for the first time and wants to experience local culture?",
-    keyword: 'attractions',
-  },
-  {
-    flashcardId: 25,
-    front:
-      "I heard there's a great park nearby where I can relax and enjoy nature; could you tell me how to get there from here, please?",
-    keyword: 'heard',
-  },
-  {
-    flashcardId: 26,
-    front:
-      'Can you recommend a few dishes I should try at this restaurant? I want to make sure I experience the best of the local cuisine.',
-    keyword: 'should',
-  },
-  {
-    flashcardId: 27,
-    front:
-      'If I want to experience nightlife here, could you suggest some popular clubs or bars that are safe and have a good atmosphere?',
-    keyword: 'want',
-  },
-  {
-    flashcardId: 28,
-    front:
-      "I need to find a bank that's open today to exchange some currency; can you point me in the direction of the nearest one?",
-    keyword: 'some',
-  },
-  {
-    flashcardId: 29,
-    front:
-      "Could you tell me about any local events or festivals happening this weekend that I might enjoy while I'm visiting the area?",
-    keyword: 'happening',
-  },
-]
 
 export const flashcardsData: FlashcardDataType[] = [
   {

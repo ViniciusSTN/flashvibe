@@ -43,19 +43,19 @@ const localStorageEffect: (
 export const newFlashcardDataAtom = atom<FlashcardType>({
   key: 'newFlashcardData',
   default: {
-    front: '',
     keyword: '',
+    mainPhrase: '',
     examples: [],
-    images: [],
-    pronunciations: [],
     translations: [],
+    pronunciations: [],
+    images: [],
   },
 })
 
 export const newFlashcardErrorsAtom = atom<FlashcardErrorsType>({
   key: 'newFlashcardErrors',
   default: {
-    front: [],
+    mainPhrase: [],
     keyword: [],
     examples: [],
     images: [],

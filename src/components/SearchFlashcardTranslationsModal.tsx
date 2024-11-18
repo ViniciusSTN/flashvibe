@@ -1,6 +1,7 @@
 'use client'
 
 import { ButtonDefault } from '@/components/ButtonDefault'
+import { getTranslations } from '@/data/flashcards'
 import { flashcardOverlayAtom, newFlashcardDataAtom } from '@/states'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -24,10 +25,17 @@ export const SearchFlashcardTranslationsModal = () => {
         ...prevState,
         translations: [
           ...(prevState.translations || []),
-          ...checked.filter(
-            (translation) =>
-              !(prevState.translations || []).includes(translation),
-          ),
+          ...checked
+            .filter(
+              (translation) =>
+                !(prevState.translations || []).some(
+                  (t) => t.textTranslation === translation,
+                ),
+            )
+            .map((translation) => ({
+              id: 0,
+              textTranslation: translation,
+            })),
         ],
       }))
 
@@ -37,19 +45,20 @@ export const SearchFlashcardTranslationsModal = () => {
 
   useEffect(() => {
     // buscar opções de tradução na API
+    const fetchTranslations = async () => {
+      const response = await getTranslations(newFlashcardData.keyword)
 
-    const translations = [
-      'cada',
-      'todo',
-      'sempre',
-      'qualquer',
-      'tudo',
-      'cada um',
-      'todas as',
-    ]
+      if (response.success && response.translations.length > 0) {
+        setTranslations(
+          response.translations.map((translation) => translation.sourceWord),
+        )
+      } else {
+        toast.warning('Não foram encontradas traduções')
+      }
+    }
 
-    setTranslations(translations)
-  }, [])
+    fetchTranslations()
+  }, [newFlashcardData.keyword])
 
   function handleSelectTranslation(translation: string) {
     if (!checked.includes(translation))

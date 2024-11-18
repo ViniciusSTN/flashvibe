@@ -42,6 +42,15 @@ export type SendUserPhotoInFirebaseType = (
   path: string,
 ) => Promise<ErrorResponse | SuccessResponseWithLink>
 
+export type SuccessResponseWithAllLinks = SuccessResponse & {
+  links: string[]
+}
+
+export type SendManyUserPhotosInFirebaseType = (
+  image: File[],
+  path: string,
+) => Promise<ErrorResponse | SuccessResponseWithAllLinks>
+
 export type UserLogOutType = (
   session: string,
   jwtToken: string,

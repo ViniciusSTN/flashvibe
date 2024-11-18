@@ -20,7 +20,7 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
 
   useEffect(() => {
     if (flashcardActive) {
-      const words = flashcardActive.front
+      const words = flashcardActive.mainPhrase
         .split(new RegExp(`(${flashcardActive.keyword})`, 'gi'))
         .map((part, index) =>
           part.toLowerCase() === flashcardActive.keyword.toLowerCase() ? (
@@ -48,7 +48,7 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
           audioRef.current.currentTime = 0
         }
 
-        const audio = new Audio(currentPronunciation.audio)
+        const audio = new Audio(currentPronunciation.audioUrl)
         audio.volume = 0.4
         audio.play()
         audioRef.current = audio
@@ -118,7 +118,11 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
               (flashcardActive.images.length > 3 ? (
                 <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center gap-5 lg:bottom-8">
                   <div className="relative">
-                    <FlashcardSlider sliders={flashcardActive.images} />
+                    <FlashcardSlider
+                      sliders={flashcardActive.images.map(
+                        (image) => image.fileUrl,
+                      )}
+                    />
                   </div>
                 </div>
               ) : (
@@ -173,7 +177,7 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
                       key={index}
                       className="rounded-md border border-clean-blue700 bg-clean-blue200 px-2 py-1 font-medium text-principal-blue vsm:text-lg"
                     >
-                      {translation}
+                      {translation.textTranslation}
                     </span>
                   ))}
                 </div>
@@ -186,7 +190,7 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
                 >
                   {flashcardActive.examples.map((example, index) => (
                     <p key={index} className="text-center">
-                      {example}
+                      {example.textExample}
                     </p>
                   ))}
                 </div>

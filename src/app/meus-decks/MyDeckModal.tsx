@@ -135,19 +135,21 @@ export const MyDeckModal = () => {
             </div>
           ) : (
             <div className="flex w-[286px] flex-col gap-3">
-              <ButtonDefault
-                text="Adicionar flashcards"
-                type="link"
-                link={`/criar-flashcard`}
-                style="dark"
-                radius="rounded-lg"
-                tailwind="w-full h-[50px]"
-              />
+              {deckActive.type === 'Custom Deck' && (
+                <ButtonDefault
+                  text="Adicionar flashcards"
+                  type="link"
+                  link={`/adicionar-flashcard?deckId=${deckActive.deckId}`}
+                  style="dark"
+                  radius="rounded-lg"
+                  tailwind="w-full h-[50px]"
+                />
+              )}
 
               <ButtonDefault
-                text="Editar flashcards"
+                text="Listar flashcards"
                 type="link"
-                link={`/editar-flashcards`}
+                link={`/flashcards?deckId=${deckActive.deckId}&pag=1`}
                 style="dark"
                 radius="rounded-lg"
                 tailwind="w-full h-[50px]"

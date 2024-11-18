@@ -176,8 +176,11 @@ export const StandardDecksSection = () => {
   }, [searchParams, amountPages, page])
 
   function handlePageButtonClick(page: number) {
+    const queryParams = new URLSearchParams(searchParams)
+    queryParams.set('pag', page.toString())
+
     setPageActive(page)
-    router.push(`/novo-deck/predefinido?pag=${page}`)
+    router.push(`/novo-deck/predefinido?${queryParams.toString()}`)
   }
 
   function handleShowFiltersClick() {

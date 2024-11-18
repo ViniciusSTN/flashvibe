@@ -6,9 +6,13 @@ import {
 } from '@/states'
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
+import { sendFlashcardFeedback } from '@/data/flashcards'
 import Image from 'next/image'
+import { FeedbackModalType } from '@/types/flashcard'
+import { useCookies } from '@/hooks/cookies'
+import { toast } from 'react-toastify'
 
-export const FeedbackModal = () => {
+export const FeedbackModal: FeedbackModalType = ({ deckId }) => {
   const [feedback, setFeedback] = useRecoilState(flashcardFeedbackAtom)
   const [flashcardsToStudy, setFlashcardsToStudy] = useRecoilState(
     flashcardsToStudyAtom,
@@ -17,35 +21,53 @@ export const FeedbackModal = () => {
 
   const [hoveredStars, setHoveredStars] = useState<number>(0)
 
+  const jwtToken = useCookies('Authorization')
+
   function handleStarClick(stars: number) {
     setFeedback({ ...feedback, active: true, stars })
   }
 
-  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    // console.log(feedback)
-    // enviar feedback para o backend atualizar no banco de dados
+    if (!jwtToken) return
 
-    setFeedback((prevState) => ({ ...prevState, active: false, stars: 0 }))
+    console.log(feedback)
 
-    if (
-      flashcardsToStudy &&
-      flashcardsToStudy.flashcards &&
-      flashcardsToStudy.flashcards.length > 0
-    ) {
-      setFlashcardsToStudy((prevState) => {
-        if (prevState) {
-          return {
-            flashcards: prevState.flashcards.slice(1),
-            deckName: prevState.deckName || '',
+    const response = await sendFlashcardFeedback(
+      feedback.flashcardId,
+      deckId,
+      feedback.stars,
+      jwtToken,
+    )
+
+    if (response.success) {
+      setFeedback((prevState) => ({
+        ...prevState,
+        active: false,
+        stars: 0,
+      }))
+
+      if (
+        flashcardsToStudy &&
+        flashcardsToStudy.flashcards &&
+        flashcardsToStudy.flashcards.length > 0
+      ) {
+        setFlashcardsToStudy((prevState) => {
+          if (prevState) {
+            return {
+              flashcards: prevState.flashcards.slice(1),
+              deckName: prevState.deckName,
+            }
           }
-        }
-        return prevState
-      })
-    }
+          return prevState
+        })
+      }
 
-    setFlashcardWasTurned(false)
+      setFlashcardWasTurned(false)
+    } else {
+      toast.error('Erro ao enviar feedback')
+    }
   }
 
   return (

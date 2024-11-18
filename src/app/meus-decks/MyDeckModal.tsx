@@ -127,7 +127,7 @@ export const MyDeckModal = () => {
               <ButtonDefault
                 text="Estudar"
                 type="link"
-                link={`/estudo?deck=passar-o-id-depois`}
+                link={`/estudar?deckId=${deckActive.deckId}`}
                 style="dark"
                 radius="rounded-lg"
                 tailwind="w-full h-[50px]"

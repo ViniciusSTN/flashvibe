@@ -17,14 +17,19 @@ export type PronunciationType = {
   audio: string
 }
 
-export type FlashcardDataType = {
-  flashcardId: number
-  front: string
+export type SendPronunciationType = {
   keyword: string
-  translations?: string[]
+  audioUrl: string
+}
+
+export type FlashcardDataType = {
+  id: number
+  keyword: string
+  mainPhrase: string
+  pronunciations: SendPronunciationType[]
+  translations: string[]
+  images: string[]
   examples: string[]
-  pronunciations?: string[]
-  images?: string[]
 }
 
 export type FlashcardErrorsType = {
@@ -37,11 +42,9 @@ export type FlashcardErrorsType = {
 }
 
 export type FlashcardFront = {
-  CreatedRecently: number
-  LastModification: number
   id: number
   keyword: string
-  main_phrase: string
+  mainPhrase: string
   situation: string
 }
 
@@ -96,14 +99,15 @@ export type FlashcardFiltersType = FlashcardFiltersDataType & {
   isActive: boolean
 }
 
-export type SuccessWithAllFlashcardsDataResponse = SuccessResponse & {
+export type SuccessWithDataToStudy = SuccessResponse & {
   deckName: string
   flashcards: FlashcardDataType[]
 }
 
 export type GetCardsToStudyType = (
   deckId: number,
-) => Promise<SuccessWithAllFlashcardsDataResponse | ErrorResponse>
+  jwtToken: string,
+) => Promise<SuccessWithDataToStudy | ErrorResponse>
 
 export type FlashcardsToStudyType = {
   flashcards: FlashcardDataType[]
@@ -249,11 +253,6 @@ export type SendTranslationType = {
   textTranslation: string
 }
 
-export type SendPronunciationType = {
-  keyword: string
-  audioUrl: string
-}
-
 export type SendImageType = {
   imageUrl: string
   description: string
@@ -308,3 +307,16 @@ export type FlashcardModalComponentProps = {
 export type FlashcardModalComponentType = (
   props: FlashcardModalComponentProps,
 ) => JSX.Element
+
+export type SendFlashcardFeedbackType = (
+  flashcardId: number,
+  deckId: number,
+  feedback: number,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponse>
+
+export type FeedbackModalProps = {
+  deckId: number
+}
+
+export type FeedbackModalType = (props: FeedbackModalProps) => JSX.Element

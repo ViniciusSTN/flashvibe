@@ -47,7 +47,7 @@ export const FaqsSection = () => {
                   active === index ? 'max-h-40' : 'max-h-0'
                 }`}
               >
-                <p className="pt-4">{faq.response}</p>
+                <p className="pt-4 text-lg font-medium">{faq.response}</p>
               </div>
             </div>
           ))}

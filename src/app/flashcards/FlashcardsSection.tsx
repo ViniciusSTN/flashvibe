@@ -87,6 +87,8 @@ export const FlashcardsSection = () => {
 
       const situations = searchParams.getAll('situation') || []
 
+      setFlashcardLoading(true)
+
       setFlashcards([])
       setAmountPages(0)
       setFlashcard(null)
@@ -258,7 +260,7 @@ export const FlashcardsSection = () => {
                 {flashcards.map((flashcard, index) => (
                   <li key={index} className="flex justify-center">
                     <ListedFlashcard
-                      front={flashcard.main_phrase}
+                      front={flashcard.mainPhrase}
                       keyword={flashcard.keyword}
                       disabled={loadingData}
                       onClick={() =>
@@ -291,7 +293,7 @@ export const FlashcardsSection = () => {
           ) : (
             <div className="h-[800px]">
               <h4 className="mt-32 text-center text-xl sm:mt-40 lg:mt-60">
-                Esse deck ainda não possui flashcards
+                Nenhum flashcard encontrado
               </h4>
             </div>
           )}

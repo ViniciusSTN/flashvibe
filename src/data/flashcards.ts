@@ -1,14 +1,16 @@
-import { flashcardsData } from '@/mocks/TemporaryFlashcards'
 import {
   CorrectSentenceType,
   CreateFlashcardType,
   DeleteFlashcardType,
+  FlashcardDataType,
+  FlashcardModalType,
   GetAllFlashcardDataType,
   GetCardsToStudyType,
   GetDeckFlashcardsType,
   GetExamplesSentencesType,
   GetPronunciationsType,
   GetTranslationsType,
+  SendFlashcardFeedbackType,
   UpdateFlashcard,
 } from '@/types/flashcard'
 import axios from 'axios'
@@ -57,7 +59,6 @@ export const getDeckFlashcards: GetDeckFlashcardsType = async (
 
   const params = new URLSearchParams()
 
-  // Adicionar orderBy diretamente
   const validOrderByValues = [
     'newer',
     'older',
@@ -108,26 +109,104 @@ export const getDeckFlashcards: GetDeckFlashcardsType = async (
   }
 }
 
-export const getCardsToStudy: GetCardsToStudyType = async (deckId) => {
+export const getCardsToStudy: GetCardsToStudyType = async (
+  deckId,
+  jwtToken,
+) => {
   console.log(deckId)
 
-  await new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, 1000)
-  })
+  const url =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
+    `/get-flashcards-for-study/${deckId}/`
 
-  if (flashcardsData) {
-    return {
-      success: true,
-      message: 'Deck encontrado',
-      flashcards: [...flashcardsData],
-      deckName: 'My English Words',
+  try {
+    const response = await axios.get(url, {
+      headers: { Authorization: jwtToken },
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios error getting flashcards to study:',
+        error.response?.data,
+      )
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error getting flashcards to study:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
     }
-  } else {
-    return {
-      success: false,
-      error: ['Falha ao obter dados de flashcards'],
+  }
+}
+
+export const convertFlashcardDataTypeToFlashcardModalType = (
+  data: FlashcardDataType,
+): FlashcardModalType => {
+  return {
+    keyword: data.keyword,
+    mainPhrase: data.mainPhrase,
+    examples: data.examples.map((example) => ({
+      id: 0,
+      textExample: example,
+    })),
+    translations: data.translations.map((translation) => ({
+      id: 0,
+      textTranslation: translation,
+    })),
+    pronunciations: data.pronunciations.map((pronunciation) => ({
+      id: 0,
+      keyword: pronunciation.keyword,
+      audioUrl: pronunciation.audioUrl,
+      voiceName: '',
+      sex: '',
+      country: '',
+    })),
+    images: data.images.map((image) => ({
+      id: 0,
+      fileUrl: image,
+    })),
+    turned: false,
+    flashcardId: data.id,
+  }
+}
+
+export const sendFlashcardFeedback: SendFlashcardFeedbackType = async (
+  flashcardId,
+  deckId,
+  feedback,
+  jwtToken,
+) => {
+  const url =
+    process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
+    `study_flashcard/${flashcardId}/${deckId}/${feedback}/`
+
+  console.log(flashcardId, deckId, feedback, jwtToken, url)
+
+  try {
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: jwtToken,
+        },
+      },
+    )
+
+    return response.data
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error sending feedback:', error.response?.data)
+      return {
+        success: false,
+        error: error.response?.data?.error || ['An unexpected error occurred'],
+      }
+    } else {
+      console.error('Error sending feedback:', error)
+      return { success: false, error: ['An unexpected error occurred'] }
     }
   }
 }

@@ -28,7 +28,11 @@ export const getAllUserDecks: GetAllUserDecksType = async (
     process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
     `/get-all-decks/${page}/?`
 
-  const urlWithType = baseUrl + (type !== 'all' ? `type=${type}` : '')
+  const urlWithType =
+    baseUrl +
+    (type !== 'all'
+      ? `type=${type.charAt(0).toUpperCase() + type.slice(1)}&`
+      : '&')
 
   const urlWithOrderBy = urlWithType + `orderBy=${orderBy}&`
 
@@ -41,6 +45,8 @@ export const getAllUserDecks: GetAllUserDecksType = async (
   const finalUrl =
     urlWithFlashcards +
     (situationsParams.length > 0 ? `${situationsParams}` : '')
+
+  console.log(finalUrl)
 
   try {
     const response = await axios.get(finalUrl, {

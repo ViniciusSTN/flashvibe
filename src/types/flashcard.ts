@@ -37,20 +37,29 @@ export type FlashcardErrorsType = {
 }
 
 export type FlashcardFront = {
-  flashcardId: number
+  CreatedRecently: number
+  LastModification: number
+  id: number
   keyword: string
-  front: string
+  main_phrase: string
+  situation: string
 }
 
 export type SuccessWithFlashcardsResponse = SuccessResponse & {
-  flashcards: FlashcardFront[]
-  lastPage: number
-  deckName: string
+  flashcard: FlashcardFront[]
+  deck: string
+  hasNext: boolean
+  hasPrevious: boolean
+  pageNumber: number
+  totalPages: number
 }
 
 export type GetDeckFlashcardsType = (
   deckId: number,
   page: number,
+  orderBy: string,
+  situations: string[],
+  jwtToken: string,
 ) => Promise<SuccessWithFlashcardsResponse | ErrorResponse>
 
 export type ListedFlashcardProps = {
@@ -290,4 +299,12 @@ export type DeleteFlashcardModalProps = {
 
 export type DeleteFlashcardModalType = (
   props: DeleteFlashcardModalProps,
+) => JSX.Element
+
+export type FlashcardModalComponentProps = {
+  deckId: number
+}
+
+export type FlashcardModalComponentType = (
+  props: FlashcardModalComponentProps,
 ) => JSX.Element

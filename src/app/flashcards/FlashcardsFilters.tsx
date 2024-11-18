@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { useRecoilState } from 'recoil'
 import { flashcardFiltersAtom } from '@/states/atoms/filters'
-import { FlashcardFiltersDataType } from '@/types/flashcard'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { FlashcardFiltersType } from '@/types/flashcard'
 import Image from 'next/image'
 
-const defaultData: FlashcardFiltersDataType = {
+const defaultData: FlashcardFiltersType = {
+  isActive: true,
   searchBy: 'lastModifications',
   situation: {
     new: true,
@@ -15,16 +17,20 @@ const defaultData: FlashcardFiltersDataType = {
 }
 
 export const FlashcardsFilters = () => {
-  const [filterData, setFilterData] =
-    useState<FlashcardFiltersDataType>(defaultData)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [flashcardFilters, setFlashcardFilters] =
+    useRecoilState(flashcardFiltersAtom)
+
+  // const [flashcardFilters, setflashcardFilters] = useState<FlashcardFiltersDataType>(
+  //   () => flashcardFilters ?? defaultData,
+  // )
 
   const [hidden, setHidden] = useState({
     searchBy: false,
     situation: false,
   })
-
-  const [flashcardFilters, setFlashcardFilters] =
-    useRecoilState(flashcardFiltersAtom)
 
   const handleHiddenClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -49,7 +55,7 @@ export const FlashcardsFilters = () => {
       value === 'mostReviewed' ||
       value === 'lessReviewed'
     ) {
-      setFilterData((prevState) => ({
+      setFlashcardFilters((prevState) => ({
         ...prevState,
         searchBy: value,
       }))
@@ -62,7 +68,7 @@ export const FlashcardsFilters = () => {
     const { value } = event.target
 
     if (value === 'new' || value === 'learning' || value === 'reviewing') {
-      setFilterData((prevState) => ({
+      setFlashcardFilters((prevState) => ({
         ...prevState,
         situation: {
           ...prevState.situation,
@@ -73,7 +79,7 @@ export const FlashcardsFilters = () => {
   }
 
   const handleResetClick = () => {
-    setFilterData({
+    setFlashcardFilters({
       ...defaultData,
     })
   }
@@ -81,11 +87,39 @@ export const FlashcardsFilters = () => {
   const handleFilterSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
+    const queryParams = new URLSearchParams()
+
+    queryParams.set('searchBy', flashcardFilters.searchBy)
+
+    Object.keys(flashcardFilters.situation).forEach((key) => {
+      if (
+        flashcardFilters.situation[
+          key as keyof typeof flashcardFilters.situation
+        ]
+      ) {
+        queryParams.append('situation', key)
+      }
+    })
+
+    const page = searchParams.get('pag') || '1'
+    const deckId = searchParams.get('deckId')
+
+    router.replace(
+      `/flashcards?deckId=${deckId}&pag=${page}&${queryParams.toString()}`,
+    )
+
     setFlashcardFilters((prevState) => ({
       ...prevState,
-      ...filterData,
+      ...flashcardFilters,
     }))
   }
+
+  // useEffect(() => {
+  //   setFlashcardFilters((prevState) => ({
+  //     ...prevState,
+  //     ...flashcardFilters,
+  //   }))
+  // }, [flashcardFilters, setFlashcardFilters])
 
   return (
     <form
@@ -128,7 +162,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="newer"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'newer'}
+              checked={flashcardFilters.searchBy === 'newer'}
             />
             <span>Mais novos</span>
           </label>
@@ -139,7 +173,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="older"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'older'}
+              checked={flashcardFilters.searchBy === 'older'}
             />
             <span>Mais antigos</span>
           </label>
@@ -150,7 +184,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="lastModifications"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'lastModifications'}
+              checked={flashcardFilters.searchBy === 'lastModifications'}
             />
             <span>Modificações recentes</span>
           </label>
@@ -161,7 +195,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="lastStudied"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'lastStudied'}
+              checked={flashcardFilters.searchBy === 'lastStudied'}
             />
             <span>Últimos estudados</span>
           </label>
@@ -172,7 +206,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="mostReviewed"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'mostReviewed'}
+              checked={flashcardFilters.searchBy === 'mostReviewed'}
             />
             <span>Mais revisados</span>
           </label>
@@ -183,7 +217,7 @@ export const FlashcardsFilters = () => {
               name="sort"
               value="lessReviewed"
               onChange={handleSearchByChange}
-              checked={filterData.searchBy === 'lessReviewed'}
+              checked={flashcardFilters.searchBy === 'lessReviewed'}
             />
             <span>Menos revisados</span>
           </label>
@@ -219,7 +253,7 @@ export const FlashcardsFilters = () => {
               name="situation"
               value="new"
               onChange={handleSituationChange}
-              checked={filterData.situation.new}
+              checked={flashcardFilters.situation.new}
             />
             <span>Novo</span>
           </label>
@@ -230,7 +264,7 @@ export const FlashcardsFilters = () => {
               name="situation"
               value="learning"
               onChange={handleSituationChange}
-              checked={filterData.situation.learning}
+              checked={flashcardFilters.situation.learning}
             />
             <span>Aprendendo</span>
           </label>
@@ -241,7 +275,7 @@ export const FlashcardsFilters = () => {
               name="situation"
               value="reviewing"
               onChange={handleSituationChange}
-              checked={filterData.situation.reviewing}
+              checked={flashcardFilters.situation.reviewing}
             />
             <span>Revisando</span>
           </label>

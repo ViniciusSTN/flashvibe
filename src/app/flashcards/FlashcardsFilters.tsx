@@ -114,13 +114,6 @@ export const FlashcardsFilters = () => {
     }))
   }
 
-  // useEffect(() => {
-  //   setFlashcardFilters((prevState) => ({
-  //     ...prevState,
-  //     ...flashcardFilters,
-  //   }))
-  // }, [flashcardFilters, setFlashcardFilters])
-
   return (
     <form
       className={`absolute z-10 mt-5 max-h-0 max-w-310px overflow-hidden bg-white transition-all duration-200 ease-in ${

@@ -6,39 +6,39 @@ import {
   FlashcardsToStudyType,
   FeedbackType,
 } from '@/types/flashcard'
-import { atom, AtomEffect } from 'recoil'
+import { atom } from 'recoil'
 
-const localStorageEffect: (
-  key: string,
-) => AtomEffect<FlashcardsToStudyType | null> =
-  (key) =>
-  ({ setSelf, onSet }) => {
-    if (typeof window === 'undefined') {
-      return
-    }
+// const localStorageEffect: (
+//   key: string,
+// ) => AtomEffect<FlashcardsToStudyType | null> =
+//   (key) =>
+//   ({ setSelf, onSet }) => {
+//     if (typeof window === 'undefined') {
+//       return
+//     }
 
-    try {
-      const savedValue = localStorage.getItem(key)
-      if (savedValue !== null) {
-        setSelf(JSON.parse(savedValue)) // Aqui pode ser um objeto ou null
-      }
-    } catch (error) {
-      console.error(`Erro ao recuperar ${key} do localStorage:`, error)
-      setSelf(null) // Caso ocorra erro, reseta para null
-    }
+//     try {
+//       const savedValue = localStorage.getItem(key)
+//       if (savedValue !== null) {
+//         setSelf(JSON.parse(savedValue))
+//       }
+//     } catch (error) {
+//       console.error(`Erro ao recuperar ${key} do localStorage:`, error)
+//       setSelf(null)
+//     }
 
-    onSet((newValue, _, isReset) => {
-      try {
-        if (isReset) {
-          localStorage.removeItem(key)
-        } else {
-          localStorage.setItem(key, JSON.stringify(newValue)) // Armazena o objeto ou null
-        }
-      } catch (error) {
-        console.error(`Erro ao salvar ${key} no localStorage:`, error)
-      }
-    })
-  }
+//     onSet((newValue, _, isReset) => {
+//       try {
+//         if (isReset) {
+//           localStorage.removeItem(key)
+//         } else {
+//           localStorage.setItem(key, JSON.stringify(newValue))
+//         }
+//       } catch (error) {
+//         console.error(`Erro ao salvar ${key} no localStorage:`, error)
+//       }
+//     })
+//   }
 
 export const newFlashcardDataAtom = atom<FlashcardType>({
   key: 'newFlashcardData',
@@ -77,7 +77,7 @@ export const flashcardModalAtom = atom<FlashcardModalType>({
 export const flashcardsToStudyAtom = atom<FlashcardsToStudyType>({
   key: 'flashcardsToStudy',
   default: null,
-  effects: [localStorageEffect('flashcards_to_study')],
+  // effects: [localStorageEffect('flashcards_to_study')],
 })
 
 export const flashcardFeedbackAtom = atom<FeedbackType>({

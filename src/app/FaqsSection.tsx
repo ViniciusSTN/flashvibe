@@ -19,10 +19,10 @@ export const FaqsSection = () => {
         </h2>
         <div className="flex flex-col gap-6 px-6 md:px-10">
           {faqs.map((faq, index) => (
-            <div
+            <button
               key={index}
               onClick={() => handleClick(index)}
-              className={`relative select-none rounded bg-light-blue200 py-7 pl-6 pr-20 transition-colors ${
+              className={`relative select-none rounded bg-light-blue200 py-7 pl-6 pr-20 text-start transition-colors ${
                 active === index && 'border border-light-blue800'
               }`}
             >
@@ -49,7 +49,7 @@ export const FaqsSection = () => {
               >
                 <p className="pt-4 text-lg font-medium">{faq.response}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>

@@ -181,7 +181,7 @@ export const sendFlashcardFeedback: SendFlashcardFeedbackType = async (
 ) => {
   const url =
     process.env.NEXT_PUBLIC_API_DECKS_AND_FLASHCARDS +
-    `study_flashcard/${flashcardId}/${deckId}/${feedback}/`
+    `/study-flashcard/${flashcardId}/${deckId}/${feedback}/`
 
   console.log(flashcardId, deckId, feedback, jwtToken, url)
 

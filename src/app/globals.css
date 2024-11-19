@@ -46,10 +46,6 @@ input[type='number'] {
   border: 2px solid rgb(255, 0, 0);
 }
 
-.inputFileOnButton {
-  
-}
-
 /* Loader - RotatingClipLoader  */
 .rotatingClipLoader {
   width: 50px;

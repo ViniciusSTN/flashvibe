@@ -351,7 +351,7 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
           )
 
           if (response.success) {
-            toast.success('Deck criado com sucesso')
+            toast.success('Flashcard criado com sucesso')
             router.push(`/flashcards?deckId=${deckId}`)
           } else {
             toast.error('Erro ao criar flashcard')
@@ -377,7 +377,7 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
           )
 
           if (response.success) {
-            toast.success('Deck atualizado com sucesso')
+            toast.success('Flashcard atualizado com sucesso')
             router.push(`/flashcards?deckId=${deckId}`)
           } else {
             toast.error('Erro ao atualizar flashcard')
@@ -401,7 +401,7 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
         )
 
         if (response.success) {
-          toast.success('Deck criado com sucesso')
+          toast.success('Flashcard criado com sucesso')
           router.push(`/flashcards?deckId=${deckId}`)
         } else {
           toast.error('Erro ao criar flashcard')
@@ -427,7 +427,7 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
         )
 
         if (response.success) {
-          toast.success('Deck atualizado com sucesso')
+          toast.success('Flashcard atualizado com sucesso')
           router.push(`/flashcards?deckId=${deckId}`)
         } else {
           toast.error('Erro ao atualizar flashcard')

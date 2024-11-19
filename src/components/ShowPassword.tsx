@@ -1,6 +1,6 @@
 import { showPasswordAtom } from '@/states'
-import Image from 'next/image'
 import { useRecoilState } from 'recoil'
+import Image from 'next/image'
 
 export const ShowPassword = () => {
   const [showPassword, setShowPassword] = useRecoilState(showPasswordAtom)

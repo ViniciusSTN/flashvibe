@@ -11,10 +11,10 @@ import { loginWithEmailSchema, loginWithPhoneNumber } from '@/schemas/login'
 import { UserCredentials } from '@/types/firebaseUser'
 import { FormLoginErrors, FormLoginValues, InputName } from '@/types/login'
 import { AuthError, signInWithEmailAndPassword } from 'firebase/auth'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import Link from 'next/link'
 
 const initialValues: FormLoginValues = {
   user: '',

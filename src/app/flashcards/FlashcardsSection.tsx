@@ -109,8 +109,6 @@ export const FlashcardsSection = () => {
         toast.warning('Nenhum flashcard encontrado')
       }
 
-      console.log(response)
-
       setFlashcardLoading(false)
     }
 

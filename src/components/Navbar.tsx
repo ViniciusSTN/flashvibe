@@ -91,7 +91,7 @@ export const Navbar: NavbarType = ({ items, loginItems, mobile }) => {
           </button>
 
           <div
-            className={`absolute inset-0 z-40 bg-black transition-opacity duration-300 ${
+            className={`fixed inset-0 z-40 bg-black transition-opacity duration-300 ${
               menuOpened ? 'opacity-95' : 'pointer-events-none opacity-0'
             }`}
           ></div>

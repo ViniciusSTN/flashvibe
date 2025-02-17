@@ -22,8 +22,8 @@ export const items: NavItemProps[] = [
         link: '/decks-comunidade',
       },
       {
-        name: 'Fórum de discuções',
-        link: '/forum',
+        name: 'Fórum de discussões',
+        link: '/forum-de-discussoes?pag=1&orderBy=newer',
       },
     ],
   },

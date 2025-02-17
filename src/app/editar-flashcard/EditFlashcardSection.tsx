@@ -58,8 +58,6 @@ export const EditFlashcardSection = () => {
         jwtToken,
       )
 
-      console.log('resposta: ', response)
-
       if (response.success) {
         setFlashcardData(response.flashcard)
       } else {

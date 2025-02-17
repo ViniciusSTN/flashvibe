@@ -28,7 +28,6 @@ export const EditFlashcardPronunciationsModal = () => {
       const newPronunciations = checked.filter(
         (pronunciation) => !existingAudios.includes(pronunciation.voiceName),
       )
-      console.log(checked)
       setNewFlashcardData((prevState) => ({
         ...prevState,
         pronunciations: [

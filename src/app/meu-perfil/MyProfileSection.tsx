@@ -137,7 +137,6 @@ export const MyProfileSection = () => {
     setSending(true)
 
     const sendData = { ...userData, phone: cleanPhone }
-    // console.log(sendData)
 
     const validation = userDataSchema.safeParse(sendData)
 

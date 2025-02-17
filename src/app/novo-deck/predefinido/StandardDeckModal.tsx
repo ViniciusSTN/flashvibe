@@ -17,8 +17,6 @@ export const StandardDeckModal = () => {
   const jwtToken = useCookies('Authorization')
 
   const handleAddDeck = async () => {
-    // console.log('adicionando')
-
     setLoading(true)
 
     if (jwtToken && deckActive) {

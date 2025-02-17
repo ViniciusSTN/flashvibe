@@ -71,3 +71,9 @@ export const study: Metadata = {
   description:
     'Aprofunde-se nos seus estudos com o FlashVibe. Revise seus decks, pratique seus flashcards e melhore sua fluência em inglês de forma personalizada e interativa. Aproveite as ferramentas que facilitam o aprendizado com áudios, traduções e exemplos.',
 }
+
+export const discussion: Metadata = {
+  title: 'Fórum de discussões',
+  description:
+    'Participe do fórum de discussões do FlashVibe e troque conhecimentos com outros estudantes. Faça perguntas, compartilhe dicas e aprenda com a comunidade para aprimorar ainda mais o seu inglês.',
+}

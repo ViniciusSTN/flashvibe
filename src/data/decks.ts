@@ -46,8 +46,6 @@ export const getAllUserDecks: GetAllUserDecksType = async (
     urlWithFlashcards +
     (situationsParams.length > 0 ? `${situationsParams}` : '')
 
-  console.log(finalUrl)
-
   try {
     const response = await axios.get(finalUrl, {
       headers: {

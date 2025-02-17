@@ -70,8 +70,6 @@ export const StudySection = () => {
     const fetchCards = async () => {
       const response = await getCardsToStudy(Number(deckId), jwtToken)
 
-      console.log(response)
-
       if (response.success) {
         setFlashcardsToStudy({
           flashcards: response.flashcards,

@@ -32,8 +32,6 @@ export const FeedbackModal: FeedbackModalType = ({ deckId }) => {
 
     if (!jwtToken) return
 
-    console.log(feedback)
-
     const response = await sendFlashcardFeedback(
       feedback.flashcardId,
       deckId,

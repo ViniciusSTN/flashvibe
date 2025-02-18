@@ -95,7 +95,7 @@ export const DiscussionSection = () => {
         <ul className="divide-y divide-light-gray250 border-y border-light-gray250">
           {discussions.map((discussion) => (
             <li key={discussion.id}>
-              <Link href={`forum-de-discussao/${discussion.id}`}>
+              <Link href={`forum-de-discussoes/${discussion.id}`}>
                 <div className="flex flex-col gap-3 pb-3 pt-8">
                   <h2 className="text-xl font-semibold">{discussion.title}</h2>
 

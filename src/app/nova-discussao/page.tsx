@@ -2,16 +2,16 @@ import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import { Metadata } from 'next'
 import { discussion } from '@/mocks/metadatas'
-import { DiscussionSection } from './DiscussionSection'
+import { NewDiscussionSection } from './NewDiscussionSection'
 
 export const metadata: Metadata = { ...discussion }
 
-export default function DiscussionForum() {
+export default function NewDiscussion() {
   return (
     <>
       <Header />
       <main>
-        <DiscussionSection />
+        <NewDiscussionSection />
       </main>
       <Footer theme="dark" />
     </>

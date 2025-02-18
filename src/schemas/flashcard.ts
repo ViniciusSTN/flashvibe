@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-const MAX_FILE_SIZE = 1000000
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-]
-
 export const frontSchema = z.object({
   mainPhrase: z
     .string()
@@ -28,28 +20,6 @@ export const exampleSchema = z.object({
     .min(1, { message: 'Deve conter ao menos 1 caractere' })
     .max(100, { message: 'O exemplo deve ter menos que 100 caracateres' }),
 })
-
-export const imageValidations = z.array(
-  z
-    .any()
-    .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: `A imagem deve ser menor que 1MB`,
-    })
-    .refine(
-      (file) => {
-        const isValidType = ACCEPTED_IMAGE_TYPES.includes(file.type)
-        const isValidExtension =
-          file.name.endsWith('.jpg') ||
-          file.name.endsWith('.jpeg') ||
-          file.name.endsWith('.png') ||
-          file.name.endsWith('.webp')
-        return isValidType && isValidExtension
-      },
-      {
-        message: 'Somente .jpg, .jpeg, .png e .webp são formatos suportados',
-      },
-    ),
-)
 
 export const createFlashcardSchema = z.object({
   mainPhrase: z

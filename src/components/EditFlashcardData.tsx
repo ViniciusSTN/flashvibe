@@ -2,11 +2,8 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
-import {
-  createFlashcardSchema,
-  frontSchema,
-  imageValidations,
-} from '@/schemas/flashcard'
+import { createFlashcardSchema, frontSchema } from '@/schemas/flashcard'
+import { imageValidations } from '@/schemas/images'
 import {
   flashcardOverlayAtom,
   newFlashcardDataAtom,

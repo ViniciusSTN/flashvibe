@@ -40,3 +40,39 @@ export type NewDiscussionErrors = {
   description: string[]
   images: string[]
 }
+
+export type AnswerType = {
+  userName: string
+  answer: string
+  userImage: string
+  likes: number
+}
+
+export type DiscussionType = {
+  title: string
+  description: string
+  likes: number
+  userName: string
+  userImage: string
+  images: string[]
+  answers: AnswerType[]
+}
+
+export type SuccessResponseWithFullDiscussionData = SuccessResponse & {
+  data: DiscussionType
+}
+
+export type GetDiscussionDataType = (
+  id: number,
+) => Promise<ErrorResponse | SuccessResponseWithFullDiscussionData>
+
+export type TopicAreaProps = {
+  title: string
+  description: string
+  images: string[]
+  userName: string
+  userImage: string
+  likes: number
+}
+
+export type TopicAreaType = (props: TopicAreaProps) => JSX.Element

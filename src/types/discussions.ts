@@ -28,3 +28,15 @@ export type DiscussionHeaderProps = {
 }
 
 export type DiscussionHeaderType = (props: DiscussionHeaderProps) => JSX.Element
+
+export type NewDiscussionData = {
+  title: string
+  description: string
+  images: File[]
+}
+
+export type NewDiscussionErrors = {
+  title: string[]
+  description: string[]
+  images: string[]
+}

@@ -8,7 +8,7 @@ import { imageValidations } from '@/schemas/images'
 import { NewDiscussionData, NewDiscussionErrors } from '@/types/discussions'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import discussionSchema from '@/schemas/discussion'
+import { discussionSchema } from '@/schemas/discussion'
 import Image from 'next/image'
 
 const initialData: NewDiscussionData = {

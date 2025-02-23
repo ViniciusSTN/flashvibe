@@ -113,36 +113,38 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
               </div>
             </div>
 
-            {flashcardActive.images &&
-              flashcardActive.images.length > 0 &&
-              (flashcardActive.images.length > 3 ? (
-                <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center gap-5 lg:bottom-8">
-                  <div className="relative">
-                    <FlashcardSlider
-                      sliders={flashcardActive.images.map(
-                        (image) => image.fileUrl,
-                      )}
+            {flashcardActive.images && flashcardActive.images.length > 3 && (
+              <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center gap-5 lg:bottom-8">
+                <div className="relative">
+                  <FlashcardSlider
+                    sliders={flashcardActive.images.map(
+                      (image) => image.fileUrl,
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {flashcardActive.images && flashcardActive.images.length <= 3 && (
+              <div className="mt-20 flex w-full max-w-full flex-wrap justify-center gap-5">
+                {flashcardActive.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className="max-h-[200px] max-w-[200px] flex-1 object-center"
+                  >
+                    <img
+                      src={
+                        typeof image.fileUrl === 'string'
+                          ? image.fileUrl
+                          : URL.createObjectURL(image.fileUrl)
+                      }
+                      alt="imagem de exemplo"
+                      className="h-full w-full object-contain"
                     />
                   </div>
-                </div>
-              ) : (
-                <div className="mt-20 flex w-full max-w-full justify-center gap-5">
-                  {flashcardActive.images.map((image, index) =>
-                    typeof image === 'string' ? (
-                      <div
-                        key={index}
-                        className="max-h-[200px] max-w-[200px] flex-1 object-center"
-                      >
-                        <img
-                          src={image}
-                          alt="imagem de exemplo"
-                          className="object-contain"
-                        />
-                      </div>
-                    ) : null,
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Verso do Flashcard */}

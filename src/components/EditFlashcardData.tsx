@@ -808,14 +808,16 @@ export const EditFlashcardData: EditFlashcardDataType = ({ deckId }) => {
             tailwind="w-[175px] h-[42px]"
           />
 
-          <ButtonDefault
-            text="Deletar flashcard"
-            type="button"
-            style="outDark"
-            radius="rounded-md"
-            tailwind="w-[175px] h-[42px]"
-            onClick={() => setOverlay('delete')}
-          />
+          {editing && (
+            <ButtonDefault
+              text="Deletar flashcard"
+              type="button"
+              style="outDark"
+              radius="rounded-md"
+              tailwind="w-[175px] h-[42px]"
+              onClick={() => setOverlay('delete')}
+            />
+          )}
 
           <ButtonDefault
             text={`${editing ? 'Editar flashcard' : 'Criar flashcard'}`}

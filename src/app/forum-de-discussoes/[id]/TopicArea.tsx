@@ -1,7 +1,7 @@
 import { UserIconDefault } from '@/components/UserIconDefault'
 import { TopicAreaType } from '@/types/discussions'
-import Image from 'next/image'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export const TopicArea: TopicAreaType = ({
   title,

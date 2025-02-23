@@ -2,14 +2,18 @@ import { ButtonDefault } from '@/components/ButtonDefault'
 import { OrderByDefault } from '@/components/OrderByDefault'
 import { UserIconDefault } from '@/components/UserIconDefault'
 import { discussionAnswersOrderBy } from '@/mocks/orderBy'
-import { orderByAtom } from '@/states'
+import { answerModalActiveAtom, orderByAtom } from '@/states'
 import { AnswersAreaType } from '@/types/discussions'
-import Image from 'next/image'
 import { useState } from 'react'
 import { useRecoilState } from 'recoil'
+import { AnswerModal } from './AnswerModal'
+import Image from 'next/image'
 
-export const AnswersArea: AnswersAreaType = ({ answers }) => {
+export const AnswersArea: AnswersAreaType = ({ answers, title }) => {
   const [orderBy, setOrderBy] = useRecoilState(orderByAtom)
+  const [isAnswerModalActive, setIsAnswerModalActive] = useRecoilState(
+    answerModalActiveAtom,
+  )
 
   const [likedAnswers, setLikedAnswers] = useState<{ [key: string]: boolean }>(
     {},
@@ -20,6 +24,7 @@ export const AnswersArea: AnswersAreaType = ({ answers }) => {
 
   const handleAnswerClick = () => {
     // abrir modal de resposta
+    setIsAnswerModalActive(true)
   }
 
   const handleLikeClick = async (answerId: number) => {
@@ -38,15 +43,17 @@ export const AnswersArea: AnswersAreaType = ({ answers }) => {
   }
 
   return (
-    <div>
-      <div className="mb-10 flex items-center justify-between">
+    <>
+      {isAnswerModalActive && <AnswerModal title={title} />}
+
+      <h2 className="mb-4 text-center text-xl font-semibold">Respostas</h2>
+
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-6">
         <OrderByDefault
           activeOrder={orderBy}
           setActiveOrder={setOrderBy}
           options={discussionAnswersOrderBy}
         />
-
-        <h2 className="text-lg font-semibold">Respostas</h2>
 
         <ButtonDefault
           text="Responder"
@@ -69,7 +76,7 @@ export const AnswersArea: AnswersAreaType = ({ answers }) => {
                 key={answer.id}
                 className="border-y border-light-gray225 px-8 pb-6 pt-8"
               >
-                <p>{answer.answer}</p>
+                <p className="mb-4">{answer.answer}</p>
 
                 <div className="flex items-center justify-between">
                   <UserIconDefault
@@ -111,6 +118,6 @@ export const AnswersArea: AnswersAreaType = ({ answers }) => {
           })}
         </ul>
       )}
-    </div>
+    </>
   )
 }

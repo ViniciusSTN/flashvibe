@@ -85,8 +85,6 @@ export const getDeckFlashcards: GetDeckFlashcardsType = async (
 
   const url = `${baseUrl}${params.toString()}`
 
-  console.log(url)
-
   try {
     const response = await axios.get(url, {
       headers: {

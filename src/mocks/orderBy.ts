@@ -14,3 +14,14 @@ export const discussionOrderBy: OrderByStateType[] = [
     value: 'answers',
   },
 ]
+
+export const discussionAnswersOrderBy: OrderByStateType[] = [
+  {
+    text: 'Recentes',
+    value: 'newer',
+  },
+  {
+    text: 'Curtidas',
+    value: 'likes',
+  },
+]

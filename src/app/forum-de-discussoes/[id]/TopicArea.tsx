@@ -1,3 +1,4 @@
+import { UserIconDefault } from '@/components/UserIconDefault'
 import { TopicAreaType } from '@/types/discussions'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -28,7 +29,7 @@ export const TopicArea: TopicAreaType = ({
   }
 
   return (
-    <div className="border-y border-light-gray225 px-8 pb-6 pt-8">
+    <div className="mb-8 border-y border-light-gray225 px-8 pb-6 pt-8">
       <h2 className="mb-4 text-center text-lg font-semibold capitalize">
         {title}
       </h2>
@@ -55,18 +56,7 @@ export const TopicArea: TopicAreaType = ({
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span>
-            <Image
-              src={userImage}
-              alt="Foto do usuário"
-              width={42}
-              height={42}
-              className="h-[42px] w-[42px] rounded-full"
-            />
-          </span>
-          <p className="font-semibold">{userName}</p>
-        </div>
+        <UserIconDefault userName={userName} userImage={userImage} />
 
         <div className="flex items-center justify-center gap-1">
           <button onClick={handleLikeClick} disabled={likeLoader}>

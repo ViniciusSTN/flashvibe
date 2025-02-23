@@ -64,7 +64,7 @@ export const DiscussionSection = () => {
             likes={discussionData.likes}
           />
 
-          <AnswersArea />
+          <AnswersArea answers={discussionData.answers} />
         </>
       )}
     </section>

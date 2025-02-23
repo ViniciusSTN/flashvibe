@@ -42,6 +42,7 @@ export type NewDiscussionErrors = {
 }
 
 export type AnswerType = {
+  id: number
   userName: string
   answer: string
   userImage: string
@@ -76,3 +77,9 @@ export type TopicAreaProps = {
 }
 
 export type TopicAreaType = (props: TopicAreaProps) => JSX.Element
+
+export type AnswersAreaProps = {
+  answers: AnswerType[]
+}
+
+export type AnswersAreaType = (props: AnswersAreaProps) => JSX.Element

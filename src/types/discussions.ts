@@ -65,6 +65,7 @@ export type SuccessResponseWithFullDiscussionData = SuccessResponse & {
 
 export type GetDiscussionDataType = (
   id: number,
+  orderBy: string,
 ) => Promise<ErrorResponse | SuccessResponseWithFullDiscussionData>
 
 export type TopicAreaProps = {
@@ -80,6 +81,13 @@ export type TopicAreaType = (props: TopicAreaProps) => JSX.Element
 
 export type AnswersAreaProps = {
   answers: AnswerType[]
+  title: string
 }
 
 export type AnswersAreaType = (props: AnswersAreaProps) => JSX.Element
+
+export type AnswerProps = {
+  title: string
+}
+
+export type AnswerModalType = (props: AnswerProps) => JSX.Element

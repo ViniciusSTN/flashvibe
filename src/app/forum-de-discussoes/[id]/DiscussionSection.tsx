@@ -8,22 +8,25 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { TopicArea } from './TopicArea'
 import { AnswersArea } from './AnswersArea'
+import { useRecoilValue } from 'recoil'
+import { orderByAtom } from '@/states'
 
 export const DiscussionSection = () => {
-  const [loader, serLoader] = useState<boolean>(true)
+  const [loader, setLoader] = useState<boolean>(true)
   const [discussionData, setDiscussionData] = useState<DiscussionType>()
+  const activeOrderBy = useRecoilValue(orderByAtom)
 
   const pathname = usePathname()
 
+  const parts = pathname.split('/')
+  const index = parts.indexOf('forum-de-discussoes')
+  const id = Number(parts[index + 1])
+
   useEffect(() => {
-    const parts = pathname.split('/')
-    const index = parts.indexOf('forum-de-discussoes')
-    const id = Number(parts[index + 1])
-
     const fetchDiscussion = async (id: number) => {
-      serLoader(true)
+      setLoader(true)
 
-      const response = await getDiscussionData(id)
+      const response = await getDiscussionData(id, activeOrderBy.value)
 
       if (response.success) {
         setDiscussionData(response.data)
@@ -31,11 +34,11 @@ export const DiscussionSection = () => {
         toast.warn('Não foi possível encontrar a discussão')
       }
 
-      serLoader(false)
+      setLoader(false)
     }
 
     if (index !== -1 && id) fetchDiscussion(id)
-  }, [pathname])
+  }, [pathname, id, index, activeOrderBy])
 
   return (
     <section className="mx-auto mb-24 mt-16 min-h-screen-header max-w-1440px px-6 md:px-10">
@@ -64,7 +67,10 @@ export const DiscussionSection = () => {
             likes={discussionData.likes}
           />
 
-          <AnswersArea answers={discussionData.answers} />
+          <AnswersArea
+            answers={discussionData.answers}
+            title={discussionData.title}
+          />
         </>
       )}
     </section>

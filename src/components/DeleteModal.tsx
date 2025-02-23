@@ -47,7 +47,7 @@ export const DeleteModal = () => {
   return (
     <>
       <button
-        aria-hidden={!deckDelete.modalActive}
+        // aria-hidden={!deckDelete.modalActive}
         className={`fixed inset-0 z-50 bg-black transition-opacity ${
           !deckDelete.modalActive
             ? 'pointer-events-none opacity-0'

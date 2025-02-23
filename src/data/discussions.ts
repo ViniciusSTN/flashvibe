@@ -24,10 +24,10 @@ export const getAllDiscussions: GetAllDiscussionsType = async (
   })
 }
 
-export const getDiscussionData: GetDiscussionDataType = async (id) => {
+export const getDiscussionData: GetDiscussionDataType = async (id, orderBy) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log(id)
+      console.log(id, orderBy)
 
       resolve({
         success: true,
@@ -57,6 +57,15 @@ export const getDiscussionData: GetDiscussionDataType = async (id) => {
               userImage:
                 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/users%2F1731285705627-304930_6.jpg?alt=media&token=9ee7f664-d338-46e3-b9fd-eae66319f96c',
               likes: 10,
+            },
+            {
+              id: 2,
+              userName: 'Usuário321',
+              answer:
+                'simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
+              userImage:
+                'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/users%2F1731285705627-304930_6.jpg?alt=media&token=9ee7f664-d338-46e3-b9fd-eae66319f96c',
+              likes: 5,
             },
           ],
         },

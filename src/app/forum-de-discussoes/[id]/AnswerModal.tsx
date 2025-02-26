@@ -62,6 +62,17 @@ export const AnswerModal: AnswerModalType = ({ title }) => {
         className="fixed left-1/2 top-1/2 z-50 max-h-screen w-72 -translate-x-1/2 -translate-y-1/2 overflow-y-scroll bg-white p-6 vsm:w-520px vsm:p-8 md:w-718px md:p-12"
         onSubmit={handleFormSubmit}
       >
+        <button
+          className="absolute right-2 top-2"
+          onClick={() => setIsActive(false)}
+        >
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-svgrepo-com.svg?alt=media&token=f5a52b8f-6f12-4716-a4ab-91201310fc4d"
+            alt="Fechar imagem"
+            className="h-8 w-8"
+          />
+        </button>
+
         <h3 className="mb-12 text-center text-xl font-semibold">Responder</h3>
 
         <div className="flex flex-col gap-4">

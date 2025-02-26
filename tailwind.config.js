@@ -71,6 +71,7 @@ module.exports = {
       },
       spacing: {
         'screen-header': 'calc(100vh - 62px)',
+        'screen-modal': 'calc(100vh - 200px)',
         '272px': '17rem',
         '310px': '19.375rem',
         '420px': '26.25rem',

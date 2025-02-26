@@ -25,8 +25,3 @@ export type StepType = {
   number: string
   text: string
 }
-
-export type FaqType = {
-  answer: string
-  response: string
-}

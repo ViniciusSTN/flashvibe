@@ -83,3 +83,9 @@ export const faqs: Metadata = {
   description:
     'Encontre respostas para as dúvidas mais comuns sobre o FlashVibe. Saiba mais sobre personalização de decks, funcionalidades dos flashcards e muito mais.',
 }
+
+export const whoAreWe: Metadata = {
+  title: 'Quem somos | FlashVibe',
+  description:
+    'Conheça a história do FlashVibe, nossa missão e como estamos transformando o aprendizado de inglês com flashcards interativos e personalizados.',
+}

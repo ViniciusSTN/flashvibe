@@ -89,3 +89,9 @@ export const whoAreWe: Metadata = {
   description:
     'Conheça a história do FlashVibe, nossa missão e como estamos transformando o aprendizado de inglês com flashcards interativos e personalizados.',
 }
+
+export const help: Metadata = {
+  title: 'Central de Ajuda | FlashVibe',
+  description:
+    'Precisa de ajuda? Encontre respostas para suas dúvidas, tutoriais e orientações sobre como aproveitar ao máximo o FlashVibe. Nossa central de ajuda está aqui para guiar você!',
+}

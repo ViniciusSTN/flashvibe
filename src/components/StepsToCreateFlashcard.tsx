@@ -1,7 +1,7 @@
-import { StepToCreateFlashcardType } from '@/types/home'
+import { StepToCreateFlashcardComponentType } from '@/types/help'
 import Image from 'next/image'
 
-export const StepToCreateFlashcard: StepToCreateFlashcardType = ({
+export const StepToCreateFlashcard: StepToCreateFlashcardComponentType = ({
   image,
   alt,
   number,
@@ -14,8 +14,8 @@ export const StepToCreateFlashcard: StepToCreateFlashcardType = ({
       </div>
 
       <div>
-        <p className="mb-1 text-2xl font-bold">{number}</p>
-        <p className="text-xl font-medium">{children}</p>
+        <p className="mb-1 text-xl font-bold">{number}</p>
+        <p className="text-lg font-medium">{children}</p>
       </div>
     </div>
   )

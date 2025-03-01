@@ -83,7 +83,7 @@ export const Navbar: NavbarType = ({ items, loginItems, mobile }) => {
             ) : (
               <Image
                 alt="Fechar menu"
-                src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close.svg?alt=media&token=a59fedb0-c87b-44d2-852e-af7ecee173ab"
+                src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/close-x-svgrepo-com.svg?alt=media&token=7c0579ea-c642-4c46-98fd-10443342c0a2"
                 width={30}
                 height={30}
               />

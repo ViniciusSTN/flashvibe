@@ -1,6 +1,6 @@
-import { StepType } from '@/types/home'
+import { StepToCreateFlashcardType } from '@/types/help'
 
-export const steps: StepType[] = [
+export const steps: StepToCreateFlashcardType[] = [
   {
     image:
       'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/cards-svgrepo-com.svg?alt=media&token=928e3e95-721f-4e0d-8755-ea4a0ba52342',

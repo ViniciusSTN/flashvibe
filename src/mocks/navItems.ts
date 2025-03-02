@@ -63,7 +63,7 @@ export const items: NavItemProps[] = [
     links: [
       {
         name: 'Fale conosco',
-        link: '/contato',
+        link: '/fale-conosco',
       },
     ],
   },

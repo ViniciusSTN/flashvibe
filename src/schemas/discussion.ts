@@ -18,5 +18,5 @@ export const discussionAnswer = z.object({
   answer: z
     .string()
     .min(10, { message: 'A resposta deve ter ao menos 10 caracteres' })
-    .max(500, { message: "A resposta deve ter ao máximo 500 caracteres" }),
+    .max(1000, { message: 'A resposta deve ter ao máximo 1000 caracteres' }),
 })

@@ -95,3 +95,9 @@ export const help: Metadata = {
   description:
     'Precisa de ajuda? Encontre respostas para suas dúvidas, tutoriais e orientações sobre como aproveitar ao máximo o FlashVibe. Nossa central de ajuda está aqui para guiar você!',
 }
+
+export const contactUs: Metadata = {
+  title: 'Fale Conosco | FlashVibe',
+  description:
+    'Entre em contato conosco para esclarecer dúvidas, enviar sugestões ou relatar problemas. Nossa equipe está pronta para ajudar você a aproveitar ao máximo o FlashVibe!',
+}

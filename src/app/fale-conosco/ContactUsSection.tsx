@@ -9,6 +9,7 @@ import { sendManyUserPhotosInFirebase } from '@/data/images'
 import { contactUsSchema } from '@/schemas/contactUs'
 import { imageValidations } from '@/schemas/images'
 import { ContactUsData, ContactUsErrors, InputName } from '@/types/contactUs'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -29,6 +30,8 @@ const initialErrors: ContactUsErrors = {
 }
 
 export const ContactUsSection = () => {
+  const router = useRouter()
+
   const [formData, setFormData] = useState<ContactUsData>(initialData)
   const [formErrors, setFormErrors] = useState<ContactUsErrors>(initialErrors)
   const [images, setImages] = useState<string[]>([])
@@ -76,11 +79,15 @@ export const ContactUsSection = () => {
 
         if (firebaseReponse.success) {
           // enviar dados para o back end
+          toast.success('Mensagem enviada com sucesso')
+          router.push('/')
         } else {
           toast.error('Erro ao enviar imagens')
         }
       } else {
         // enviar dados para o back end
+        toast.success('Mensagem enviada com sucesso')
+        router.push('/')
       }
     }
 

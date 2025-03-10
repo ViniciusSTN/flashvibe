@@ -101,3 +101,9 @@ export const contactUs: Metadata = {
   description:
     'Entre em contato conosco para esclarecer dúvidas, enviar sugestões ou relatar problemas. Nossa equipe está pronta para ajudar você a aproveitar ao máximo o FlashVibe!',
 }
+
+export const blog: Metadata = {
+  title: 'Blog | FlashVibe',
+  description:
+    'Fique por dentro das últimas novidades do FlashVibe! Explore artigos sobre aprendizado de idiomas, dicas para otimizar seus estudos com flashcards, técnicas de memorização e muito mais.',
+}

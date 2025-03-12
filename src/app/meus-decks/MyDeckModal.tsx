@@ -1,6 +1,6 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { DeckCard } from '@/components/DeckCard'
-import { deleteDeckAtom } from '@/states'
+import { deleteDeckAtom, publicationModalAtom } from '@/states'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
@@ -10,6 +10,7 @@ import Image from 'next/image'
 export const MyDeckModal = () => {
   const [deckActive, setDeckActive] = useRecoilState(deckActiveAtom)
   const setDeckDelete = useSetRecoilState(deleteDeckAtom)
+  const setPublicationModal = useSetRecoilState(publicationModalAtom)
 
   const [flashcardsClicked, setFlashcardsClicked] = useState<boolean>(false)
 
@@ -20,6 +21,13 @@ export const MyDeckModal = () => {
       setDeckDelete({ deckId: deckActive?.deckId, modalActive: true })
       setDeckActive(null)
     }
+  }
+
+  const handlePublishClick = async () => {
+    if (!deckActive?.deckId) return
+
+    setPublicationModal({ deckId: deckActive.deckId, modalActive: true })
+    setDeckActive(null)
   }
 
   return (
@@ -51,8 +59,23 @@ export const MyDeckModal = () => {
             />
           </button>
 
-          <div className="pointer-events-none">
-            <DeckCard {...deckActive} />
+          <div className="flex flex-col items-start gap-4">
+            <div className="pointer-events-none">
+              <DeckCard {...deckActive} />
+            </div>
+
+            {deckActive.public === false && (
+              <ButtonDefault
+                text="Publicar"
+                type="button"
+                radius="rounded-md"
+                paddingx="px-5"
+                paddingy="py-2"
+                style="outDark"
+                tailwind="w-[150px]"
+                onClick={handlePublishClick}
+              />
+            )}
           </div>
 
           {!flashcardsClicked ? (

@@ -13,6 +13,7 @@ import {
   GetQuantityFlashcardsType,
   GetQuantityReviewsType,
   GetUsersCustomDeckBaseDataType,
+  PublishDeckType,
   ReturnedDeck,
   ReturnedStandardDeck,
   UpdateCustomDeckType,
@@ -529,6 +530,23 @@ export const assignCommunityDeckToUser: AssignCommunityDeckToUserType = async (
       resolve({
         success: true,
         message: 'Deck adicionado com sucesso',
+      })
+    }, 1000)
+  })
+}
+
+export const publishDeck: PublishDeckType = async (
+  deckId,
+  jwtToken,
+  allowEdit,
+) => {
+  return new Promise((resolve) => {
+    console.log(deckId, jwtToken, allowEdit)
+
+    setTimeout(() => {
+      resolve({
+        success: true,
+        message: 'Deck publicado com sucesso',
       })
     }, 1000)
   })

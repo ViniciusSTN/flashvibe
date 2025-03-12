@@ -19,7 +19,7 @@ export const items: NavItemProps[] = [
     links: [
       {
         name: 'Decks da comunidade',
-        link: '/decks-comunidade',
+        link: '/decks-da-comunidade?pag=1',
       },
       {
         name: 'Fórum de discussões',

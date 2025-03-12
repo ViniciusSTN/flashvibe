@@ -1,4 +1,8 @@
-import { MyDeckFiltersType, StandardDeckFiltersType } from '@/types/filters'
+import {
+  CommunityDecksFiltersType,
+  MyDeckFiltersType,
+  StandardDeckFiltersType,
+} from '@/types/filters'
 import { FlashcardFiltersType } from '@/types/flashcard'
 import { atom } from 'recoil'
 
@@ -48,6 +52,19 @@ export const myDeckFiltersAtom = atom<MyDeckFiltersType>({
     },
   },
   // effects: [localStorageEffect('my_deck_filters')],
+})
+
+export const communityDecksFiltersAtom = atom<CommunityDecksFiltersType>({
+  key: 'CommunityDecksFilters',
+  default: {
+    isActive: false,
+    orderBy: 'bestRated',
+    flashcards: {
+      min: 0,
+      max: 0,
+    },
+  },
+  // effects: [localStorageEffect('community_decks_filters')],
 })
 
 export const standardDeckFiltersAtom = atom<StandardDeckFiltersType>({

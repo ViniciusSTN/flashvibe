@@ -107,3 +107,9 @@ export const blog: Metadata = {
   description:
     'Fique por dentro das últimas novidades do FlashVibe! Explore artigos sobre aprendizado de idiomas, dicas para otimizar seus estudos com flashcards, técnicas de memorização e muito mais.',
 }
+
+export const communityDecks: Metadata = {
+  title: 'Decks da comunidade | FlashVibe',
+  description:
+    'Explore e utilize decks criados por outros membros da comunidade FlashVibe. Aprimore seu aprendizado com materiais compartilhados e contribua adicionando seus próprios decks para ajudar outros estudantes.',
+}

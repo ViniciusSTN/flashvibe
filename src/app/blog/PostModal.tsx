@@ -10,8 +10,8 @@ import {
 import { SpinLoader } from '@/components/SpinLoader'
 import { TextAreaDefault } from '@/components/TextAreaDefault'
 import { toast } from 'react-toastify'
-import Image from 'next/image'
 import { postCommentSchema } from '@/schemas/blog'
+import Image from 'next/image'
 
 export const PostModal: PostModalType = ({
   post,

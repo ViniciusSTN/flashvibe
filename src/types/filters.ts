@@ -37,3 +37,22 @@ export type StandardDeckFiltersDataType = {
 export type StandardDeckFiltersType = StandardDeckFiltersDataType & {
   isActive: boolean
 }
+
+export type CommunityOrderByFilter =
+  | 'newer'
+  | 'older'
+  | 'bestRated'
+  | 'moreRated'
+  | 'flashcards'
+
+export type CommunityDecksFiltersDataType = {
+  orderBy: CommunityOrderByFilter
+  flashcards: {
+    min: number
+    max: number
+  }
+}
+
+export type CommunityDecksFiltersType = CommunityDecksFiltersDataType & {
+  isActive: boolean
+}

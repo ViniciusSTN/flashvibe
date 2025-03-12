@@ -266,3 +266,14 @@ export type AssignCommunityDeckToUserType = (
   deckId: number,
   jwtToken: string,
 ) => Promise<SuccessResponse | ErrorResponse>
+
+export type PublishDeckType = (
+  deckId: number,
+  jwtToken: string,
+  allowEdit: boolean,
+) => Promise<SuccessResponse | ErrorResponse>
+
+export type PublicationModalType = {
+  deckId: number
+  modalActive: boolean
+}

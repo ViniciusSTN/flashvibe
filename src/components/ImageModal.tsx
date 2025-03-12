@@ -31,7 +31,7 @@ export const ImageModal = () => {
           <img
             src={activeImage.link}
             alt="Imagem em tela cheia da discussão"
-            className="max-h-screen-modal h-full w-full object-cover object-center"
+            className="h-full max-h-screen-modal w-full object-cover object-center"
           />
         </div>
       </div>

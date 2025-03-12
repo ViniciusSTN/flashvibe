@@ -22,6 +22,7 @@ import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { toast } from 'react-toastify'
 import { DeleteModal } from '@/components/DeleteModal'
+import { ConfirmPublicationModal } from './ConfirmPublicationModal'
 
 export const MyDecksSection = () => {
   const searchParams = useSearchParams()
@@ -37,6 +38,7 @@ export const MyDecksSection = () => {
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
   const [deckLoading, setDeckLoading] = useState<boolean>(true)
+  const [pageLoading, setPageLoading] = useState<boolean>(true)
   const [amountPages, setAmountPages] = useState<number>(0)
   const [pageActive, setPageActive] = useState<number>(Number(getPage()))
   const [newDeckActive, setNewDeckActive] = useState<boolean>(false)
@@ -63,6 +65,8 @@ export const MyDecksSection = () => {
 
   useEffect(() => {
     const validateSession = async () => {
+      setPageLoading(true)
+
       if (!sessionCookie || !jwtToken) {
         toast.warning('É preciso logar novamente')
         return router.push('/login')
@@ -74,6 +78,8 @@ export const MyDecksSection = () => {
         toast.warning('É preciso logar novamente')
         router.push('/login')
       }
+
+      setPageLoading(false)
     }
 
     validateSession()
@@ -192,7 +198,7 @@ export const MyDecksSection = () => {
     }
   }, [searchParams, amountPages, page])
 
-  if (mobile === null) {
+  if (mobile === null || pageLoading) {
     return (
       <section className="flex min-h-screen-header items-center justify-center">
         <div className="rotatingClipLoader"></div>
@@ -204,6 +210,7 @@ export const MyDecksSection = () => {
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">
       <MyDeckModal />
       <DeleteModal />
+      <ConfirmPublicationModal />
 
       <h1 className="mb-10 text-center text-3xl font-semibold">Meus decks</h1>
       <div

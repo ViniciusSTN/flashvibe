@@ -1,4 +1,5 @@
 import { ErrorResponse, SuccessResponse } from './apiResponse'
+import { CommunityOrderByFilter } from './filters'
 
 export type DeckCardProps = {
   deckId: number
@@ -18,6 +19,8 @@ export type DeckCardProps = {
   difficult?: 'Beginner' | 'Intermediate' | 'Advanced' | null
   stars: number | null
   reviews: number | null
+  author?: string
+  canEdit?: boolean
 }
 
 export type DeckCardType = (
@@ -113,8 +116,23 @@ export type ReturnedDeck = {
   reviewing: number
 }
 
+export type ReturnedCommunitDeck = ReturnedDeck & {
+  author: string
+  canEdit: boolean
+}
+
 export type SuccessResponseWithDecks = SuccessResponse & {
   decks: ReturnedDeck[]
+  flashcardMin: number
+  flashcardMax: number
+  hasNext: boolean
+  hasPrevious: boolean
+  pageNumber: number
+  totalPages: number
+}
+
+export type SuccessResponseWithCommunityDecks = SuccessResponse & {
+  decks: ReturnedCommunitDeck[]
   flashcardMin: number
   flashcardMax: number
   hasNext: boolean
@@ -224,6 +242,8 @@ export type GetQuantityFlashcardsType = (
   ErrorResponseWithHasAllDecks | SuccessResponseWithMinAndMaxFlashcards
 >
 
+export type GetQuantityFlashcardsCommunityDecks = GetQuantityFlashcardsType
+
 export type DeleteDeckType = {
   modalActive: boolean
   deckId: number | null
@@ -233,3 +253,16 @@ export type DeleteUserDeck = (
   deckId: number,
   jwtToken: string,
 ) => Promise<ErrorResponse | SuccessResponse>
+
+export type GetAllCommunityDecksType = (
+  page: number,
+  orderBy: CommunityOrderByFilter,
+  flashcardsMin: number,
+  flashcardsMax: number,
+  jwtToken: string,
+) => Promise<ErrorResponse | SuccessResponseWithCommunityDecks>
+
+export type AssignCommunityDeckToUserType = (
+  deckId: number,
+  jwtToken: string,
+) => Promise<SuccessResponse | ErrorResponse>

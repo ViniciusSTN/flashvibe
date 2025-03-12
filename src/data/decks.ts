@@ -1,11 +1,15 @@
+import { communityDecks } from '@/mocks/decks'
 import {
+  AssignCommunityDeckToUserType,
   AssignDeckToUserType,
   CreateCustomDeckType,
   CreateStandardDeckType,
   DeckCardProps,
   DeleteUserDeck,
+  GetAllCommunityDecksType,
   GetAllStandardDecksType,
   GetAllUserDecksType,
+  GetQuantityFlashcardsCommunityDecks,
   GetQuantityFlashcardsType,
   GetQuantityReviewsType,
   GetUsersCustomDeckBaseDataType,
@@ -76,7 +80,7 @@ export const getAllUserDecks: GetAllUserDecksType = async (
 }
 
 export function mapReturnedDeckToDeckCardProps(
-  deck: ReturnedDeck,
+  deck: ReturnedDeck & { author?: string; canEdit?: boolean },
 ): DeckCardProps {
   return {
     deckId: deck.id,
@@ -101,6 +105,8 @@ export function mapReturnedDeckToDeckCardProps(
     difficult: deck.difficult ?? null,
     stars: deck.stars,
     reviews: deck.reviews,
+    author: deck.author,
+    canEdit: deck.canEdit,
   }
 }
 
@@ -468,4 +474,62 @@ export const deleteUserDeck: DeleteUserDeck = async (deckId, jwtToken) => {
       return { success: false, error: ['An unexpected error occurred'] }
     }
   }
+}
+
+export const getAllCommunityDecks: GetAllCommunityDecksType = async (
+  page,
+  orderBy,
+  flashcardsMin,
+  flashcardsMax,
+  jwtToken,
+) => {
+  console.log(page, orderBy, flashcardsMin, flashcardsMax, jwtToken)
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        message: 'Decks retornados com sucesso',
+        totalPages: 6,
+        pageNumber: 1,
+        hasNext: true,
+        hasPrevious: false,
+        flashcardMin: 10,
+        flashcardMax: 50,
+        decks: communityDecks,
+      })
+    }, 1000)
+  })
+}
+
+export const getQuantityFlashcardsCommunityDecks: GetQuantityFlashcardsCommunityDecks =
+  async (jwtToken) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(jwtToken)
+
+        resolve({
+          success: true,
+          message: 'Retornado com sucesso',
+          flashcardMin: 10,
+          flashcardMax: 100,
+        })
+      }, 500)
+    })
+  }
+
+export const assignCommunityDeckToUser: AssignCommunityDeckToUserType = async (
+  deckId,
+  jwtToken,
+) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(deckId, jwtToken)
+
+      resolve({
+        success: true,
+        message: 'Deck adicionado com sucesso',
+      })
+    }, 1000)
+  })
 }

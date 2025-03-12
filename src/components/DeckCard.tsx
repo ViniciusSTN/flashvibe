@@ -1,8 +1,8 @@
 import { colorClasses } from '@/mocks/deckColors'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { DeckCardType } from '@/types/deck'
-import Image from 'next/image'
 import { useSetRecoilState } from 'recoil'
+import Image from 'next/image'
 
 export const DeckCard: DeckCardType = ({ disabled = false, ...props }) => {
   const setDeckActive = useSetRecoilState(deckActiveAtom)
@@ -124,19 +124,40 @@ export const DeckCard: DeckCardType = ({ disabled = false, ...props }) => {
 
           <div>
             <p className="absolute bottom-2 left-2 text-sm font-medium text-light-gray500">
-              {props.situation}
+              {props.author ? props.author : props.situation}
             </p>
-            <Image
-              src={
-                props.public
-                  ? 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/public.svg?alt=media&token=177b2d1a-ff07-4274-83cb-3e90e517fb6b'
-                  : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/private.svg?alt=media&token=8d72a3bc-b00e-4835-a954-32a2b084f2aa'
-              }
-              alt={props.public ? 'público' : 'privado'}
-              width={20}
-              height={20}
-              className="absolute bottom-2 right-2 h-5 w-5"
-            />
+
+            {props.canEdit && props.public ? (
+              <div className="absolute bottom-2 right-9 flex h-5 w-5 gap-2">
+                <Image
+                  src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/public.svg?alt=media&token=177b2d1a-ff07-4274-83cb-3e90e517fb6b"
+                  alt="Deck público"
+                  width={20}
+                  height={20}
+                />
+
+                <Image
+                  src="https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/pencil-alt-svgrepo-com%203.svg?alt=media&token=d9c919b2-32f5-40b2-80b8-d6d66c487224"
+                  alt="Edição habilitada"
+                  width={20}
+                  height={20}
+                  className="block"
+                />
+              </div>
+            ) : (
+              <div className="absolute bottom-2 right-2 flex h-5 w-5 gap-2">
+                <Image
+                  src={
+                    props.public
+                      ? 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/public.svg?alt=media&token=177b2d1a-ff07-4274-83cb-3e90e517fb6b'
+                      : 'https://firebasestorage.googleapis.com/v0/b/flashvibe-13cf5.appspot.com/o/private.svg?alt=media&token=8d72a3bc-b00e-4835-a954-32a2b084f2aa'
+                  }
+                  alt={props.public ? 'Deck público' : 'Deck privado'}
+                  width={20}
+                  height={20}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,11 +1,9 @@
 'use client'
 
 import { standardDeckFiltersAtom } from '@/states/atoms/filters'
-import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { StandardDeckFilters } from './StandardDeckFilter'
-import usePagination from '@/hooks/pagination'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   getAllStandardDecks,
@@ -16,9 +14,12 @@ import { DeckCardProps } from '@/types/deck'
 import { DeckCard } from '@/components/DeckCard'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
 import { StandardDeckModal } from './StandardDeckModal'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { toast } from 'react-toastify'
+import { SpinLoader } from '@/components/SpinLoader'
+import { useSessionValidation } from '@/hooks/sessionValidation'
+import usePagination from '@/hooks/pagination'
+import Image from 'next/image'
 
 export const StandardDecksSection = () => {
   const searchParams = useSearchParams()
@@ -38,8 +39,9 @@ export const StandardDecksSection = () => {
   const setDeckActive = useSetRecoilState(deckActiveAtom)
 
   const paginationButtons = usePagination(amountPages, pageActive)
-  const sessionCookie = useCookies('session')
+
   const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
 
   const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
   const searchBy = useMemo(
@@ -48,34 +50,8 @@ export const StandardDecksSection = () => {
   )
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
-      router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
+    if (pageLoading) return
 
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-    }
-
-    validateSection()
-  }, [router, sessionCookie])
-
-  useEffect(() => {
-    setDeckActive(null)
-  }, [setDeckActive])
-
-  useEffect(() => {
     function handleResize() {
       const width = window.innerWidth
 
@@ -83,15 +59,25 @@ export const StandardDecksSection = () => {
       else setMobile(false)
     }
 
+    setDeckActive(null)
+
     handleResize()
 
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [setDeckActive, pageLoading])
 
   useEffect(() => {
     if (!page) return
+
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+      return
+    }
 
     const fetchDecks = async () => {
       setDeckLoading(true)
@@ -137,9 +123,11 @@ export const StandardDecksSection = () => {
     }
 
     fetchDecks()
-  }, [jwtToken, page, searchBy, searchParams])
+  }, [jwtToken, page, searchBy, searchParams, pageLoading, router])
 
   useEffect(() => {
+    if (pageLoading) return
+
     const fetchQuantityReviews = async () => {
       if (jwtToken) {
         const response = await getQuantityReviews(jwtToken)
@@ -165,15 +153,17 @@ export const StandardDecksSection = () => {
     }
 
     fetchQuantityReviews()
-  }, [jwtToken, setFilters])
+  }, [jwtToken, setFilters, pageLoading])
 
   useEffect(() => {
+    if (pageLoading) return
+
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
       }
     }
-  }, [searchParams, amountPages, page])
+  }, [searchParams, amountPages, page, pageLoading])
 
   function handlePageButtonClick(page: number) {
     const queryParams = new URLSearchParams(searchParams)
@@ -190,11 +180,11 @@ export const StandardDecksSection = () => {
     }))
   }
 
-  if (mobile === null) {
+  if (mobile === null || pageLoading) {
     return (
-      <section className="flex min-h-screen-header items-center justify-center">
-        <div className="rotatingClipLoader"></div>
-      </section>
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
     )
   }
 

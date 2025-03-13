@@ -3,7 +3,6 @@
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { InputDefault } from '@/components/InputDefault'
 import { SpinLoader } from '@/components/SpinLoader'
-import { verifySession } from '@/data/pagesProtection'
 import { getAllUserData, updateUserData } from '@/data/userData'
 import { useCookies } from '@/hooks/cookies'
 import { formatPhone, usePhoneMask } from '@/hooks/inputMasks'
@@ -12,9 +11,10 @@ import { AllUserData, AllUserDataErrors, InputName } from '@/types/myProfile'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import { sendUserPhotoInFirebase } from '@/data/images'
 import userDataSchema from '@/schemas/changeUserData'
 import Image from 'next/image'
-import { sendUserPhotoInFirebase } from '@/data/images'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 
 const defaultData: AllUserData = {
   email: '',
@@ -44,60 +44,43 @@ export const MyProfileSection = () => {
 
   const mask = usePhoneMask()
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+
+  const { pageLoading } = useSessionValidation()
 
   const router = useRouter()
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
+      return
     }
 
-    validateSection()
-  }, [router, sessionCookie])
-
-  useEffect(() => {
     const fetchData = async () => {
-      if (jwtToken) {
-        const data = await getAllUserData(jwtToken)
+      const data = await getAllUserData(jwtToken)
 
-        if (data.success) {
-          const phone = data.data.phone.replace(/\D/g, '')
-          const formattedPhone = formatPhone(phone)
+      if (data.success) {
+        const phone = data.data.phone.replace(/\D/g, '')
+        const formattedPhone = formatPhone(phone)
 
-          setUserData({
-            email: data.data.email,
-            name: data.data.name,
-            nickname: data.data.nickname,
-            phone: formattedPhone,
-            password: '',
-            photo: data.data.photo,
-          })
-        }
-
-        setLoadig(false)
+        setUserData({
+          email: data.data.email,
+          name: data.data.name,
+          nickname: data.data.nickname,
+          phone: formattedPhone,
+          password: '',
+          photo: data.data.photo,
+        })
       }
+
+      setLoadig(false)
     }
 
     fetchData()
-  }, [jwtToken, mask])
+  }, [jwtToken, mask, pageLoading, router])
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { value, name } = event.target
@@ -205,6 +188,13 @@ export const MyProfileSection = () => {
 
     setSending(false)
   }
+
+  if (pageLoading)
+    return (
+      <main className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </main>
+    )
 
   return (
     <main className="min-h-screen-header">

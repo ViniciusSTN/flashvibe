@@ -1,9 +1,9 @@
 import { useRecoilState } from 'recoil'
 import { flashcardModalAtom } from '@/states'
 import { Flashcard } from '@/components/Flashcard'
-import Image from 'next/image'
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { FlashcardModalComponentType } from '@/types/flashcard'
+import Image from 'next/image'
 
 export const FlashcardModal: FlashcardModalComponentType = ({ deckId }) => {
   const [flashcardActive, setFlashcardActive] =

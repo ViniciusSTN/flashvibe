@@ -3,8 +3,8 @@ import { useRecoilState } from 'recoil'
 import { flashcardModalAtom, flashcardWasTurnedAtom } from '@/states'
 import { FlashcardSlider } from '@/components/FlashcardSlider'
 import { toast } from 'react-toastify'
-import Image from 'next/image'
 import { FlashcardComponentType } from '@/types/flashcard'
+import Image from 'next/image'
 
 export const Flashcard: FlashcardComponentType = ({ children }) => {
   const [flashcardActive, setFlashcardActive] =
@@ -20,8 +20,10 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
 
   useEffect(() => {
     if (flashcardActive) {
+      const regex = new RegExp(`\\b(${flashcardActive.keyword})\\b`, 'gi')
+
       const words = flashcardActive.mainPhrase
-        .split(new RegExp(`(${flashcardActive.keyword})`, 'gi'))
+        .split(regex)
         .map((part, index) =>
           part.toLowerCase() === flashcardActive.keyword.toLowerCase() ? (
             <span key={index} className="text-keyword">
@@ -31,6 +33,7 @@ export const Flashcard: FlashcardComponentType = ({ children }) => {
             <span key={index}>{part}</span>
           ),
         )
+
       setWords(words)
     }
   }, [flashcardActive])

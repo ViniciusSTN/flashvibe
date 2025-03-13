@@ -10,13 +10,13 @@ import { FlashcardModal } from './FlashcardModal'
 import { FlashcardFront } from '@/types/flashcard'
 import { getAllFlashcardData, getDeckFlashcards } from '@/data/flashcards'
 import { ListedFlashcard } from '@/components/ListedFlashcard'
-import usePagination from '@/hooks/pagination'
-import Image from 'next/image'
 import { flashcardModalAtom } from '@/states'
 import { toast } from 'react-toastify'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { SpinLoader } from '@/components/SpinLoader'
+import { useSessionValidation } from '@/hooks/sessionValidation'
+import usePagination from '@/hooks/pagination'
+import Image from 'next/image'
 
 export const FlashcardsSection = () => {
   const searchParams = useSearchParams()
@@ -37,7 +37,6 @@ export const FlashcardsSection = () => {
   const [loadingData, setLoadingData] = useState<boolean>(false)
 
   const paginationButtons = usePagination(amountPages, pageActive)
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
 
   const [filters, setFilters] = useRecoilState(flashcardFiltersAtom)
@@ -49,25 +48,11 @@ export const FlashcardsSection = () => {
     [searchParams],
   )
 
-  useEffect(() => {
-    const validateSession = async () => {
-      if (!sessionCookie || !jwtToken) {
-        toast.warning('É preciso logar novamente')
-        return router.push('/login')
-      }
-
-      const response = await verifySession(sessionCookie)
-
-      if (!response.success) {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-    }
-
-    validateSession()
-  }, [sessionCookie, jwtToken, router])
+  const { pageLoading } = useSessionValidation()
 
   useEffect(() => {
+    if (pageLoading) return
+
     function handleResize() {
       const width = window.innerWidth
 
@@ -79,12 +64,18 @@ export const FlashcardsSection = () => {
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [pageLoading])
 
   useEffect(() => {
-    const fetchFlashcards = async () => {
-      if (!jwtToken) return
+    if (pageLoading) return
 
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+      return
+    }
+
+    const fetchFlashcards = async () => {
       const situations = searchParams.getAll('situation') || []
 
       setFlashcardLoading(true)
@@ -113,15 +104,26 @@ export const FlashcardsSection = () => {
     }
 
     fetchFlashcards()
-  }, [searchParams, deckId, searchBy, page, jwtToken, setFlashcard])
+  }, [
+    searchParams,
+    deckId,
+    searchBy,
+    page,
+    jwtToken,
+    setFlashcard,
+    router,
+    pageLoading,
+  ])
 
   useEffect(() => {
+    if (pageLoading) return
+
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
       }
     }
-  }, [searchParams, amountPages, page])
+  }, [searchParams, amountPages, page, pageLoading])
 
   function handleShowFiltersClick() {
     setFilters((prevState) => ({
@@ -158,7 +160,7 @@ export const FlashcardsSection = () => {
     setLoadingData(false)
   }
 
-  if (mobile === null) {
+  if (mobile === null || pageLoading) {
     return (
       <section className="flex min-h-screen-header items-center justify-center">
         <div className="rotatingClipLoader"></div>

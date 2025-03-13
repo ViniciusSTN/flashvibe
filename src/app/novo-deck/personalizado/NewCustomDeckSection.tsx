@@ -1,8 +1,9 @@
 'use client'
 
 import { EditCustomDeck } from '@/components/EditCustomDeck'
-import { verifySession } from '@/data/pagesProtection'
+import { SpinLoader } from '@/components/SpinLoader'
 import { useCookies } from '@/hooks/cookies'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import { CustomDeckData } from '@/types/deck'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -21,32 +22,24 @@ const initialData: CustomDeckData = {
 export const NewCustomDeckSection = () => {
   const router = useRouter()
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
     }
-  }, [sessionCookie, jwtToken, router])
+  }, [jwtToken, pageLoading, router])
 
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-    }
-
-    validateSection()
-  }, [router, sessionCookie])
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">

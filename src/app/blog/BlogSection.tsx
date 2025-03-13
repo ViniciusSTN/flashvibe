@@ -7,6 +7,7 @@ import { BlogDataType } from '@/types/blog'
 import { useEffect, useState } from 'react'
 import { FeedbackData } from '@/types/sendFeedbacks'
 import { PostModal } from './PostModal'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import Image from 'next/image'
 
 export const BlogSection = () => {
@@ -15,7 +16,11 @@ export const BlogSection = () => {
   const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([])
   const [postActive, setPostActive] = useState<BlogDataType | null>(null)
 
+  const { pageLoading } = useSessionValidation()
+
   useEffect(() => {
+    if (pageLoading) return
+
     const fetchBlogData = async () => {
       setLoading(true)
 
@@ -41,13 +46,19 @@ export const BlogSection = () => {
 
       setLoading(false)
     }
-
     fetchBlogData()
-  }, [])
+  }, [pageLoading])
 
   const handleCommentsClick = async (post: BlogDataType) => {
     setPostActive(post)
   }
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <>

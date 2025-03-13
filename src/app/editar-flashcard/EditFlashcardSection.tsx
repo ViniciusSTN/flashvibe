@@ -3,8 +3,8 @@
 import { EditFlashcardData } from '@/components/EditFlashcardData'
 import { SpinLoader } from '@/components/SpinLoader'
 import { getAllFlashcardData } from '@/data/flashcards'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import { newFlashcardDataAtom } from '@/states'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -21,36 +21,20 @@ export const EditFlashcardSection = () => {
   const deckId = searchParams.get('deckId')
   const flashcardId = searchParams.get('flashcardId')
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
+      return
     }
 
-    validateSection()
-  }, [router, sessionCookie])
+    if (pageLoading) return
 
-  useEffect(() => {
     const fetchData = async () => {
-      if (!jwtToken) return
+      setLoader(true)
 
       const response = await getAllFlashcardData(
         Number(flashcardId),
@@ -73,11 +57,11 @@ export const EditFlashcardSection = () => {
     } else {
       router.push(`/flashcards?pag=1&deckId${deckId}`)
     }
-  }, [setFlashcardData, router, deckId, flashcardId, jwtToken])
+  }, [setFlashcardData, router, deckId, flashcardId, jwtToken, pageLoading])
 
   return (
     <section>
-      {loader ? (
+      {loader || pageLoading ? (
         <div className="relative flex min-h-screen-header items-center justify-center">
           <SpinLoader />
         </div>

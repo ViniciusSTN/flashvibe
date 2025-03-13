@@ -14,10 +14,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { CommunityDecksFilter } from './CommunityDecksFilter'
 import { CommunityDecksModal } from './CommunityDecksModal'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { toast } from 'react-toastify'
 import { CommunityOrderByFilter } from '@/types/filters'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import usePagination from '@/hooks/pagination'
 import Image from 'next/image'
 
@@ -29,17 +29,17 @@ export const CommunityDecksSection = () => {
     return searchParams.get('pag')
   }, [searchParams])
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
 
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
   const [deckLoading, setDeckLoading] = useState<boolean>(true)
-  const [pageLoading, setPageLoading] = useState<boolean>(true)
   const [amountPages, setAmountPages] = useState<number>(0)
   const [pageActive, setPageActive] = useState<number>(Number(getPage()))
 
   const paginationButtons = usePagination(amountPages, pageActive)
+
+  const { pageLoading } = useSessionValidation()
 
   const [filters, setFilters] = useRecoilState(communityDecksFiltersAtom)
   const setDeckActive = useSetRecoilState(deckActiveAtom)
@@ -59,31 +59,11 @@ export const CommunityDecksSection = () => {
     router.push(`/decks-da-comunidade?${queryParams.toString()}`)
   }
 
-  useEffect(() => {
-    const validateSession = async () => {
-      setPageLoading(true)
-
-      if (!sessionCookie || !jwtToken) {
-        toast.warning('É preciso logar novamente')
-        return router.push('/login')
-      }
-
-      const response = await verifySession(sessionCookie)
-
-      if (!response.success) {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-
-      setPageLoading(false)
-    }
-
-    validateSession()
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    setDeckActive(null)
-  }, [setDeckActive])
+  const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
+  const orderBy = useMemo(
+    () => searchParams.get('searchBy') || 'bestRated',
+    [searchParams],
+  )
 
   useEffect(() => {
     function handleResize() {
@@ -92,69 +72,69 @@ export const CommunityDecksSection = () => {
       setMobile(width < 1100)
     }
 
-    handleResize()
+    if (!jwtToken) router.push('/login')
 
+    setDeckActive(null)
+
+    handleResize()
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
-  const orderBy = useMemo(
-    () => searchParams.get('searchBy') || 'bestRated',
-    [searchParams],
-  )
+  }, [setDeckActive, jwtToken, router])
 
   useEffect(() => {
     if (!page) return
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+      return
+    }
 
     const fetchDecks = async () => {
       setDeckLoading(true)
+      // const page = searchParams.get('pag') || '1'
+      // const searchBy = searchParams.get('searchBy') || 'bestRated'
 
-      if (jwtToken) {
-        // const page = searchParams.get('pag') || '1'
-        // const searchBy = searchParams.get('searchBy') || 'bestRated'
+      const formattedOrderBy = (orderBy.charAt(0).toUpperCase() +
+        orderBy.slice(1)) as CommunityOrderByFilter
+      const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
+      const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
 
-        const formattedOrderBy = (orderBy.charAt(0).toUpperCase() +
-          orderBy.slice(1)) as CommunityOrderByFilter
-        const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
-        const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
+      setDecks([])
+      setAmountPages(0)
 
-        setDecks([])
-        setAmountPages(0)
+      const response = await getAllCommunityDecks(
+        Number(page),
+        formattedOrderBy,
+        flashcardsMin,
+        flashcardsMax,
+        jwtToken,
+      )
 
-        const response = await getAllCommunityDecks(
-          Number(page),
-          formattedOrderBy,
-          flashcardsMin,
-          flashcardsMax,
-          jwtToken,
-        )
+      if (response.success && response.decks) {
+        const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
 
-        if (response.success && response.decks) {
-          const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
-
-          setDecks(mappedDecks)
-          setAmountPages(response.totalPages)
+        setDecks(mappedDecks)
+        setAmountPages(response.totalPages)
+      } else {
+        if (!response.success && response.error?.includes('Decks not found')) {
+          toast.warning('Nenhum deck encontrado. Verifique os filtros')
         } else {
-          if (
-            !response.success &&
-            response.error?.includes('Decks not found')
-          ) {
-            toast.warning('Nenhum deck encontrado. Verifique os filtros')
-          } else {
-            toast.error('Erro ao buscar decks')
-          }
+          toast.error('Erro ao buscar decks')
         }
-
-        setDeckLoading(false)
       }
+
+      setDeckLoading(false)
     }
 
     fetchDecks()
-  }, [jwtToken, page, orderBy, searchParams])
+  }, [jwtToken, page, orderBy, searchParams, pageLoading, router])
 
   useEffect(() => {
+    if (pageLoading) return
+
     const fetchQuantityFlashcards = async () => {
       if (jwtToken) {
         const response = await getQuantityFlashcardsCommunityDecks(jwtToken)
@@ -180,7 +160,7 @@ export const CommunityDecksSection = () => {
     }
 
     fetchQuantityFlashcards()
-  }, [jwtToken, setFilters])
+  }, [jwtToken, setFilters, pageLoading])
 
   useEffect(() => {
     if (amountPages > 0) {

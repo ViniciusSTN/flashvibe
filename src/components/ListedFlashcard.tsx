@@ -6,17 +6,17 @@ export const ListedFlashcard: ListedFlashcardType = ({
   onClick,
   disabled,
 }) => {
-  const words = front
-    .split(new RegExp(`(${keyword})`, 'gi'))
-    .map((part, index) =>
-      part.toLowerCase() === keyword.toLowerCase() ? (
-        <span key={index} className="text-keyword">
-          {part}
-        </span>
-      ) : (
-        <span key={index}>{part}</span>
-      ),
-    )
+  const regex = new RegExp(`(\\s${keyword}\\s)`, 'gi')
+
+  const words = front.split(regex).map((part, index) =>
+    part.toLowerCase().trim() === keyword.toLowerCase() ? (
+      <span key={index} className="text-keyword">
+        {part}
+      </span>
+    ) : (
+      <span key={index}>{part}</span>
+    ),
+  )
 
   return (
     <button

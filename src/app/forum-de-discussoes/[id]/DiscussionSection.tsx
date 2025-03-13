@@ -3,13 +3,15 @@
 import { SpinLoader } from '@/components/SpinLoader'
 import { getDiscussionData } from '@/data/discussions'
 import { DiscussionType } from '@/types/discussions'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { TopicArea } from './TopicArea'
 import { AnswersArea } from './AnswersArea'
 import { useRecoilValue } from 'recoil'
 import { orderByAtom } from '@/states'
+import { useSessionValidation } from '@/hooks/sessionValidation'
+import { useCookies } from '@/hooks/cookies'
 
 export const DiscussionSection = () => {
   const [loader, setLoader] = useState<boolean>(true)
@@ -18,11 +20,24 @@ export const DiscussionSection = () => {
 
   const pathname = usePathname()
 
+  const router = useRouter()
+
   const parts = pathname.split('/')
   const index = parts.indexOf('forum-de-discussoes')
   const id = Number(parts[index + 1])
 
+  const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
+
   useEffect(() => {
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+      return
+    }
+
     const fetchDiscussion = async (id: number) => {
       setLoader(true)
 
@@ -38,7 +53,14 @@ export const DiscussionSection = () => {
     }
 
     if (index !== -1 && id) fetchDiscussion(id)
-  }, [pathname, id, index, activeOrderBy])
+  }, [pathname, id, index, activeOrderBy, jwtToken, pageLoading, router])
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <section className="mx-auto mb-24 mt-16 min-h-screen-header max-w-1440px px-6 md:px-10">

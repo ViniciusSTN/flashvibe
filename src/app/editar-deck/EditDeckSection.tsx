@@ -5,8 +5,8 @@ import { DeleteModal } from '@/components/DeleteModal'
 import { EditCustomDeck } from '@/components/EditCustomDeck'
 import { SpinLoader } from '@/components/SpinLoader'
 import { getUsersCustomDeckBaseData } from '@/data/decks'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import { ApiCustomDeck } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -25,36 +25,22 @@ export const EditDeckSection = () => {
   const [loading, setLoading] = useState<boolean>(true)
 
   const params = useSearchParams()
-  const sessionCookie = useCookies('session')
-  const jwtToken = useCookies('Authorization')
-
   const deckId = Number(params.get('id'))
 
+  const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
+
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (pageLoading) return
+
+    if (!deckId) router.push('/')
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
+      return
     }
 
-    validateSection()
-  }, [router, sessionCookie])
-
-  useEffect(() => {
     async function getUserDeckData() {
       if (jwtToken) {
         const result = await getUsersCustomDeckBaseData(deckId, jwtToken)
@@ -75,7 +61,14 @@ export const EditDeckSection = () => {
     }
 
     getUserDeckData()
-  }, [deckId, jwtToken])
+  }, [deckId, jwtToken, router, pageLoading])
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <section className="mx-auto my-24 min-h-screen-header max-w-1440px px-6 md:px-10">

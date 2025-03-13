@@ -2,7 +2,6 @@
 
 import { ButtonDefault } from '@/components/ButtonDefault'
 import { myDeckFiltersAtom } from '@/states/atoms/filters'
-import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { MyDeckFilters } from './MyDeckFilters'
@@ -15,14 +14,15 @@ import {
 import { DeckCardProps } from '@/types/deck'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MyDeckModal } from './MyDeckModal'
-import Link from 'next/link'
-import usePagination from '@/hooks/pagination'
 import { deckActiveAtom } from '@/states/atoms/deckActive'
-import { verifySession } from '@/data/pagesProtection'
 import { useCookies } from '@/hooks/cookies'
 import { toast } from 'react-toastify'
 import { DeleteModal } from '@/components/DeleteModal'
 import { ConfirmPublicationModal } from './ConfirmPublicationModal'
+import { useSessionValidation } from '@/hooks/sessionValidation'
+import usePagination from '@/hooks/pagination'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export const MyDecksSection = () => {
   const searchParams = useSearchParams()
@@ -32,13 +32,12 @@ export const MyDecksSection = () => {
     return searchParams.get('pag')
   }, [searchParams])
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
 
   const [mobile, setMobile] = useState<boolean | null>(null)
   const [decks, setDecks] = useState<DeckCardProps[]>([])
   const [deckLoading, setDeckLoading] = useState<boolean>(true)
-  const [pageLoading, setPageLoading] = useState<boolean>(true)
   const [amountPages, setAmountPages] = useState<number>(0)
   const [pageActive, setPageActive] = useState<number>(Number(getPage()))
   const [newDeckActive, setNewDeckActive] = useState<boolean>(false)
@@ -64,44 +63,22 @@ export const MyDecksSection = () => {
   }
 
   useEffect(() => {
-    const validateSession = async () => {
-      setPageLoading(true)
+    if (pageLoading) return
 
-      if (!sessionCookie || !jwtToken) {
-        toast.warning('É preciso logar novamente')
-        return router.push('/login')
-      }
-
-      const response = await verifySession(sessionCookie)
-
-      if (!response.success) {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-
-      setPageLoading(false)
-    }
-
-    validateSession()
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    setDeckActive(null)
-  }, [setDeckActive])
-
-  useEffect(() => {
     function handleResize() {
       const width = window.innerWidth
 
       setMobile(width < 1100)
     }
 
+    setDeckActive(null)
+
     handleResize()
 
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [setDeckActive, pageLoading])
 
   const page = useMemo(() => searchParams.get('pag') || null, [searchParams])
   const searchBy = useMemo(
@@ -112,57 +89,62 @@ export const MyDecksSection = () => {
   useEffect(() => {
     if (!page) return
 
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+      return
+    }
+
     const fetchDecks = async () => {
       setDeckLoading(true)
 
-      if (jwtToken) {
-        // const page = searchParams.get('pag') || '1'
-        // const searchBy = searchParams.get('searchBy') || 'lastModifications'
+      // const page = searchParams.get('pag') || '1'
+      // const searchBy = searchParams.get('searchBy') || 'lastModifications'
 
-        const type = searchParams.get('type') || 'all'
-        const formattedSearchBy =
-          searchBy.charAt(0).toUpperCase() + searchBy.slice(1)
-        const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
-        const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
-        const situations = searchParams.getAll('situation') || []
+      const type = searchParams.get('type') || 'all'
+      const formattedSearchBy =
+        searchBy.charAt(0).toUpperCase() + searchBy.slice(1)
+      const flashcardsMin = parseInt(searchParams.get('flashcardsMin') || '0')
+      const flashcardsMax = parseInt(searchParams.get('flashcardsMax') || '0')
+      const situations = searchParams.getAll('situation') || []
 
-        setDecks([])
-        setAmountPages(0)
+      setDecks([])
+      setAmountPages(0)
 
-        const response = await getAllUserDecks(
-          Number(1),
-          type,
-          formattedSearchBy,
-          flashcardsMin,
-          flashcardsMax,
-          situations,
-          jwtToken,
-        )
+      const response = await getAllUserDecks(
+        Number(1),
+        type,
+        formattedSearchBy,
+        flashcardsMin,
+        flashcardsMax,
+        situations,
+        jwtToken,
+      )
 
-        if (response.success && response.decks) {
-          const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
+      if (response.success && response.decks) {
+        const mappedDecks = response.decks.map(mapReturnedDeckToDeckCardProps)
 
-          setDecks(mappedDecks)
-          setAmountPages(response.totalPages)
+        setDecks(mappedDecks)
+        setAmountPages(response.totalPages)
+      } else {
+        if (!response.success && response.error?.includes('Decks not found')) {
+          toast.warning('Nenhum deck encontrado. Verifique os filtros')
         } else {
-          if (
-            !response.success &&
-            response.error?.includes('Decks not found')
-          ) {
-            toast.warning('Nenhum deck encontrado. Verifique os filtros')
-          } else {
-            toast.error('Erro ao buscar decks')
-          }
+          toast.error('Erro ao buscar decks')
         }
-
-        setDeckLoading(false)
       }
+
+      setDeckLoading(false)
     }
 
     fetchDecks()
-  }, [jwtToken, page, searchBy, searchParams])
+  }, [jwtToken, page, searchBy, searchParams, pageLoading, router])
 
   useEffect(() => {
+    if (pageLoading) return
+
     const fetchQuantityFlashcards = async () => {
       if (jwtToken) {
         const response = await getQuantityFlashcards(jwtToken)
@@ -188,15 +170,17 @@ export const MyDecksSection = () => {
     }
 
     fetchQuantityFlashcards()
-  }, [jwtToken, setFilters])
+  }, [jwtToken, setFilters, pageLoading])
 
   useEffect(() => {
+    if (pageLoading) return
+
     if (amountPages > 0) {
       if (page && Number(page) > 0 && Number(page) <= amountPages) {
         setPageActive(Number(page))
       }
     }
-  }, [searchParams, amountPages, page])
+  }, [searchParams, amountPages, page, pageLoading])
 
   if (mobile === null || pageLoading) {
     return (

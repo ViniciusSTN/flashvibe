@@ -6,9 +6,13 @@ import { TextAreaDefault } from '@/components/TextAreaDefault'
 import { sendManyUserPhotosInFirebase } from '@/data/images'
 import { imageValidations } from '@/schemas/images'
 import { NewDiscussionData, NewDiscussionErrors } from '@/types/discussions'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { discussionSchema } from '@/schemas/discussion'
+import { useSessionValidation } from '@/hooks/sessionValidation'
+import { useRouter } from 'next/navigation'
+import { useCookies } from '@/hooks/cookies'
+import { SpinLoader } from '@/components/SpinLoader'
 import Image from 'next/image'
 
 const initialData: NewDiscussionData = {
@@ -29,6 +33,21 @@ export const NewDiscussionSection = () => {
   const [formData, setFormData] = useState<NewDiscussionData>(initialData)
   const [formErrors, setFormErrors] =
     useState<NewDiscussionErrors>(initialErrors)
+
+  const router = useRouter()
+
+  const jwtToken = useCookies('Authorization')
+
+  const { pageLoading } = useSessionValidation()
+
+  useEffect(() => {
+    if (pageLoading) return
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
+      router.push('/login')
+    }
+  }, [pageLoading, jwtToken, router])
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -129,6 +148,13 @@ export const NewDiscussionSection = () => {
       }
     }
   }
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <section className="mx-auto mb-24 mt-16 min-h-screen-header max-w-920px px-6 md:px-10">

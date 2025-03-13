@@ -19,7 +19,7 @@ import { toast } from 'react-toastify'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { FeedbackModal } from './FeedbackModal'
 import { useCookies } from '@/hooks/cookies'
-import { verifySession } from '@/data/pagesProtection'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 
 export const StudySection = () => {
   const router = useRouter()
@@ -37,35 +37,18 @@ export const StudySection = () => {
 
   const [searchingFlashcards, setSearchingFlashcards] = useState<boolean>(true)
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
 
+  const { pageLoading } = useSessionValidation()
+
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
-    }
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
+      return
     }
 
-    validateSection()
-  }, [router, sessionCookie])
-
-  useEffect(() => {
-    if (!deckId || !jwtToken) return
+    if (pageLoading) return
 
     const fetchCards = async () => {
       const response = await getCardsToStudy(Number(deckId), jwtToken)
@@ -104,6 +87,8 @@ export const StudySection = () => {
     setFlashcardActive,
     flashcardsToStudy,
     jwtToken,
+    pageLoading,
+    router,
   ])
 
   function handleNextClick() {
@@ -119,6 +104,13 @@ export const StudySection = () => {
       }
     }
   }
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return (
     <section className="mx-auto mb-24 mt-16 min-h-screen-header max-w-1440px px-6 md:px-10">

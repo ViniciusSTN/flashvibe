@@ -1,8 +1,9 @@
 'use client'
 
 import { EditFlashcardData } from '@/components/EditFlashcardData'
-import { verifySession } from '@/data/pagesProtection'
+import { SpinLoader } from '@/components/SpinLoader'
 import { useCookies } from '@/hooks/cookies'
+import { useSessionValidation } from '@/hooks/sessionValidation'
 import { newFlashcardDataAtom } from '@/states'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
@@ -17,37 +18,19 @@ export const AddFlashcardSection = () => {
   const params = useSearchParams()
   const deckId = params.get('deckId')
 
-  const sessionCookie = useCookies('session')
   const jwtToken = useCookies('Authorization')
+  const { pageLoading } = useSessionValidation()
 
   useEffect(() => {
-    if (!sessionCookie && !jwtToken) {
+    if (pageLoading) return
+
+    if (!deckId) router.push('/')
+
+    if (!jwtToken) {
+      toast.warning('É preciso logar novamente')
       router.push('/login')
+      return
     }
-  }, [sessionCookie, jwtToken, router])
-
-  useEffect(() => {
-    if (!deckId) {
-      router.push('/')
-    }
-  }, [deckId, router])
-
-  useEffect(() => {
-    const validateSection = async () => {
-      if (sessionCookie) {
-        const response = await verifySession(sessionCookie)
-
-        if (!response.success) {
-          toast.warning('É preciso logar novamente')
-          router.push('/login')
-        }
-      } else {
-        toast.warning('É preciso logar novamente')
-        router.push('/login')
-      }
-    }
-
-    validateSection()
 
     setFlashcardData({
       keyword: '',
@@ -57,7 +40,14 @@ export const AddFlashcardSection = () => {
       pronunciations: [],
       images: [],
     })
-  }, [router, sessionCookie, setFlashcardData])
+  }, [pageLoading, deckId, jwtToken, router, setFlashcardData])
+
+  if (pageLoading)
+    return (
+      <div className="relative flex min-h-screen-header items-center justify-center">
+        <SpinLoader />
+      </div>
+    )
 
   return <section>{deckId && <EditFlashcardData deckId={deckId} />}</section>
 }
